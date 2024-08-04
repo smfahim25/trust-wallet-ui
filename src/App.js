@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Web3 from "web3";
 import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import Home from "./Components/Home/Home";
+import GuestHome from "./Components/GuestHome/GuestHome";
+import Profile from "./Components/Profile/Profile";
+import Account from "./Components/Account/Account";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -62,27 +67,28 @@ function App() {
     }
   };
 
+  
+
   if (isTrustWallet) {
     return !isConnected ? (
-      <div className="trust-wallet-connect">
-        <h1>Connecting to Trust Wallet...</h1>
+      <div className="">
+        <GuestHome />
       </div>
     ) : (
-      <div className="trust-wallet-ui">
-        <h1>Welcome Trust Wallet User</h1>
-        <p>Account: {account}</p>
-        <p>ID: {networkIds}</p>
-        {/* Different UI for Trust Wallet Users */}
+      <div className="">
+        <div className="app">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/guest" element={<GuestHome />} />
+              <Route path="/editprofile" element={<Profile walletId={networkIds} />} />
+              <Route path="/account" element={<Account />} />
+            </Routes>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="standard-ui">
-      <h1>Welcome to My DApp</h1>
-      {/* Standard UI */}
-    </div>
-  );
+  return null; // Return null or a fallback UI if isTrustWallet is false
 }
 
 export default App;
