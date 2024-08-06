@@ -6,6 +6,9 @@ import Home from "./Components/Home/Home";
 import GuestHome from "./Components/GuestHome/GuestHome";
 import Profile from "./Components/Profile/Profile";
 import Account from "./Components/Account/Account";
+import Footer from "./Components/Footer/Footer";
+import Notification from "./Components/Notification/Notification";
+import Header from "./Components/Header/Header";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -82,6 +85,9 @@ function App() {
               <Route path="/guest" element={<GuestHome />} />
               <Route path="/editprofile" element={<Profile walletId={networkIds} />} />
               <Route path="/account" element={<Account />} />
+              <Route path="/footer" element={<Footer />} />
+              <Route path="/header" element={<Header />} />
+              <Route path="/notification" element={<Notification />} />
             </Routes>
         </div>
       </div>

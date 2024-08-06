@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CryptoMarket from '../CryptoMarket/CryptoMarket';
 import belIcon from '../../Assets/images/icon_bell.svg';
 import headerLogo from '../../Assets/images/header-logo.png';
@@ -7,6 +7,10 @@ import ForexMarket from '../ForexMarket/ForexMarket';
 import { Link } from 'react-router-dom';
 
 function Home() {
+  const [activeTab, setActiveTab] = useState('crypto');
+  const handleSwitch = (tab) => {
+    setActiveTab(tab);
+  };
   return (
     <div className="user-panel">
       <div className="top-wrapper">
@@ -62,19 +66,36 @@ function Home() {
           Precious Metal
           </div>
           </Link>
-          <div className="tab_item" data-tab_name="top-market">
+          <div className="tab_item"
+          onClick={() => handleSwitch('top')}
+           data-tab_name="top-market">
             Top
           </div>
         </div>
 
         
         <div id="crypto-market">
-          <CryptoMarket />
+        {activeTab === 'crypto' && (
+        <CryptoMarket />
+          
+      )}
+          
         </div>
 
         <div id="forex-market">
           {/* <ForexMarket/> */}
         </div>
+        <div id="metal-market">
+            
+        </div>
+        <div id="top-market">
+        {activeTab === 'top' && (
+       
+          <h2>I am top market</h2>
+        
+      )}
+      </div>
+        
       </div>
 
       <div id="news" className="news_container">
