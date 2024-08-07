@@ -1,49 +1,45 @@
-import React, { useState } from 'react';
-import CryptoMarket from '../CryptoMarket/CryptoMarket';
-import belIcon from '../../Assets/images/icon_bell.svg';
-import headerLogo from '../../Assets/images/header-logo.png';
-import menuIcon from '../../Assets/images/icon_menu.svg';
-import ForexMarket from '../ForexMarket/ForexMarket';
-import { Link } from 'react-router-dom';
-import SideNav from '../Header/SideNav/SideNav';
+import React, { useState } from "react";
+import CryptoMarket from "../CryptoMarket/CryptoMarket";
+import belIcon from "../../Assets/images/icon_bell.svg";
+import headerLogo from "../../Assets/images/header-logo.png";
+import menuIcon from "../../Assets/images/icon_menu.svg";
+import ForexMarket from "../ForexMarket/ForexMarket";
+import { Link } from "react-router-dom";
+import SideNav from "../Header/SideNav/SideNav";
 
 function Home() {
-  const [activeTab, setActiveTab] = useState('crypto');
+  const [activeTab, setActiveTab] = useState("crypto");
   const handleSwitch = (tab) => {
     setActiveTab(tab);
   };
   const [toggleMenu, setToggleMenu] = useState(false);
-  const handleToggleMenu =() =>{
-      setToggleMenu(!toggleMenu);
-  }
+  const handleToggleMenu = () => {
+    setToggleMenu(!toggleMenu);
+  };
   return (
     <div className="user-panel">
       <div className="top-wrapper">
         <div className="top_container">
-          <div className="header" style={{ background: 'none' }}>
+          <div className="header" style={{ background: "none" }}>
             <Link className="header-item" id="notify-icon" to="/notification">
               <img src={belIcon} alt="Notification Icon" />
             </Link>
             <div className="header-item" id="menu-icon">
-              <img onClick={()=>handleToggleMenu()} src={menuIcon} alt="Menu Icon" />
+              <img
+                onClick={() => handleToggleMenu()}
+                src={menuIcon}
+                alt="Menu Icon"
+              />
             </div>
           </div>
-          <h1 className="title">
-            {"TrustPro"}
-          </h1>
+          <h1 className="title">{"TrustPro"}</h1>
           <div className="an_title">
             <div className="info">
               <div className="desc">
-                <p>Your one-stop solution
-                for trading needs.</p>
-                
+                <p>Your one-stop solution for trading needs.</p>
               </div>
             </div>
-            <img
-              src={headerLogo}
-              className="shap"
-              alt="Header Logo"
-            />
+            <img src={headerLogo} className="shap" alt="Header Logo" />
           </div>
         </div>
         <div className="placeholder"></div>
@@ -55,53 +51,40 @@ function Home() {
           <span>Market</span>
         </div>
         <div className="market_tabs">
-        <Link to={""}>
-          <div className="tab_item active" data-tab_name="crypto-market">
-            Crypto Currency
-          </div>
+          <Link to={""} onClick={() => setActiveTab("crypto")}>
+            <div className="tab_item active" data-tab_name="crypto-market">
+              Crypto Currency
+            </div>
           </Link>
-          
+
           <Link to={""}>
-          <div className="tab_item" data-tab_name="forex-market">
-          Foreign Exchange
-          </div>
-          
+            <div className="tab_item" data-tab_name="forex-market">
+              Foreign Exchange
+            </div>
           </Link>
           <Link to={""}>
-          <div className="tab_item" data-tab_name="metal-market">
-          Precious Metal
-          </div>
+            <div className="tab_item" data-tab_name="metal-market">
+              Precious Metal
+            </div>
           </Link>
-          <div className="tab_item"
-          onClick={() => handleSwitch('top')}
-           data-tab_name="top-market">
+          <div
+            className="tab_item"
+            onClick={() => handleSwitch("top")}
+            data-tab_name="top-market"
+          >
             Top
           </div>
         </div>
 
-        
         <div id="crypto-market">
-        {activeTab === 'crypto' && (
-        <CryptoMarket />
-          
-      )}
-          
+          {activeTab === "crypto" && <CryptoMarket />}
         </div>
 
-        <div id="forex-market">
-          {/* <ForexMarket/> */}
-        </div>
-        <div id="metal-market">
-            
-        </div>
+        <div id="forex-market">{/* <ForexMarket/> */}</div>
+        <div id="metal-market"></div>
         <div id="top-market">
-        {activeTab === 'top' && (
-       
-          <h2>I am top market</h2>
-        
-      )}
-      </div>
-        
+          {activeTab === "top" && <h2>I am top market</h2>}
+        </div>
       </div>
 
       <div id="news" className="news_container">
