@@ -140,7 +140,7 @@ function Account() {
         {filteredWallets.length > 0 && (
           <div className="wallet_list">
             {filteredWallets.map((wallet) => (
-              <a href={`/`} key={wallet.id} className="wallet_item">
+              <a href={`/home`} key={wallet.id} className="wallet_item">
                 <div className="item_info">
                   {wallet.coin_logo ? (
                     <img

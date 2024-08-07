@@ -55,7 +55,7 @@ function CryptoMarket() {
   return (
     <div className="market_pro_list">
       {marketData.map((coin) => (
-        <a key={coin.id} className="pro_item" href={`/`}>
+        <a key={coin.id} className="pro_item" href={`/home`}>
           <div className="pro_base">
             <img
               src={`/assets/images/coins/${coin.symbol.toLowerCase()}-logo.png`}
