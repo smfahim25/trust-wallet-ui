@@ -5,12 +5,17 @@ import headerLogo from '../../Assets/images/header-logo.png';
 import menuIcon from '../../Assets/images/icon_menu.svg';
 import ForexMarket from '../ForexMarket/ForexMarket';
 import { Link } from 'react-router-dom';
+import SideNav from '../Header/SideNav/SideNav';
 
 function Home() {
   const [activeTab, setActiveTab] = useState('crypto');
   const handleSwitch = (tab) => {
     setActiveTab(tab);
   };
+  const [toggleMenu, setToggleMenu] = useState(false);
+  const handleToggleMenu =() =>{
+      setToggleMenu(!toggleMenu);
+  }
   return (
     <div className="user-panel">
       <div className="top-wrapper">
@@ -20,7 +25,7 @@ function Home() {
               <img src={belIcon} alt="Notification Icon" />
             </a>
             <div className="header-item" id="menu-icon">
-              <img src={menuIcon} alt="Menu Icon" />
+              <img onClick={()=>handleToggleMenu()} src={menuIcon} alt="Menu Icon" />
             </div>
           </div>
           <h1 className="title">
@@ -43,25 +48,26 @@ function Home() {
         </div>
         <div className="placeholder"></div>
       </div>
+      <SideNav toggleMenu={toggleMenu} setToggleMenu={setToggleMenu} />
 
       <div className="market_container">
         <div className="market_title">
           <span>Market</span>
         </div>
         <div className="market_tabs">
-        <Link to={"/account"}>
+        <Link to={""}>
           <div className="tab_item active" data-tab_name="crypto-market">
             Crypto Currency
           </div>
           </Link>
           
-          <Link to={"/editprofile"}>
+          <Link to={""}>
           <div className="tab_item" data-tab_name="forex-market">
           Foreign Exchange
           </div>
           
           </Link>
-          <Link to={"/guest"}>
+          <Link to={""}>
           <div className="tab_item" data-tab_name="metal-market">
           Precious Metal
           </div>

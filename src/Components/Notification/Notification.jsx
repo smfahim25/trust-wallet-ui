@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
+import Header from '../Header/Header';
 
-const mockUserWallet = true; // Simulate session presence
-const mockUserData = {
-  name: "John Doe",
-  walletId: "1234567890"
-};
+const mockUserWallet = true; 
 
 const Notification = () => {
   const [activeTab, setActiveTab] = useState('Notice');
@@ -16,11 +13,7 @@ const Notification = () => {
     <>
       {mockUserWallet && (
         <div className="transaction">
-          <div className="page-header">
-            <img src="/assets/images/icon_back.svg" alt="Back" className="back" />
-            <span className="title over-line-1">Notification</span>
-            <img id="menu-icon" src="/assets/images/icon_menu_b.svg" alt="Menu" className="menu_img" />
-          </div>
+          <Header pageTitle={"Notification"}/>
           <div className="switch_container">
             <div className="switch_content">
               <div

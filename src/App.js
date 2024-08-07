@@ -82,11 +82,8 @@ function App() {
         <div className="app">
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/guest" element={<GuestHome />} />
               <Route path="/editprofile" element={<Profile walletId={networkIds} />} />
               <Route path="/account" element={<Account />} />
-              <Route path="/footer" element={<Footer />} />
-              <Route path="/header" element={<Header />} />
               <Route path="/notification" element={<Notification />} />
             </Routes>
         </div>

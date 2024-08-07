@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import backBtn from '../../Assets/images/icon_back.svg';
-import menuBtn from '../../Assets/images/icon_menu_b.svg';
 import imgWallet from '../../Assets/images/img_wallet.png';
 import ethLogo from '../../Assets/images/coins/eth-logo.png';
 
 import usdtLogo from '../../Assets/images/coins/usdt.png';
 import btcLogo from '../../Assets/images/coins/btc-logo.png';
 import solLogo from '../../Assets/images/coins/sol-logo.png';
+import Header from '../Header/Header';
 
 // A utility function to fetch data
 async function fetchData(endpoint) {
@@ -97,10 +96,7 @@ const filteredWallets = [
   return (
     <div className="main">
       <div className="account">
-        <div className="page-header">
-          <img src={backBtn} alt="Back" className="back" />
-          <img id="menu-icon" src={menuBtn} alt="Menu" className="menu_img" />
-        </div>
+      <Header pageTitle={""}/>
         
         <div className="title_container">
           <div className="title_info">
