@@ -76,15 +76,13 @@ function App() {
   if (isTrustWallet) {
     return !isConnected ? (
       <div className="">
-        <Routes>
-          <Route path="/" element={<GuestHome />}></Route>
-        </Routes>
+        <GuestHome />
       </div>
     ) : (
       <div className="">
         <div className="app">
           <Routes>
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Home />} />
             <Route
               path="/editprofile"
               element={<Profile walletId={networkIds} />}
