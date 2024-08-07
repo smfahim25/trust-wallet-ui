@@ -75,7 +75,7 @@ const Withdraw = ({ openTransactionHistory }) => {
                             <button
                               onClick={() => openTransactionHistory(withdrawal)}
                             >
-                              View Details
+                            View
                             </button>
                           </td>
                         </tr>

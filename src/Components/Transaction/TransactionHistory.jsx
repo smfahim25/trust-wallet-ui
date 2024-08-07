@@ -1,5 +1,6 @@
 import React from 'react';
 import iconClose from '../../Assets/images/icon_close.svg';
+import coinLogo from '../../Assets/images/coins/btc-logo.png';
 
 const TransactionHistory = ({ details, onClose }) => {
   return (
@@ -22,7 +23,7 @@ const TransactionHistory = ({ details, onClose }) => {
             </div>
             <div className="history_info">
               <div className="history-coin-details">
-                <img src="" alt="Coin Logo" className="coin_logo" id="coin_logo" />
+                <img src={coinLogo} alt="Coin Logo" className="coin_logo" id="coin_logo" />
                 <span className="ff_NunitoSemiBold" id="coin_symbol">
                   {details && details.transactionHash}
                 </span>

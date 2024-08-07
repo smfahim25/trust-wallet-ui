@@ -75,7 +75,7 @@ const Deposit = ({ openTransactionHistory }) => {
                             <button
                               onClick={() => openTransactionHistory(deposit)}
                             >
-                              View Details
+                              View
                             </button>
                           </td>
                         </tr>
