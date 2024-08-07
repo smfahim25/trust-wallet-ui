@@ -38,6 +38,7 @@ function App() {
       }
     } else {
       console.log("No Ethereum provider detected.");
+      console.log(account);
     }
   }, []);
 
@@ -70,8 +71,6 @@ function App() {
       alert("Please install Trust Wallet or another Ethereum wallet.");
     }
   };
-
-  
 
   if (isTrustWallet) {
     return !isConnected ? (
