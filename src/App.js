@@ -9,6 +9,7 @@ import Account from "./Components/Account/Account";
 import Footer from "./Components/Footer/Footer";
 import Notification from "./Components/Notification/Notification";
 import Header from "./Components/Header/Header";
+import Transaction from "./Components/Transaction/Transaction";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -84,6 +85,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/editprofile" element={<Profile walletId={networkIds} />} />
               <Route path="/account" element={<Account />} />
+              <Route path="/transaction" element={<Transaction />} />
               <Route path="/notification" element={<Notification />} />
             </Routes>
         </div>
