@@ -2047,7 +2047,7 @@ table.dataTable{
 }
 
 #setting-menu-popup{
-  display: none;
+  /* display: none; */
 }
 
 .setting_popup {

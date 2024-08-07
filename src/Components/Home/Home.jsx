@@ -21,9 +21,9 @@ function Home() {
       <div className="top-wrapper">
         <div className="top_container">
           <div className="header" style={{ background: 'none' }}>
-            <a className="header-item" id="notify-icon" href="/notification">
+            <Link className="header-item" id="notify-icon" to="/notification">
               <img src={belIcon} alt="Notification Icon" />
-            </a>
+            </Link>
             <div className="header-item" id="menu-icon">
               <img onClick={()=>handleToggleMenu()} src={menuIcon} alt="Menu Icon" />
             </div>
