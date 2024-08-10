@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Chart from "../Chart/chart";
+import { Link } from "react-router-dom";
 // import imgPath from '../../Assets/images/coins';
 
 function CryptoMarket() {
@@ -55,7 +56,7 @@ function CryptoMarket() {
   return (
     <div className="market_pro_list">
       {marketData.map((coin) => (
-        <a key={coin.id} className="pro_item" href={`/`}>
+        <Link key={coin.id} className="pro_item" to={"/business"}>
           <div className="pro_base">
             <img
               src={`/assets/images/coins/${coin.symbol.toLowerCase()}-logo.png`}
@@ -108,7 +109,7 @@ function CryptoMarket() {
               <span className="period">24 Hrs</span>
             </div>
           </div>
-        </a>
+        </Link>
       ))}
     </div>
   );

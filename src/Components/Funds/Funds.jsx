@@ -104,16 +104,6 @@ const Funds = () => {
         </div>
       </div>
 
-      {/* <div className="switch_container">
-        <div className="switch_content">
-          <div className="switch_item active" id="switch_receive">
-            Deposit
-          </div>
-          <div className="switch_item" id="switch_send">
-            Withdraw
-          </div>
-        </div>
-      </div> */}
  {activeTab === 'deposit' ? (
     //   Deposit Section 
         <div id="recharge-receive">
@@ -257,7 +247,7 @@ const Funds = () => {
                 {post.wallet_qr.url ? (
                   <img
                     className="qr_code"
-                    src={post.wallet_qr.url}
+                    src="./assets/images/qr-code.png"
                     alt={post.wallet_qr.alt}
                   />
                 ) : (

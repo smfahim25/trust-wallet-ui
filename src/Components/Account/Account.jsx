@@ -6,6 +6,7 @@ import usdtLogo from "../../Assets/images/coins/usdt.png";
 import btcLogo from "../../Assets/images/coins/btc-logo.png";
 import solLogo from "../../Assets/images/coins/sol-logo.png";
 import Header from "../Header/Header";
+import { Link } from "react-router-dom";
 
 // A utility function to fetch data
 async function fetchData(endpoint) {
@@ -140,7 +141,7 @@ function Account() {
         {filteredWallets.length > 0 && (
           <div className="wallet_list">
             {filteredWallets.map((wallet) => (
-              <a href={`/`} key={wallet.id} className="wallet_item">
+              <Link to={"/funds"} key={wallet.id} className="wallet_item">
                 <div className="item_info">
                   {wallet.coin_logo ? (
                     <img
@@ -170,7 +171,9 @@ function Account() {
                     {wallet.coin_amount} {wallet.coin_symbol}
                   </div>
                 </div>
-              </a>
+              
+              </Link>
+              
             ))}
           </div>
         )}
