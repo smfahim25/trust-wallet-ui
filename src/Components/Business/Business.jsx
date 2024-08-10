@@ -57,7 +57,7 @@ const Business = ({ coin }) => {
       },
     },
   ];
-  
+
   // Mock implementation of wp_get_attachment_image_src
   const wp_get_attachment_image_src = (imageId, size) => {
     const mockImages = {
@@ -65,7 +65,7 @@ const Business = ({ coin }) => {
       2: "https://example.com/images/coin2.png",
       3: "https://example.com/images/coin3.png",
     };
-  
+
     return [mockImages[imageId] || "", "", ""];
   };
 
@@ -119,7 +119,7 @@ const Business = ({ coin }) => {
 
   return (
     <div className="business">
-      <Header/>
+      <Header />
 
       <div className="pro_info">
         <div className="info">
@@ -132,7 +132,10 @@ const Business = ({ coin }) => {
             <div>
               <div className="fs-16 ff_NunitoBold">{market.symbol} Coin</div>
               <div className="fc-5B616E ff_NunitoSemiBold">
-                {wallets.length > 0 ? get_post_meta(wallets[0].ID, "coin_symbol", true) : ""} Wallet
+                {wallets.length > 0
+                  ? get_post_meta(wallets[0].ID, "coin_symbol", true)
+                  : ""}{" "}
+                Wallet
               </div>
             </div>
           </div>
@@ -143,7 +146,10 @@ const Business = ({ coin }) => {
             <div
               className="change fs-15 ff_InterRegular"
               style={{
-                color: market.percent_change_24h < 0 ? "rgb(207, 32, 47)" : "rgb(19, 178, 111)",
+                color:
+                  market.percent_change_24h < 0
+                    ? "rgb(207, 32, 47)"
+                    : "rgb(19, 178, 111)",
               }}
             >
               {market.price_usd * (market.percent_change_24h / 100)} (
@@ -302,7 +308,7 @@ const Business = ({ coin }) => {
                       <span className="coin_amount">
                         {get_ssb_crypto_trade_landing_current_user_usdt_convert_coin(
                           get_post_meta(selectedWallet.ID, "coin_id", true),
-                          ','
+                          ","
                         )}
                       </span>{" "}
                       USDT
@@ -331,14 +337,18 @@ const Business = ({ coin }) => {
                     </div>
                     <div className="type_select_content fs-16 ff_NunitoSemiBold">
                       <div
-                        className={`type_item ${selectedTime === 'Buy' ? 'up active' : 'up'}`}
-                        onClick={() => setSelectedTime('Buy')}
+                        className={`type_item ${
+                          selectedTime === "Buy" ? "up active" : "up"
+                        }`}
+                        onClick={() => setSelectedTime("Buy")}
                       >
                         Buy
                       </div>
                       <div
-                        className={`type_item ${selectedTime === 'Sell' ? 'down active' : 'down'}`}
-                        onClick={() => setSelectedTime('Sell')}
+                        className={`type_item ${
+                          selectedTime === "Sell" ? "down active" : "down"
+                        }`}
+                        onClick={() => setSelectedTime("Sell")}
                       >
                         Sell
                       </div>
@@ -374,14 +384,18 @@ const Business = ({ coin }) => {
                           <>
                             <img
                               className="icon_time"
-                              src={selectedWallet.coin_logo || ''}
-                              alt={selectedWallet.coin_symbol || ''}
+                              src={selectedWallet.coin_logo || ""}
+                              alt={selectedWallet.coin_symbol || ""}
                             />
                             <input
                               type="hidden"
                               id="wallet_coin_id"
                               name="wallet_coin_id"
-                              value={get_post_meta(selectedWallet.ID, "coin_id", true)}
+                              value={get_post_meta(
+                                selectedWallet.ID,
+                                "coin_id",
+                                true
+                              )}
                             />
                             <span className="fc-131F30 ff_NunitoBold">
                               {selectedWallet.coin_symbol}
@@ -413,7 +427,7 @@ const Business = ({ coin }) => {
                     <span className="coin_amount">
                       {get_ssb_crypto_trade_landing_current_user_usdt_convert_coin(
                         get_post_meta(selectedWallet.ID, "coin_id", true),
-                        ','
+                        ","
                       )}
                     </span>{" "}
                     USDT
@@ -421,8 +435,8 @@ const Business = ({ coin }) => {
                 </div>
                 <div className="balance fs-26 ff_NunitoRegular">
                   <div className="balalce_value fc-353F52">
-                    Minimum:{" "}
-                    <span id="balance_limit">{selectedMiniUsdt}</span> USDT
+                    Minimum: <span id="balance_limit">{selectedMiniUsdt}</span>{" "}
+                    USDT
                   </div>
                   <div className="expect_value fc-1652F0">Estimation: 0.00</div>
                 </div>
@@ -430,7 +444,19 @@ const Business = ({ coin }) => {
                   <button
                     type="button"
                     className="submit fs-18 ff_NunitoBold"
-                    style={{ backgroundColor: "rgb(19, 178, 111)" }}
+                    style={
+                      selectedTime === "Buy"
+                        ? {
+                            backgroundColor: "rgb(19, 178, 111)",
+                            lineHeight: 0,
+                          }
+                        : selectedTime === "Sell"
+                        ? { backgroundColor: "#cf202f", lineHeight: 0 }
+                        : {
+                            backgroundColor: "rgb(19, 178, 111)",
+                            lineHeight: 0,
+                          }
+                    }
                   >
                     Trade
                   </button>
@@ -483,7 +509,10 @@ const Business = ({ coin }) => {
                     </div>
                     <div className="coin_list">
                       {wallets.map((wallet, index) => {
-                        const imageId = get_post_meta(wallet.ID, "coin_logo")[0];
+                        const imageId = get_post_meta(
+                          wallet.ID,
+                          "coin_logo"
+                        )[0];
                         const imageUrl = imageId
                           ? wp_get_attachment_image_src(imageId, "full")[0]
                           : "";
@@ -492,14 +521,26 @@ const Business = ({ coin }) => {
                           <div className="coin_item" key={index}>
                             <div
                               className="name"
-                              data-coin_id={get_post_meta(wallet.ID, "coin_id", true)}
+                              data-coin_id={get_post_meta(
+                                wallet.ID,
+                                "coin_id",
+                                true
+                              )}
                               data-coin_logo={imageUrl}
-                              data-coin_symbol={get_post_meta(wallet.ID, "coin_symbol", true)}
+                              data-coin_symbol={get_post_meta(
+                                wallet.ID,
+                                "coin_symbol",
+                                true
+                              )}
                               onClick={() => setSelectedWallet(wallet)}
                             >
                               <img
                                 src={imageUrl}
-                                alt={get_post_meta(wallet.ID, "coin_symbol", true)}
+                                alt={get_post_meta(
+                                  wallet.ID,
+                                  "coin_symbol",
+                                  true
+                                )}
                               />
                               {get_post_meta(wallet.ID, "coin_symbol", true)}
                             </div>
@@ -524,10 +565,10 @@ const get_ssb_crypto_trade_landing_crypto_market = (coin) => {
   return [
     {
       symbol: "BTC",
-      price_usd: 26000.00,
+      price_usd: 26000.0,
       percent_change_24h: 1.2,
-      volume24: 1200000.00,
-      market_cap_usd: 500000000.00,
+      volume24: 1200000.0,
+      market_cap_usd: 500000000.0,
     },
   ];
 };
@@ -540,7 +581,7 @@ const get_posts = (args) => {
       post_type: "ssb-crypto-wallet",
       coin_id: "1",
       coin_symbol: "BTC",
-      coin_logo: "path/to/logo.png",
+      coin_logo: "/assets/images/coins/btc-logo.png",
     },
   ];
 };
@@ -555,7 +596,10 @@ const get_ssb_crypto_trade_landing_user_wallet_balance = (userId, coinId) => {
   return { coin_amount: "0.1234" };
 };
 
-const get_ssb_crypto_trade_landing_current_user_usdt_convert_coin = (coinId, format = "") => {
+const get_ssb_crypto_trade_landing_current_user_usdt_convert_coin = (
+  coinId,
+  format = ""
+) => {
   // Mock data; replace with actual API call
   return "10,000.00";
 };
@@ -565,7 +609,7 @@ const get_post_meta = (postId, metaKey, single) => {
   return {
     coin_id: "1",
     coin_symbol: "BTC",
-    coin_logo: "path/to/logo.png",
+    coin_logo: "/assets/images/coins/btc-logo.png",
   }[metaKey];
 };
 
