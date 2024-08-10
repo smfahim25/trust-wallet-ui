@@ -1756,7 +1756,7 @@ table.dataTable {
   margin-top: 11.73333vw;
   width: 59.46667vw;
   height: 11.73333vw;
-  line-height: 11.73333vw;
+  /* line-height: 11.73333vw; */
   text-align: center;
   color: #fff;
   background: #1652f0;
@@ -1773,7 +1773,7 @@ table.dataTable {
 }
 
 #recharge-send {
-  display: none;
+  /* display: none; */
 }
 
 .ssb-popup {
@@ -1801,7 +1801,7 @@ table.dataTable {
 }
 
 #recharge-form {
-  display: none;
+  /* display: none; */
 }
 
 .recharge-modal .modal-title {

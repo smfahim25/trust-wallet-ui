@@ -11,6 +11,8 @@ import Notification from "./Components/Notification/Notification";
 import Header from "./Components/Header/Header";
 import Transaction from "./Components/Transaction/Transaction";
 import ProfitStatistics from "./Components/ProfitStatistics/ProfitStatistics";
+import Funds from "./Components/Funds/Funds";
+import Business from "./Components/Business/Business";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -88,6 +90,8 @@ function App() {
               <Route path="/transaction" element={<Transaction />} />
               <Route path="/profit-stat" element={<ProfitStatistics />} />
               <Route path="/notification" element={<Notification />} />
+              <Route path="/funds" element={<Funds />} />
+              <Route path="/business" element={<Business />} />
             </Routes>
         </div>
       </div>
