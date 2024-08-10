@@ -7,12 +7,7 @@ const appName = "TrustPro";
 const userUid = "12345-67890";
 const creditScore = 600;
 const smartContractLink = "#";
-const knowledgeMenuItems = [
-    { name: "Knowledge Item 1", link: "#" },
-    { name: "Knowledge Item 2", link: "#" },
-    { name: "Knowledge Item 3", link: "#" },
-];
-const user = { isReferral: true };
+const user = { isReferral: false };
 
 const SideNav = (props) => {
 
@@ -108,11 +103,10 @@ const SideNav = (props) => {
                                                 <div className="menu-collapse-item__wrapper">
                                                     <div className="menu-collapse-item__content">
                                                         <div className="content">
-                                                            {knowledgeMenuItems.map((item, index) => (
-                                                                <Link key={index} className="know-item" to={item.link}>
-                                                                    {item.name}
-                                                                </Link>
-                                                            ))}
+                                                        <ul id="menu-menu-1" className="know-item">
+                                                            <li id="menu-item-17" className="menu-item menu-item-type-custom menu-item-object-custom menu-item-17"><Link to="">Trading</Link></li>
+                                                        <li id="menu-item-18" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-18"><Link to="/contact-us">Contact us</Link></li>
+                                                        </ul>
                                                         </div>
                                                     </div>
                                                 </div>

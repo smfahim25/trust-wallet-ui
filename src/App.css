@@ -2994,7 +2994,8 @@ table.dataTable {
 .setting_popup .set_content {
   margin-top: 6.13333vw;
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
+  overflow-y: auto;
 }
 
 .setting_popup .set_content .list-item {
@@ -3012,6 +3013,10 @@ table.dataTable {
 .setting_popup .set_content .list-item .chat-image img {
   width: 9.6vw;
   height: 9.6vw;
+}
+
+.setting_popup .set_item {
+ margin-right: 4px;
 }
 
 #chat_popup {

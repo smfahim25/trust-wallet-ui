@@ -13,6 +13,9 @@ import Transaction from "./Components/Transaction/Transaction";
 import ProfitStatistics from "./Components/ProfitStatistics/ProfitStatistics";
 import Funds from "./Components/Funds/Funds";
 import Business from "./Components/Business/Business";
+import ReferralList from "./Components/Refferal/ReferralList";
+import ReferralBonusHistory from "./Components/Refferal/ReferralBonusHistory";
+import Contact from "./Components/Contact/Contact";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -85,13 +88,16 @@ function App() {
         <div className="app">
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/editprofile" element={<Profile walletId={networkIds} />} />
+              <Route path="/profile" element={<Profile walletId={networkIds} />} />
               <Route path="/account" element={<Account />} />
               <Route path="/transaction" element={<Transaction />} />
               <Route path="/profit-stat" element={<ProfitStatistics />} />
               <Route path="/notification" element={<Notification />} />
               <Route path="/funds" element={<Funds />} />
               <Route path="/business" element={<Business />} />
+              <Route path="/referral-list" element={<ReferralList />} />
+              <Route path="/referral-history" element={<ReferralBonusHistory />} />
+              <Route path="/contact-us" element={<Contact />} />
             </Routes>
         </div>
       )}
