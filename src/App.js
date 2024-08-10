@@ -75,13 +75,13 @@ function App() {
     }
   };
 
-  if (isTrustWallet) {
-    return !isConnected ? (
-      <div className="">
-        <GuestHome />
-      </div>
-    ) : (
-      <div className="">
+  return !isConnected ? (
+    <div className="">
+      <GuestHome />
+    </div>
+  ) : (
+    <div className="">
+      {isTrustWallet && (
         <div className="app">
             <Routes>
               <Route path="/" element={<Home />} />
@@ -94,11 +94,9 @@ function App() {
               <Route path="/business" element={<Business />} />
             </Routes>
         </div>
-      </div>
-    );
-  }
-
-  return null; // Return null or a fallback UI if isTrustWallet is false
+      )}
+    </div>
+  );
 }
 
 export default App;

@@ -11,12 +11,12 @@ const ProfitStatistics = () => {
 
   // Mock data
   const user = {
-    balance: 1200.50,
+    balance: 1200.5,
     id: 1,
   };
 
   const totalOrder = 15;
-  const totalAmount = 5000.00;
+  const totalAmount = 5000.0;
 
   const runningOrders = [
     {
@@ -25,12 +25,12 @@ const ProfitStatistics = () => {
       trade_coin_id: "BTC",
       coin_symbol: "USDT",
       created_at: "2024-08-07 14:00:00",
-      amount: 1500.00,
+      amount: 1500.0,
       delivery_time: 3600,
-      purchase_price: 45000.00,
-      profit_amount: 100.00,
+      purchase_price: 45000.0,
+      profit_amount: 100.0,
       is_profit: true,
-      delivery_price: 45100.00,
+      delivery_price: 45100.0,
       order_position: "Buy",
       coin_name: "Bitcoin",
       coin_logo: "bitcoin-logo.png",
@@ -45,12 +45,12 @@ const ProfitStatistics = () => {
       trade_coin_id: "ETH",
       coin_symbol: "USDT",
       created_at: "2024-08-06 10:00:00",
-      amount: 1000.00,
+      amount: 1000.0,
       delivery_time: 7200,
-      purchase_price: 3000.00,
-      profit_amount: 50.00,
+      purchase_price: 3000.0,
+      profit_amount: 50.0,
       is_profit: false,
-      delivery_price: 2950.00,
+      delivery_price: 2950.0,
       order_position: "Sell",
       coin_name: "Ethereum",
       coin_logo: "ethereum-logo.png",
@@ -74,12 +74,15 @@ const ProfitStatistics = () => {
   const getFormattedDeliveryTime = (createdAt, deliveryTimeInSeconds) => {
     const date = new Date(createdAt);
     date.setSeconds(date.getSeconds() + deliveryTimeInSeconds);
-    return date.toISOString().split('T').join(' ').slice(0, 19); // Format as 'YYYY-MM-DD HH:mm:ss'
+    return date.toISOString().split("T").join(" ").slice(0, 19); // Format as 'YYYY-MM-DD HH:mm:ss'
   };
 
   return (
-    <div className="profit">
-         <Header pageTitle = "Profit Statistics"/>
+    <div
+      className="profit"
+      style={{ backgroundColor: "white", height: "100vh" }}
+    >
+      <Header pageTitle="Profit Statistics" />
 
       <div className="content ff_NunitoSemiBold">
         <div className="board tc">
@@ -121,7 +124,9 @@ const ProfitStatistics = () => {
             Active Order
           </div>
           <div
-            className={`switch_item ${activeTab === "finished" ? "active" : ""}`}
+            className={`switch_item ${
+              activeTab === "finished" ? "active" : ""
+            }`}
             onClick={() => switchTab("finished")}
           >
             Finished Order
