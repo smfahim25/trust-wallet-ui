@@ -6,6 +6,8 @@ import menuIcon from "../../Assets/images/icon_menu.svg";
 import ForexMarket from "../ForexMarket/ForexMarket";
 import { Link } from "react-router-dom";
 import SideNav from "../Header/SideNav/SideNav";
+import MetalMarket from "../MetalMarket/MetalMarket";
+import TopMarket from "../TopMarket/TopMarket";
 
 function Home() {
   const [activeTab, setActiveTab] = useState("crypto");
@@ -52,24 +54,24 @@ function Home() {
         </div>
         <div className="market_tabs">
           <Link to={""} onClick={() => setActiveTab("crypto")}>
-            <div className="tab_item active" data-tab_name="crypto-market">
+            <div className={`tab_item ${activeTab === 'crypto' ? 'active' : ''}`} data-tab_name="crypto-market">
               Crypto Currency
             </div>
           </Link>
 
-          <Link to={""}>
-            <div className="tab_item" data-tab_name="forex-market">
+          <Link to={""} onClick={() => setActiveTab("forex")}>
+            <div className={`tab_item ${activeTab === 'forex' ? 'active' : ''}`} data-tab_name="forex-market">
               Foreign Exchange
             </div>
           </Link>
-          <Link to={""}>
-            <div className="tab_item" data-tab_name="metal-market">
+          <Link to={""} onClick={() => setActiveTab("metal")}>
+            <div className={`tab_item ${activeTab === 'metal' ? 'active' : ''}`} data-tab_name="metal-market">
               Precious Metal
             </div>
           </Link>
           <div
-            className="tab_item"
-            onClick={() => handleSwitch("top")}
+            className={`tab_item ${activeTab === 'top' ? 'active' : ''}`}
+            onClick={() => setActiveTab("top")}
             data-tab_name="top-market"
           >
             Top
@@ -80,10 +82,10 @@ function Home() {
           {activeTab === "crypto" && <CryptoMarket />}
         </div>
 
-        <div id="forex-market">{/* <ForexMarket/> */}</div>
-        <div id="metal-market"></div>
+        <div id="forex-market">{activeTab === "forex" && <ForexMarket />}</div>
+        <div id="metal-market">{activeTab === "metal" && <MetalMarket />}</div>
         <div id="top-market">
-          {activeTab === "top" && <h2>I am top market</h2>}
+          {activeTab === "top" && <TopMarket/>}
         </div>
       </div>
 

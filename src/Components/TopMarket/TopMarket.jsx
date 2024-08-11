@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import API_BASE_URL from "../../api/getApiURL";
 import Spinner from "../Spinner/Spinner";
+import numberFormat from "../utils/numberFormat";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -43,8 +44,8 @@ const getImagePath = (symbol) => {
   }
 };
 
-// ForexMarket Component
-const ForexMarket = () => {
+// TopMarket Component
+const TopMarket = () => {
   const [forexMarkets, setForexMarkets] = useState([]);
   const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -91,7 +92,7 @@ const ForexMarket = () => {
         const imagePath = getImagePath(symbol);
         const marketPrice = meta.regularMarketPrice;
         const previousClose = meta.previousClose;
-        const priceChange = (marketPrice - previousClose).toFixed(5);
+        const priceChange = (marketPrice - previousClose);
 
         // Prepare data for the chart
         const chartData = {
@@ -175,7 +176,7 @@ const ForexMarket = () => {
             </div>
             <div className="pro_detail">
               <div className="pro_price fs-15 fc-353F52">
-                US$ {marketPrice.toFixed(3)}
+                US$ {marketPrice}
               </div>
               <div className="pro_change">
                 <span
@@ -185,7 +186,7 @@ const ForexMarket = () => {
                       priceChange < 0 ? "rgb(207, 32, 47)" : "rgb(19, 178, 111)",
                   }}
                 >
-                  {priceChange}
+                  {numberFormat(priceChange,5)}
                 </span>
                 <span className="period">24 Hrs</span>
               </div>
@@ -198,4 +199,4 @@ const ForexMarket = () => {
   );
 };
 
-export default ForexMarket;
+export default TopMarket;

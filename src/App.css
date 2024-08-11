@@ -2850,7 +2850,7 @@ table.dataTable {
 #forex-market,
 #metal-market,
 #top-market {
-  display: none;
+  /* display: none; */
 }
 
 #profit-finished_order {

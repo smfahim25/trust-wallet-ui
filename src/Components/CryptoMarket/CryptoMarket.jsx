@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Chart from "../Chart/chart";
 import { Link } from "react-router-dom";
+import Spinner from "../Spinner/Spinner";
 // import imgPath from '../../Assets/images/coins';
 
 function CryptoMarket() {
   const [marketData, setMarketData] = useState([]);
+  const [loading, setLoading] = useState(false);
   //   const [activeWallet, setActiveWallet] = useState(null);
   useEffect(() => {
+    setLoading(true);
     async function fetchMarketData() {
       try {
         const response = await fetch(
@@ -15,6 +18,7 @@ function CryptoMarket() {
         const data = await response.json();
         setMarketData(data);
         console.log(data);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching market data:", error);
       }
@@ -25,7 +29,7 @@ function CryptoMarket() {
 
   const activeWallet = {
     id: 1,
-    coin_symbol: "BTC",
+    coin_symbol: "ETH",
     coin_name: "Bitcoin",
     balance: 0.05,
     usd_balance: 1467.5, // This can be calculated based on the current price of the coin
@@ -54,7 +58,11 @@ function CryptoMarket() {
   };
 
   return (
-    <div className="market_pro_list">
+    loading? (
+    <> 
+    <Spinner/> 
+    </> ): (<>
+      <div className="market_pro_list">
       {marketData.map((coin) => (
         <Link key={coin.id} className="pro_item" to={"/business"}>
           <div className="pro_base">
@@ -112,6 +120,8 @@ function CryptoMarket() {
         </Link>
       ))}
     </div>
+       </> 
+    )
   );
 }
 
