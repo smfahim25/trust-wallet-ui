@@ -80,7 +80,7 @@ function CryptoMarket() {
                   {coin.symbol} Coin
                 </div>
                 <div className="pro_subtitle fc-5F6775">
-                  {activeWallet ? activeWallet.coin_symbol : ""} Wallet
+                  {coin.symbol} Wallet
                 </div>
               </div>
             </div>
