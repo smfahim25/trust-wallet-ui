@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header/Header";
+import { Link } from "react-router-dom";
 
 const Business = ({ coin }) => {
   const [market, setMarket] = useState(null);
@@ -158,9 +159,9 @@ const Business = ({ coin }) => {
           </div>
         </div>
         <div className="action">
-          <a href="/profit-stat">
+          <Link to="/profit-stat">
             <img src="/assets/images/icon_record.svg" alt="Profit Stats" />
-          </a>
+          </Link>
         </div>
       </div>
 

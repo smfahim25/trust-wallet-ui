@@ -17,7 +17,6 @@ function CryptoMarket() {
         );
         const data = await response.json();
         setMarketData(data);
-        console.log(data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching market data:", error);
@@ -64,7 +63,7 @@ function CryptoMarket() {
     </> ): (<>
       <div className="market_pro_list">
       {marketData.map((coin) => (
-        <Link key={coin.id} className="pro_item" to={"/business"}>
+        <Link key={coin.id} className="pro_item" to={`/business?coin=${coin.id}&type=crypto`}>
           <div className="pro_base">
             <img
               src={`/assets/images/coins/${coin.symbol.toLowerCase()}-logo.png`}

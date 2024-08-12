@@ -21,7 +21,6 @@ const MetalMarket = () => {
           );
           const data = await response.json();
           setMarketData(data);
-          console.log(data);
           setLoading(false);
         } catch (error) {
           console.error("Error fetching market data:", error);
@@ -68,7 +67,7 @@ const MetalMarket = () => {
       </> ): (<>
         <div className="market_pro_list">
         {marketData.map((coin) => (
-          <Link key={coin.symbol} className="pro_item" to={"/business"}>
+          <Link key={coin.symbol} className="pro_item" to={`/business?coin=${coin?.symbol.split('=')[0].trim()}&type=metal`}>
             <div className="pro_base">
               <img
                 src={`/assets/images/coins/${coin?.symbol.split('=')[0].trim().toLowerCase()}-logo.png`}

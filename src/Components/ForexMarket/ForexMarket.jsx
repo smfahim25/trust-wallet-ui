@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import API_BASE_URL from "../../api/getApiURL";
 import Spinner from "../Spinner/Spinner";
+import { Link } from "react-router-dom";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -58,7 +59,6 @@ const ForexMarket = () => {
       );
       const data = await response.json();
       if (data) {
-        console.log(data);
         setForexMarkets(data);
         setLoading(false);
       }
@@ -138,10 +138,10 @@ const ForexMarket = () => {
         };
 
         return (
-          <a
+          <Link
             key={index}
             className="pro_item"
-            href={`/business?coin=${symbol}&type=forex`}
+            to={`/business?coin=${symbol}&type=forex`}
           >
             <div className="pro_base">
               <img
@@ -190,7 +190,7 @@ const ForexMarket = () => {
                 <span className="period">24 Hrs</span>
               </div>
             </div>
-          </a>
+          </Link>
         );
       })}
     </div>
