@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import fetchMarketData from "../utils/getMarketData";
 import numberFormat from "../utils/numberFormat";
 import BusinessChart from "../Chart/BusinessChart";
+import getMetalCoinName from "../utils/getMetalCoinName";
 
 const Business = () => {
   // Using react-router hooks to get the URL search params
@@ -94,7 +95,11 @@ const Business = () => {
         const marketData = await fetchMarketData(coin, type);
 
         if (marketData && walletsData.length > 0) {
-          setMarket(marketData[0]);
+          if (type === "crypto") {
+            setMarket(marketData[0]);
+          } else {
+            setMarket(marketData[0]?.meta);
+          }
           setWallets(walletsData);
 
           const currentUser = get_ssb_crypto_trade_landing_wallet_user(
@@ -140,37 +145,81 @@ const Business = () => {
       <div className="pro_info">
         <div className="info">
           <div className="base_info">
-            <img
-              src={`/assets/images/coins/${market.symbol.toLowerCase()}-logo.png`}
-              className="icon"
-              alt={`${market.symbol} logo`}
-            />
+            {type === "crypto" ? (
+              <img
+                src={`/assets/images/coins/${market.symbol.toLowerCase()}-logo.png`}
+                className="icon"
+                alt={`${market.symbol} logo`}
+              />
+            ) : type === "metal" ? (
+              <img
+                src={`/assets/images/coins/${market.symbol
+                  .split("=")[0]
+                  .trim()
+                  .toLowerCase()}-logo.png`}
+                className="icon"
+                alt={`${market.symbol} logo`}
+              />
+            ) : (
+              <img
+                src={`/assets/images/coins/${market.symbol
+                  .split("=")[0]
+                  .trim()
+                  .toLowerCase()}-logo.png`}
+                className="icon"
+                alt={`${market.symbol} logo`}
+              />
+            )}
             <div>
-              <div className="fs-16 ff_NunitoBold">{market.symbol} Coin</div>
+              <div className="fs-16 ff_NunitoBold">
+                {type === "crypto"
+                  ? market.symbol
+                  : type === "metal"
+                  ? getMetalCoinName(market?.symbol.split("=")[0].trim())
+                  : market?.shortName}
+              </div>
               <div className="fc-5B616E ff_NunitoSemiBold">
                 {wallets.length > 0
                   ? get_post_meta(wallets[0].ID, "coin_symbol", true)
-                  : ""}{" "}
+                  : ""}
                 Wallet
               </div>
             </div>
           </div>
           <div className="value_info">
             <div className="fs-22 ff_InterSemiBold">
-              US$ {numberFormat(market?.price_usd, 2)}
+              US${" "}
+              {type === "crypto"
+                ? numberFormat(market?.price_usd, 2)
+                : numberFormat(market?.regularMarketPrice, 2)}
             </div>
-            <div
-              className="change fs-15 ff_InterRegular"
-              style={{
-                color:
-                  market.percent_change_24h < 0
-                    ? "rgb(207, 32, 47)"
-                    : "rgb(19, 178, 111)",
-              }}
-            >
-              {market.price_usd * (market.percent_change_24h / 100)} (
-              {market.percent_change_24h}%)
-            </div>
+            {type === "crypto" && (
+              <div
+                className="change fs-15 ff_InterRegular"
+                style={{
+                  color:
+                    market.percent_change_24h < 0
+                      ? "rgb(207, 32, 47)"
+                      : "rgb(19, 178, 111)",
+                }}
+              >
+                {market.price_usd * (market.percent_change_24h / 100)} (
+                {market.percent_change_24h}%)
+              </div>
+            )}
+            {type !== "crypto" && (
+              <div
+                className="change fs-15 ff_InterRegular"
+                style={{
+                  color:
+                    market.regularMarketPrice - market.previousClose < 0
+                      ? "rgb(207, 32, 47)"
+                      : "rgb(19, 178, 111)",
+                }}
+              >
+                {(market.regularMarketPrice - market.previousClose).toFixed(5)}
+              </div>
+            )}
           </div>
         </div>
         <div className="action">
@@ -196,39 +245,41 @@ const Business = () => {
         </div>
       </div>
 
-      <div className="pro_other">
-        <div className="other_title fs-20 fc-353F52 ff_NunitoBold">
-          Functions
-        </div>
-        <div className="other_list">
-          <div className="other_item ff_NunitoSemiBold">
-            <div className="item_info">
-              <img
-                src="/assets/images/icon_volume.svg"
-                className="item_icon"
-                alt="24h volume"
-              />
-              <span className="fs-16 fc-353F52">24h volume</span>
+      {type === "crypto" && (
+        <div className="pro_other">
+          <div className="other_title fs-20 fc-353F52 ff_NunitoBold">
+            Functions
+          </div>
+          <div className="other_list">
+            <div className="other_item ff_NunitoSemiBold">
+              <div className="item_info">
+                <img
+                  src="/assets/images/icon_volume.svg"
+                  className="item_icon"
+                  alt="24h volume"
+                />
+                <span className="fs-16 fc-353F52">24h volume</span>
+              </div>
+              <div className="item_value fs-16 fc-5B616E">
+                {market.volume24.toLocaleString()}
+              </div>
             </div>
-            <div className="item_value fs-16 fc-5B616E">
-              {market.volume24.toLocaleString()}
+            <div className="other_item ff_NunitoSemiBold">
+              <div className="item_info">
+                <img
+                  src="/assets/images/icon_market_cap.svg"
+                  className="item_icon"
+                  alt="Market Cap"
+                />
+                <span className="fs-16 fc-353F52">Market Cap</span>
+              </div>
+              <div className="item_value fs-16 fc-5B616E">
+                US$ {numberFormat(market?.market_cap_usd, 2)}
+              </div>
             </div>
           </div>
-          <div className="other_item ff_NunitoSemiBold">
-            <div className="item_info">
-              <img
-                src="/assets/images/icon_market_cap.svg"
-                className="item_icon"
-                alt="Market Cap"
-              />
-              <span className="fs-16 fc-353F52">Market Cap</span>
-            </div>
-            <div className="item_value fs-16 fc-5B616E">
-              US$ {numberFormat(market?.market_cap_usd, 2)}
-            </div>
-          </div>
         </div>
-      </div>
+      )}
 
       <div className="submit_container">
         <button
