@@ -3,15 +3,12 @@ import Chart from "../Chart/chart";
 import { Link } from "react-router-dom";
 import Spinner from "../Spinner/Spinner";
 import API_BASE_URL from "../../api/getApiURL";
-import useMetalCoinName from "../../hooks/useMetalCoinName";
 import getMetalCoinName from "../utils/getMetalCoinName";
 import numberFormat from "../utils/numberFormat";
-// import imgPath from '../../Assets/images/coins';
 
 const MetalMarket = () => {
     const [marketData, setMarketData] = useState([]);
     const [loading, setLoading] = useState(false);
-    //   const [activeWallet, setActiveWallet] = useState(null);
     useEffect(() => {
       setLoading(true);
       async function fetchMarketData() {

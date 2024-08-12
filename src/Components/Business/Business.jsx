@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header/Header";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import fetchMarketData from "../utils/getMarketData";
+import numberFormat from "../utils/numberFormat";
 
-const Business = ({ coin }) => {
+const Business = () => {
+    // Using react-router hooks to get the URL search params
+    const [searchParams] = useSearchParams();
+    const coin = searchParams.get('coin');
+    const type = searchParams.get('type');
+
   const [market, setMarket] = useState(null);
   const [wallets, setWallets] = useState([]);
   const [user, setUser] = useState(null);
@@ -71,8 +78,7 @@ const Business = ({ coin }) => {
   };
 
   useEffect(() => {
-    // Replace these functions with actual API calls
-    const marketData = get_ssb_crypto_trade_landing_crypto_market(coin);
+
     const walletsData = get_posts({
       posts_per_page: -1,
       post_type: "ssb-crypto-wallet",
@@ -82,30 +88,43 @@ const Business = ({ coin }) => {
       order: "ASC",
     });
 
-    if (marketData && walletsData.length > 0) {
-      setMarket(marketData[0]);
-      setWallets(walletsData);
+    const loadData = async () => {
+      if (coin && type) {
+      const marketData = await fetchMarketData(coin, type);
 
-      const currentUser = get_ssb_crypto_trade_landing_wallet_user(
-        sessionStorage.getItem("user_wallet")
-      );
-      setUser(currentUser);
-
-      const balance = get_ssb_crypto_trade_landing_user_wallet_balance(
-        currentUser.id,
-        get_post_meta(walletsData[0].ID, "coin_id", true)
-      );
-      setUserBalance(balance ? balance.coin_amount : "0.0000");
-
-      // Repeater items for initial popup values
-      const repeaterItems = get_option("ssb_crypto_trade_timer_profit");
-      if (repeaterItems) {
-        setSelectedTime(repeaterItems[0].timer_profit.timer);
-        setSelectedProfit(repeaterItems[0].timer_profit.profit);
-        setSelectedMiniUsdt(repeaterItems[0].timer_profit.mini_usdt);
+      if (marketData && walletsData.length > 0) {
+        console.log("Getting market data",marketData[0]);
+        setMarket(marketData[0]);
+        setWallets(walletsData);
+  
+        const currentUser = get_ssb_crypto_trade_landing_wallet_user(
+          sessionStorage.getItem("user_wallet")
+        );
+        setUser(currentUser);
+  
+        const balance = get_ssb_crypto_trade_landing_user_wallet_balance(
+          currentUser.id,
+          get_post_meta(walletsData[0].ID, "coin_id", true)
+        );
+        setUserBalance(balance ? balance.coin_amount : "0.0000");
+  
+        // Repeater items for initial popup values
+        const repeaterItems = get_option("ssb_crypto_trade_timer_profit");
+        if (repeaterItems) {
+          setSelectedTime(repeaterItems[0].timer_profit.timer);
+          setSelectedProfit(repeaterItems[0].timer_profit.profit);
+          setSelectedMiniUsdt(repeaterItems[0].timer_profit.mini_usdt);
+        }
+        setSelectedWallet(walletsData[0]);
       }
-      setSelectedWallet(walletsData[0]);
-    }
+      }
+    };
+
+    loadData();
+
+ 
+
+    
   }, [coin]);
 
   const handleTradeClick = () => {
@@ -142,7 +161,7 @@ const Business = ({ coin }) => {
           </div>
           <div className="value_info">
             <div className="fs-22 ff_InterSemiBold">
-              US$ {market.price_usd.toFixed(2)}
+              US$ {numberFormat(market?.price_usd,2)}
             </div>
             <div
               className="change fs-15 ff_InterRegular"
@@ -168,6 +187,7 @@ const Business = ({ coin }) => {
       <div className="pro_trend">
         <div className="k_container">
           <div id="k_trend" className="k_line">
+            {/* implement chart here  */}
             <canvas
               className="cryptoChart"
               data-coin={market.symbol.toLowerCase()}
@@ -221,7 +241,7 @@ const Business = ({ coin }) => {
               <span className="fs-16 fc-353F52">Market Cap</span>
             </div>
             <div className="item_value fs-16 fc-5B616E">
-              US$ {market.market_cap_usd.toFixed(2)}
+              US$ {numberFormat(market?.market_cap_usd,2) }
             </div>
           </div>
         </div>
