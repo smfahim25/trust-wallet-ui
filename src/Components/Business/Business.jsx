@@ -20,6 +20,7 @@ const Business = () => {
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [selectedTime, setSelectedTime] = useState("");
+  const [selectedType, setSelectedType] = useState("Buy");
   const [selectedProfit, setSelectedProfit] = useState("");
   const [selectedMiniUsdt, setSelectedMiniUsdt] = useState("");
   const [selectedWallet, setSelectedWallet] = useState(null);
@@ -135,10 +136,25 @@ const Business = () => {
     setTimePopupVisible(!timePopupVisible);
   };
 
+  const handleSelectTimer = (item) => {
+    setSelectedTime(item.timer_profit.timer);
+    setSelectedProfit(item.timer_profit.profit);
+    setSelectedMiniUsdt(item.timer_profit.mini_usdt);
+    handlePopupTime();
+  };
+
+  
+
   const handlePopupCoin = () => {
     setCoinPopupVisible(!coinPopupVisible);
   };
 
+  const handleSelectCoin = (item) => {
+    setSelectedTime(item.timer_profit.timer);
+    setSelectedProfit(item.timer_profit.profit);
+    setSelectedMiniUsdt(item.timer_profit.mini_usdt);
+    handlePopupTime();
+  };
 
 
   if (!market || wallets.length === 0) return null;
@@ -334,7 +350,7 @@ const Business = () => {
                       <div>
                         <span className="mr-6">Market Order: </span>
                         <span className="fc-13B26F ff_NunitoSemiBold order_position">
-                          {selectedTime}
+                          {selectedType}
                         </span>
                       </div>
                     </div>
@@ -398,17 +414,17 @@ const Business = () => {
                     <div className="type_select_content fs-16 ff_NunitoSemiBold">
                       <div
                         className={`type_item ${
-                          selectedTrade === "Buy" ? "up active" : "up"
+                          selectedType === "Buy" ? "up active" : "up"
                         }`}
-                        onClick={() => setSelectedTrade("Buy")}
+                        onClick={() => setSelectedType("Buy")}
                       >
                         Buy
                       </div>
                       <div
                         className={`type_item ${
-                          selectedTrade === "Sell" ? "down active" : "down"
+                          selectedType === "Sell" ? "down active" : "down"
                         }`}
-                        onClick={() => setSelectedTrade("Sell")}
+                        onClick={() => setSelectedType("Sell")}
                       >
                         Sell
                       </div>
@@ -505,12 +521,12 @@ const Business = () => {
                     type="button"
                     className="submit fs-18 ff_NunitoBold"
                     style={
-                      selectedTrade === "Buy"
+                      selectedType === "Buy"
                         ? {
                             backgroundColor: "rgb(19, 178, 111)",
                             lineHeight: 0,
                           }
-                        : selectedTrade === "Sell"
+                        : selectedType === "Sell"
                         ? { backgroundColor: "#cf202f", lineHeight: 0 }
                         : {
                             backgroundColor: "rgb(19, 178, 111)",
@@ -539,10 +555,10 @@ const Business = () => {
                       />
                     </div>
                     <div className="coin_list">
-                      {/* Replace with actual data */}
                       {repeaterItems.map((item, index) => (
                         <div className="coin_item" key={index}>
                           <div
+                            onClick={()=>handleSelectTimer(item)}
                             className="name"
                             data-mini_usdt={item.timer_profit.mini_usdt}
                             data-profit_level={item.timer_profit.profit}
