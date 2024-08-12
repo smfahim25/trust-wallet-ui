@@ -19,7 +19,7 @@ const Business = () => {
   const [timePopupVisible, setTimePopupVisible] = useState(false);
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [selectedTime, setSelectedTime] = useState("");
+  const [selectedTime, setSelectedTime] = useState("60S");
   const [selectedType, setSelectedType] = useState("Buy");
   const [selectedProfit, setSelectedProfit] = useState("");
   const [selectedMiniUsdt, setSelectedMiniUsdt] = useState("");
@@ -722,8 +722,8 @@ const get_option = (option) => {
   return [
     {
       timer_profit: {
-        timer: "1H",
-        profit: "10%",
+        timer: "60S",
+        profit: "*10%",
         mini_usdt: "10",
       },
     },
