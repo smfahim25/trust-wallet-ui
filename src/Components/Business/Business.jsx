@@ -324,7 +324,14 @@ const Business = () => {
             <div id="dealBox" className="deal-wrapper">
               <div className="deal">
                 <div className="title fs-18 fc-353F52">
-                  <span>{market.symbol} Coin Delivery</span>
+                  <span>
+                    {type === "crypto"
+                      ? market.symbol
+                      : type === "metal"
+                      ? getMetalCoinName(market?.symbol.split("=")[0].trim())
+                      : market?.symbol.split("=")[0].trim()}
+                    <span> Delivery</span>
+                  </span>
                   <img
                     src="/assets/images/icon_close.svg"
                     className="icon_close"
@@ -334,11 +341,31 @@ const Business = () => {
                 </div>
                 <div className="deal_pro_info">
                   <div className="base_info">
-                    <img
-                      src={`/assets/images/coins/${market.symbol.toLowerCase()}-logo.png`}
-                      className="pro_icon"
-                      alt={`${market.symbol} logo`}
-                    />
+                    {type === "crypto" ? (
+                      <img
+                        src={`/assets/images/coins/${market?.symbol.toLowerCase()}-logo.png`}
+                        className="pro_icon"
+                        alt={`${market?.symbol} logo`}
+                      />
+                    ) : type === "metal" ? (
+                      <img
+                        src={`/assets/images/coins/${market.symbol
+                          .split("=")[0]
+                          .trim()
+                          .toLowerCase()}-logo.png`}
+                        className="pro_icon"
+                        alt={`${market?.symbol} logo`}
+                      />
+                    ) : (
+                      <img
+                        src={`/assets/images/coins/${market.symbol
+                          .split("=")[0]
+                          .trim()
+                          .toLowerCase()}-logo.png`}
+                        className="pro_icon"
+                        alt={`${market?.symbol} logo`}
+                      />
+                    )}
                     <div className="pro_name">
                       <input
                         type="hidden"
@@ -346,7 +373,15 @@ const Business = () => {
                         id="trade_coin_id"
                         value={tradeCoinId}
                       />
-                      <div className="coin_name">{market.symbol} Coin</div>
+                      <div className="coin_name">
+                        {type === "crypto"
+                          ? market.symbol
+                          : type === "metal"
+                          ? getMetalCoinName(
+                              market?.symbol.split("=")[0].trim()
+                            )
+                          : market?.symbol.split("=")[0].trim()}
+                      </div>
                       <div>
                         <span className="mr-6">Market Order: </span>
                         <span className="fc-13B26F ff_NunitoSemiBold order_position">
