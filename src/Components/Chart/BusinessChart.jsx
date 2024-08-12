@@ -18,8 +18,16 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+const generateRandomData = (numPoints, min, max) => {
+  const data = [];
+  for (let i = 0; i < numPoints; i++) {
+    const randomValue = (Math.random() * (max - min) + min).toFixed(2); // Generate random data between min and max
+    data.push(parseFloat(randomValue));
+  }
+  return data;
+};
 
-const Chart = ({ one, four, seven }) => {
+const BusinessChart = () => {
   const data = {
     labels: [
       "2024-08-01",
@@ -36,33 +44,14 @@ const Chart = ({ one, four, seven }) => {
       "2024-08-12",
       "2024-08-01",
       "2024-08-02",
-      "2024-08-03",
-      "2024-08-04",
     ],
     datasets: [
       {
-        data: [
-          one || 1.2, // Fallback value
-          1.3,
-          1.3,
-          1.28,
-          1.27,
-          four || 1.3, // Fallback value
-          1.32,
-          1.31,
-          1.29,
-          1.3,
-          1.33,
-          seven || 1.34,
-          1.4,
-          1.5,
-          1.6,
-          one || 1.2,
-        ],
+        data: generateRandomData(14, 1.0, 2.0),
         borderColor: "#bd4044",
         backgroundColor: "#bd4044",
         borderWidth: 3,
-        pointRadius: 0, // Hide the points
+        pointRadius: 0,
         fill: false,
       },
     ],
@@ -96,4 +85,4 @@ const Chart = ({ one, four, seven }) => {
   );
 };
 
-export default Chart;
+export default BusinessChart;

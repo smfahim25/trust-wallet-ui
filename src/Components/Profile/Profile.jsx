@@ -67,8 +67,7 @@ const Profile = (props) => {
               </div>
               <div class="flex justify-center">
                 <button type="button" class="send_action fs-16 ff_NunitoBold">
-                  {" "}
-                  Send now{" "}
+                  Send now
                 </button>
               </div>
             </div>

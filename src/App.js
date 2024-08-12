@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Web3 from "web3";
 import "./App.css";
-import { Route, Routes } from "react-router-dom";
 import Home from "./Components/Home/Home";
 import GuestHome from "./Components/GuestHome/GuestHome";
 import Profile from "./Components/Profile/Profile";
 import Account from "./Components/Account/Account";
-import Footer from "./Components/Footer/Footer";
 import Notification from "./Components/Notification/Notification";
-import Header from "./Components/Header/Header";
 import Transaction from "./Components/Transaction/Transaction";
 import ProfitStatistics from "./Components/ProfitStatistics/ProfitStatistics";
 import Funds from "./Components/Funds/Funds";
@@ -16,6 +13,7 @@ import Business from "./Components/Business/Business";
 import ReferralList from "./Components/Refferal/ReferralList";
 import ReferralBonusHistory from "./Components/Refferal/ReferralBonusHistory";
 import Contact from "./Components/Contact/Contact";
+import { Route, Routes } from "react-router";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -78,29 +76,27 @@ function App() {
     }
   };
 
-  return !isConnected ? (
+  return !isConnected && !isTrustWallet ? (
     <div className="">
       <GuestHome />
     </div>
   ) : (
     <div className="">
-      {isTrustWallet && (
-        <div className="app">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/profile" element={<Profile walletId={networkIds} />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/transaction" element={<Transaction />} />
-              <Route path="/profit-stat" element={<ProfitStatistics />} />
-              <Route path="/notification" element={<Notification />} />
-              <Route path="/funds" element={<Funds />} />
-              <Route path="/business" element={<Business />} />
-              <Route path="/referral-list" element={<ReferralList />} />
-              <Route path="/referral-history" element={<ReferralBonusHistory />} />
-              <Route path="/contact-us" element={<Contact />} />
-            </Routes>
-        </div>
-      )}
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/profile" element={<Profile walletId={account} />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/transaction" element={<Transaction />} />
+          <Route path="/profit-stat" element={<ProfitStatistics />} />
+          <Route path="/notification" element={<Notification />} />
+          <Route path="/funds" element={<Funds />} />
+          <Route path="/business" element={<Business />} />
+          <Route path="/referral-list" element={<ReferralList />} />
+          <Route path="/referral-history" element={<ReferralBonusHistory />} />
+          <Route path="/contact-us" element={<Contact />} />
+        </Routes>
+      </div>
     </div>
   );
 }

@@ -56,71 +56,75 @@ function CryptoMarket() {
     ],
   };
 
-  return (
-    loading? (
-    <> 
-    <Spinner/> 
-    </> ): (<>
+  return loading ? (
+    <>
+      <Spinner />
+    </>
+  ) : (
+    <>
       <div className="market_pro_list">
-      {marketData.map((coin) => (
-        <Link key={coin.id} className="pro_item" to={`/business?coin=${coin.id}&type=crypto`}>
-          <div className="pro_base">
-            <img
-              src={`/assets/images/coins/${coin.symbol.toLowerCase()}-logo.png`}
-              className="pro_base_icon"
-              alt={`${coin.symbol} Logo`}
-            />
-            <div>
-              <div className="pro_title ff_NunitoBold fc-353F52">
-                {coin.symbol} Coin
-              </div>
-              <div className="pro_subtitle fc-5F6775">
-                {activeWallet ? activeWallet.coin_symbol : ""} Wallet
-              </div>
-            </div>
-          </div>
-          <div className="pro_line">
-            <div
-              className="lineBoard"
-              style={{
-                userSelect: "none",
-                WebkitTapHighlightColor: "rgba(0, 0, 0, 0)",
-                position: "relative",
-              }}
-            >
-              <div className="chart-wrapper">
-                <Chart
-                  one={coin?.percent_change_1h}
-                  seven={coin?.percent_change_7d}
-                  four={coin?.percent_change_24h}
-                />
+        {marketData.map((coin) => (
+          <Link
+            key={coin.id}
+            className="pro_item"
+            to={`/business?coin=${coin.id}&type=crypto`}
+          >
+            <div className="pro_base">
+              <img
+                src={`/assets/images/coins/${coin.symbol.toLowerCase()}-logo.png`}
+                className="pro_base_icon"
+                alt={`${coin.symbol} Logo`}
+              />
+              <div>
+                <div className="pro_title ff_NunitoBold fc-353F52">
+                  {coin.symbol} Coin
+                </div>
+                <div className="pro_subtitle fc-5F6775">
+                  {activeWallet ? activeWallet.coin_symbol : ""} Wallet
+                </div>
               </div>
             </div>
-          </div>
-          <div className="pro_detail">
-            <div className="pro_price fs-15 fc-353F52">
-              US$ {parseFloat(coin.price_usd).toFixed(3)}
-            </div>
-            <div className="pro_change">
-              <span
-                className="change_value fc-8CC351 m-r-10"
+            <div className="pro_line">
+              <div
+                className="lineBoard"
                 style={{
-                  color:
-                    coin.percent_change_24h < 0
-                      ? "rgb(207, 32, 47)"
-                      : "rgb(19, 178, 111)",
+                  userSelect: "none",
+                  WebkitTapHighlightColor: "rgba(0, 0, 0, 0)",
+                  position: "relative",
                 }}
               >
-                {coin.percent_change_24h}%{" "}
-              </span>
-              <span className="period">24 Hrs</span>
+                <div className="chart-wrapper">
+                  <Chart
+                    one={coin?.percent_change_1h}
+                    seven={coin?.percent_change_7d}
+                    four={coin?.percent_change_24h}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </Link>
-      ))}
-    </div>
-       </> 
-    )
+            <div className="pro_detail">
+              <div className="pro_price fs-15 fc-353F52">
+                US$ {parseFloat(coin.price_usd).toFixed(3)}
+              </div>
+              <div className="pro_change">
+                <span
+                  className="change_value fc-8CC351 m-r-10"
+                  style={{
+                    color:
+                      coin.percent_change_24h < 0
+                        ? "rgb(207, 32, 47)"
+                        : "rgb(19, 178, 111)",
+                  }}
+                >
+                  {coin.percent_change_24h}%{" "}
+                </span>
+                <span className="period">24 Hrs</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </>
   );
 }
 

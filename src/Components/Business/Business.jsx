@@ -3,12 +3,13 @@ import Header from "../Header/Header";
 import { Link, useSearchParams } from "react-router-dom";
 import fetchMarketData from "../utils/getMarketData";
 import numberFormat from "../utils/numberFormat";
+import BusinessChart from "../Chart/BusinessChart";
 
 const Business = () => {
-    // Using react-router hooks to get the URL search params
-    const [searchParams] = useSearchParams();
-    const coin = searchParams.get('coin');
-    const type = searchParams.get('type');
+  // Using react-router hooks to get the URL search params
+  const [searchParams] = useSearchParams();
+  const coin = searchParams.get('coin');
+  const type = searchParams.get('type');
 
   const [market, setMarket] = useState(null);
   const [wallets, setWallets] = useState([]);
@@ -187,20 +188,7 @@ const Business = () => {
       <div className="pro_trend">
         <div className="k_container">
           <div id="k_trend" className="k_line">
-            {/* implement chart here  */}
-            <canvas
-              className="cryptoChart"
-              data-coin={market.symbol.toLowerCase()}
-              style={{
-                width: "100vw",
-                height: "388px",
-                userSelect: "none",
-                WebkitTapHighlightColor: "rgba(0, 0, 0, 0)",
-                padding: "10px",
-                margin: "0px",
-                borderWidth: "0px",
-              }}
-            />
+            <BusinessChart />
           </div>
           <div className="time_select ff_NunitoBold">
             <div className="time_item">5M</div>
