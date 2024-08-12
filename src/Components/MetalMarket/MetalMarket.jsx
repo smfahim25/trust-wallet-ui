@@ -133,7 +133,7 @@ const MetalMarket = () => {
         ))}
       </div>
     </>
-  );
-};
+  )
+)};
 
 export default MetalMarket;

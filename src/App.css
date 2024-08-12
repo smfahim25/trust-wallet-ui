@@ -1041,11 +1041,11 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 #select_time_popup {
-  display: none;
+  /* display: none; */
 }
 
 #select_coin_popup {
-  display: none;
+  /* display: none; */
 }
 
 .select_popup {

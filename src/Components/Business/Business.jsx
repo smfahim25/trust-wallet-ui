@@ -15,6 +15,8 @@ const Business = () => {
   const [wallets, setWallets] = useState([]);
   const [user, setUser] = useState(null);
   const [userBalance, setUserBalance] = useState("0.0000");
+  const [timePopupVisible, setTimePopupVisible] = useState(false);
+  const [coinPopupVisible, setCoinPopupVisible] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedProfit, setSelectedProfit] = useState("");
@@ -25,44 +27,37 @@ const Business = () => {
   const repeaterItems = [
     {
       timer_profit: {
-        timer: "5M",
-        profit: "2.5%",
+        timer: "60S",
+        profit: "*10%",
         mini_usdt: "10",
       },
     },
     {
       timer_profit: {
-        timer: "15M",
-        profit: "5%",
-        mini_usdt: "20",
+        timer: "120S",
+        profit: "*35%",
+        mini_usdt: "1000",
       },
     },
     {
       timer_profit: {
-        timer: "1H",
-        profit: "10%",
-        mini_usdt: "30",
+        timer: "12H",
+        profit: "*87%",
+        mini_usdt: "10000",
       },
     },
     {
       timer_profit: {
-        timer: "6H",
-        profit: "15%",
-        mini_usdt: "50",
+        timer: "36H",
+        profit: "*205%",
+        mini_usdt: "50000",
       },
     },
     {
       timer_profit: {
-        timer: "1D",
-        profit: "20%",
-        mini_usdt: "75",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "1W",
-        profit: "30%",
-        mini_usdt: "100",
+        timer: "7D",
+        profit: "*305%",
+        mini_usdt: "100000",
       },
     },
   ];
@@ -135,6 +130,16 @@ const Business = () => {
   const handlePopupClose = () => {
     setPopupVisible(false);
   };
+
+  const handlePopupTime = () => {
+    setTimePopupVisible(!timePopupVisible);
+  };
+
+  const handlePopupCoin = () => {
+    setCoinPopupVisible(!coinPopupVisible);
+  };
+
+
 
   if (!market || wallets.length === 0) return null;
 
@@ -281,9 +286,9 @@ const Business = () => {
                       />
                       <div className="coin_name">{market.symbol} Coin</div>
                       <div>
-                        <span className="mr-6">Market Order:</span>
+                        <span className="mr-6">Market Order: </span>
                         <span className="fc-13B26F ff_NunitoSemiBold order_position">
-                          Buy
+                          {selectedTime}
                         </span>
                       </div>
                     </div>
@@ -329,7 +334,7 @@ const Business = () => {
                     Delivery time
                   </div>
                   <div className="time_select_container">
-                    <div className="time_select_content">
+                    <div className="time_select_content" onClick={handlePopupTime}>
                       <div className="value">
                         <img
                           src="/assets/images/icon_time.svg"
@@ -370,7 +375,7 @@ const Business = () => {
                   </div>
                   <div className="range_select_container">
                     <div className="range_info fs-16 ff_NunitoSemiBold">
-                      <span className="fc-5B616E">(*{selectedProfit}%)</span>
+                      <span className="fc-5B616E">({selectedProfit})</span>
                     </div>
                     <img
                       src="/assets/images/icon_arrow_down.svg"
@@ -387,7 +392,7 @@ const Business = () => {
                     <div className="fs-12">Fee: 0.1%</div>
                   </div>
                   <div className="coin_select_container">
-                    <div className="coin_select_content">
+                    <div className="coin_select_content" onClick={handlePopupCoin}>
                       <div className="value">
                         {selectedWallet && (
                           <>
@@ -471,7 +476,9 @@ const Business = () => {
                   </button>
                 </div>
 
-                <div id="select_time_popup">
+                
+                  {timePopupVisible && 
+                  <div id="select_time_popup">
                   <div className="ssb-overlay" style={{ zIndex: 2021 }}></div>
                   <div
                     className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
@@ -482,7 +489,7 @@ const Business = () => {
                         src="/assets/images/icon_close.svg"
                         className="icon_close"
                         alt="Close"
-                        onClick={handlePopupClose}
+                        onClick={handlePopupTime}
                       />
                     </div>
                     <div className="coin_list">
@@ -500,65 +507,70 @@ const Business = () => {
                       ))}
                     </div>
                   </div>
-                </div>
-
+                  </div>
+                  }
+                  
+                
+                {coinPopupVisible &&
                 <div id="select_coin_popup">
-                  <div className="ssb-overlay" style={{ zIndex: 2023 }}></div>
-                  <div
-                    className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
-                    style={{ zIndex: 2024, height: "auto" }}
-                  >
-                    <div className="range_title">
-                      <img
-                        src="/assets/images/icon_close.svg"
-                        className="icon_close"
-                        alt="Close"
-                        onClick={handlePopupClose}
-                      />
-                    </div>
-                    <div className="coin_list">
-                      {wallets.map((wallet, index) => {
-                        const imageId = get_post_meta(
-                          wallet.ID,
-                          "coin_logo"
-                        )[0];
-                        const imageUrl = imageId
-                          ? wp_get_attachment_image_src(imageId, "full")[0]
-                          : "";
+                <div className="ssb-overlay" style={{ zIndex: 2023 }}></div>
+                <div
+                  className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
+                  style={{ zIndex: 2024, height: "auto" }}
+                >
+                  <div className="range_title">
+                    <img
+                      src="/assets/images/icon_close.svg"
+                      className="icon_close"
+                      alt="Close"
+                      onClick={handlePopupCoin}
+                    />
+                  </div>
+                  <div className="coin_list">
+                    {wallets.map((wallet, index) => {
+                      const imageId = get_post_meta(
+                        wallet.ID,
+                        "coin_logo"
+                      )[0];
+                      const imageUrl = imageId
+                        ? wp_get_attachment_image_src(imageId, "full")[0]
+                        : "";
 
-                        return (
-                          <div className="coin_item" key={index}>
-                            <div
-                              className="name"
-                              data-coin_id={get_post_meta(
-                                wallet.ID,
-                                "coin_id",
-                                true
-                              )}
-                              data-coin_logo={imageUrl}
-                              data-coin_symbol={get_post_meta(
+                      return (
+                        <div className="coin_item" key={index}>
+                          <div
+                            className="name"
+                            data-coin_id={get_post_meta(
+                              wallet.ID,
+                              "coin_id",
+                              true
+                            )}
+                            data-coin_logo={imageUrl}
+                            data-coin_symbol={get_post_meta(
+                              wallet.ID,
+                              "coin_symbol",
+                              true
+                            )}
+                            onClick={() => setSelectedWallet(wallet)}
+                          >
+                            <img
+                              src={imageUrl}
+                              alt={get_post_meta(
                                 wallet.ID,
                                 "coin_symbol",
                                 true
                               )}
-                              onClick={() => setSelectedWallet(wallet)}
-                            >
-                              <img
-                                src={imageUrl}
-                                alt={get_post_meta(
-                                  wallet.ID,
-                                  "coin_symbol",
-                                  true
-                                )}
-                              />
-                              {get_post_meta(wallet.ID, "coin_symbol", true)}
-                            </div>
+                            />
+                            {get_post_meta(wallet.ID, "coin_symbol", true)}
                           </div>
-                        );
-                      })}
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
+              </div>
+                }
+                
               </div>
             </div>
           </div>
@@ -568,20 +580,6 @@ const Business = () => {
   );
 };
 
-// Helper functions (mock implementations)
-const get_ssb_crypto_trade_landing_crypto_market = (coin) => {
-  // Mock data; replace with actual API call
-  return [
-    {
-      symbol: "BTC",
-      price_usd: 26000.0,
-      percent_change_24h: 1.2,
-      volume24: 1200000.0,
-      market_cap_usd: 500000000.0,
-    },
-  ];
-};
-
 const get_posts = (args) => {
   // Mock data; replace with actual API call
   return [
@@ -589,8 +587,8 @@ const get_posts = (args) => {
       ID: 1,
       post_type: "ssb-crypto-wallet",
       coin_id: "1",
-      coin_symbol: "BTC",
-      coin_logo: "/assets/images/coins/btc-logo.png",
+      coin_symbol: "ETH",
+      coin_logo: "/assets/images/coins/eth-logo.png",
     },
   ];
 };
@@ -617,7 +615,7 @@ const get_post_meta = (postId, metaKey, single) => {
   // Mock data; replace with actual API call
   return {
     coin_id: "1",
-    coin_symbol: "BTC",
+    coin_symbol: "ETH",
     coin_logo: "/assets/images/coins/btc-logo.png",
   }[metaKey];
 };
