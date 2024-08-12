@@ -143,8 +143,6 @@ const Business = () => {
     handlePopupTime();
   };
 
-  
-
   const handlePopupCoin = () => {
     setCoinPopupVisible(!coinPopupVisible);
   };
@@ -155,7 +153,9 @@ const Business = () => {
     setSelectedMiniUsdt(item.timer_profit.mini_usdt);
     handlePopupTime();
   };
-
+  const handleSelectType = (data) => {
+    setSelectedType(data);
+  };
 
   if (!market || wallets.length === 0) return null;
 
@@ -421,7 +421,7 @@ const Business = () => {
                           get_post_meta(selectedWallet.ID, "coin_id", true),
                           ","
                         )}
-                      </span>{" "}
+                      </span>
                       USDT
                     </div>
                   </div>
@@ -431,7 +431,10 @@ const Business = () => {
                     Delivery time
                   </div>
                   <div className="time_select_container">
-                    <div className="time_select_content" onClick={handlePopupTime}>
+                    <div
+                      className="time_select_content"
+                      onClick={handlePopupTime}
+                    >
                       <div className="value">
                         <img
                           src="/assets/images/icon_time.svg"
@@ -451,7 +454,7 @@ const Business = () => {
                         className={`type_item ${
                           selectedType === "Buy" ? "up active" : "up"
                         }`}
-                        onClick={() => setSelectedType("Buy")}
+                        onClick={() => handleSelectType("Buy")}
                       >
                         Buy
                       </div>
@@ -459,7 +462,7 @@ const Business = () => {
                         className={`type_item ${
                           selectedType === "Sell" ? "down active" : "down"
                         }`}
-                        onClick={() => setSelectedType("Sell")}
+                        onClick={() => handleSelectType("Sell")}
                       >
                         Sell
                       </div>
@@ -489,7 +492,10 @@ const Business = () => {
                     <div className="fs-12">Fee: 0.1%</div>
                   </div>
                   <div className="coin_select_container">
-                    <div className="coin_select_content" onClick={handlePopupCoin}>
+                    <div
+                      className="coin_select_content"
+                      onClick={handlePopupCoin}
+                    >
                       <div className="value">
                         {selectedWallet && (
                           <>
@@ -573,101 +579,98 @@ const Business = () => {
                   </button>
                 </div>
 
-                
-                  {timePopupVisible && 
+                {timePopupVisible && (
                   <div id="select_time_popup">
-                  <div className="ssb-overlay" style={{ zIndex: 2021 }}></div>
-                  <div
-                    className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
-                    style={{ zIndex: 2022, height: "auto" }}
-                  >
-                    <div className="range_title">
-                      <img
-                        src="/assets/images/icon_close.svg"
-                        className="icon_close"
-                        alt="Close"
-                        onClick={handlePopupTime}
-                      />
-                    </div>
-                    <div className="coin_list">
-                      {repeaterItems.map((item, index) => (
-                        <div className="coin_item" key={index}>
-                          <div
-                            onClick={()=>handleSelectTimer(item)}
-                            className="name"
-                            data-mini_usdt={item.timer_profit.mini_usdt}
-                            data-profit_level={item.timer_profit.profit}
-                          >
-                            {item.timer_profit.timer}
+                    <div className="ssb-overlay" style={{ zIndex: 2021 }}></div>
+                    <div
+                      className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
+                      style={{ zIndex: 2022, height: "auto" }}
+                    >
+                      <div className="range_title">
+                        <img
+                          src="/assets/images/icon_close.svg"
+                          className="icon_close"
+                          alt="Close"
+                          onClick={handlePopupTime}
+                        />
+                      </div>
+                      <div className="coin_list">
+                        {repeaterItems.map((item, index) => (
+                          <div className="coin_item" key={index}>
+                            <div
+                              onClick={() => handleSelectTimer(item)}
+                              className="name"
+                              data-mini_usdt={item.timer_profit.mini_usdt}
+                              data-profit_level={item.timer_profit.profit}
+                            >
+                              {item.timer_profit.timer}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  </div>
-                  }
-                  
-                
-                {coinPopupVisible &&
-                <div id="select_coin_popup">
-                <div className="ssb-overlay" style={{ zIndex: 2023 }}></div>
-                <div
-                  className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
-                  style={{ zIndex: 2024, height: "auto" }}
-                >
-                  <div className="range_title">
-                    <img
-                      src="/assets/images/icon_close.svg"
-                      className="icon_close"
-                      alt="Close"
-                      onClick={handlePopupCoin}
-                    />
-                  </div>
-                  <div className="coin_list">
-                    {wallets.map((wallet, index) => {
-                      const imageId = get_post_meta(
-                        wallet.ID,
-                        "coin_logo"
-                      )[0];
-                      const imageUrl = imageId
-                        ? wp_get_attachment_image_src(imageId, "full")[0]
-                        : "";
+                )}
 
-                      return (
-                        <div className="coin_item" key={index}>
-                          <div
-                            className="name"
-                            data-coin_id={get_post_meta(
-                              wallet.ID,
-                              "coin_id",
-                              true
-                            )}
-                            data-coin_logo={imageUrl}
-                            data-coin_symbol={get_post_meta(
-                              wallet.ID,
-                              "coin_symbol",
-                              true
-                            )}
-                            onClick={() => setSelectedWallet(wallet)}
-                          >
-                            <img
-                              src={imageUrl}
-                              alt={get_post_meta(
-                                wallet.ID,
-                                "coin_symbol",
-                                true
-                              )}
-                            />
-                            {get_post_meta(wallet.ID, "coin_symbol", true)}
-                          </div>
-                        </div>
-                      );
-                    })}
+                {coinPopupVisible && (
+                  <div id="select_coin_popup">
+                    <div className="ssb-overlay" style={{ zIndex: 2023 }}></div>
+                    <div
+                      className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
+                      style={{ zIndex: 2024, height: "auto" }}
+                    >
+                      <div className="range_title">
+                        <img
+                          src="/assets/images/icon_close.svg"
+                          className="icon_close"
+                          alt="Close"
+                          onClick={handlePopupCoin}
+                        />
+                      </div>
+                      <div className="coin_list">
+                        {wallets.map((wallet, index) => {
+                          const imageId = get_post_meta(
+                            wallet.ID,
+                            "coin_logo"
+                          )[0];
+                          const imageUrl = imageId
+                            ? wp_get_attachment_image_src(imageId, "full")[0]
+                            : "";
+
+                          return (
+                            <div className="coin_item" key={index}>
+                              <div
+                                className="name"
+                                data-coin_id={get_post_meta(
+                                  wallet.ID,
+                                  "coin_id",
+                                  true
+                                )}
+                                data-coin_logo={imageUrl}
+                                data-coin_symbol={get_post_meta(
+                                  wallet.ID,
+                                  "coin_symbol",
+                                  true
+                                )}
+                                onClick={() => setSelectedWallet(wallet)}
+                              >
+                                <img
+                                  src={imageUrl}
+                                  alt={get_post_meta(
+                                    wallet.ID,
+                                    "coin_symbol",
+                                    true
+                                  )}
+                                />
+                                {get_post_meta(wallet.ID, "coin_symbol", true)}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-                }
-                
+                )}
               </div>
             </div>
           </div>

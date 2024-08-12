@@ -9,15 +9,6 @@ const ProfitStatistics = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  // Mock data
-  const user = {
-    balance: 1200.5,
-    id: 1,
-  };
-
-  const totalOrder = 15;
-  const totalAmount = 5000.0;
-
   const runningOrders = [
     {
       id: 1,
@@ -83,37 +74,6 @@ const ProfitStatistics = () => {
       style={{ backgroundColor: "white", height: "100vh" }}
     >
       <Header pageTitle="Profit Statistics" />
-
-      <div className="content ff_NunitoSemiBold">
-        <div className="board tc">
-          <div className="board-content">
-            <div className="fs-20 colorfff ff_NunitoSemiBold over-line-1">
-              Total Investment
-            </div>
-            <div className="m-t-12 fs-20 colorfff ff_InterMedium">
-              {totalAmount.toLocaleString()} USDT
-            </div>
-            <div className="flex m-t-20">
-              <div className="flex1 left">
-                <div className="fs-14 colorfff over-line-1">
-                  Accumulated Income
-                </div>
-                <div className="m-t-12 fs-14 colorfff ff_InterMedium">
-                  {user.balance.toLocaleString()} USDT
-                </div>
-              </div>
-              <div className="flex1 right">
-                <div className="fs-14 colorfff ff_NunitoSemiBold over-line-1">
-                  Number of contracts
-                </div>
-                <div className="m-t-12 fs-14 colorfff ff_InterMedium">
-                  {totalOrder}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className="switch_container">
         <div className="switch_content">
