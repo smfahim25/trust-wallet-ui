@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Header/Header";
 import { Link } from "react-router-dom";
+import BusinessChart from "../Chart/BusinessChart";
 
 const Business = ({ coin }) => {
   const [market, setMarket] = useState(null);
@@ -168,19 +169,7 @@ const Business = ({ coin }) => {
       <div className="pro_trend">
         <div className="k_container">
           <div id="k_trend" className="k_line">
-            <canvas
-              className="cryptoChart"
-              data-coin={market.symbol.toLowerCase()}
-              style={{
-                width: "100vw",
-                height: "388px",
-                userSelect: "none",
-                WebkitTapHighlightColor: "rgba(0, 0, 0, 0)",
-                padding: "10px",
-                margin: "0px",
-                borderWidth: "0px",
-              }}
-            />
+            <BusinessChart />
           </div>
           <div className="time_select ff_NunitoBold">
             <div className="time_item">5M</div>

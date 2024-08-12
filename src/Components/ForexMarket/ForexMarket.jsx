@@ -15,6 +15,7 @@ import {
 import API_BASE_URL from "../../api/getApiURL";
 import Spinner from "../Spinner/Spinner";
 import { Link } from "react-router-dom";
+import Chart from "../Chart/chart";
 
 // Register Chart.js modules
 ChartJS.register(
@@ -54,9 +55,7 @@ const ForexMarket = () => {
     // Fetch Forex market data
     setLoading(true);
     const fetchForexMarkets = async () => {
-      const response = await fetch(
-        `${API_BASE_URL}/market/forex`
-      );
+      const response = await fetch(`${API_BASE_URL}/market/forex`);
       const data = await response.json();
       if (data) {
         setForexMarkets(data);
@@ -64,10 +63,8 @@ const ForexMarket = () => {
       }
     };
 
-
     // Fetch Wallet data (simulating WordPress get_posts)
     const fetchWallet = async () => {
-      
       const walletData = {
         id: 1,
         coin_symbol: "ETH",
@@ -80,9 +77,10 @@ const ForexMarket = () => {
     fetchWallet();
   }, []);
 
-  return (
-    loading ? (<Spinner/>) : (
-      <div className="market_pro_list">
+  return loading ? (
+    <Spinner />
+  ) : (
+    <div className="market_pro_list">
       {forexMarkets.map((fx, index) => {
         const meta = fx.response[0].meta;
         const timestamps = fx.response[0].timestamp;
@@ -92,50 +90,9 @@ const ForexMarket = () => {
         const marketPrice = meta.regularMarketPrice;
         const previousClose = meta.previousClose;
         const priceChange = (marketPrice - previousClose).toFixed(5);
-
-        // Prepare data for the chart
-        const chartData = {
-          labels: timestamps.map((timestamp) =>
-            new Date(timestamp * 1000).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          ),
-          datasets: [
-            {
-              label: `${symbol} Price`,
-              data: closePrices,
-              borderColor: "rgb(19, 178, 111)", // Line color
-              backgroundColor: "rgba(19, 178, 111, 0.2)", // Fill color
-              tension: 0.1, // Smooth the line
-              fill: true,
-            },
-          ],
-        };
-
-        const chartOptions = {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false,
-            },
-          },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "Time",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "Price (USD)",
-              },
-            },
-          },
-        };
+        const one = meta.regularMarketDayHigh;
+        const four = meta.regularMarketDayLow;
+        const seven = meta.regularMarketPrice;
 
         return (
           <Link
@@ -168,8 +125,7 @@ const ForexMarket = () => {
                 }}
               >
                 <div className="chart-wrapper">
-                  {/* Render the Line chart */}
-                  {/* <Line data={chartData} options={chartOptions} /> */}
+                  <Chart one={one} seven={seven} four={four} />
                 </div>
               </div>
             </div>
@@ -182,7 +138,9 @@ const ForexMarket = () => {
                   className="change_value fc-8CC351 m-r-10"
                   style={{
                     color:
-                      priceChange < 0 ? "rgb(207, 32, 47)" : "rgb(19, 178, 111)",
+                      priceChange < 0
+                        ? "rgb(207, 32, 47)"
+                        : "rgb(19, 178, 111)",
                   }}
                 >
                   {priceChange}
@@ -194,7 +152,6 @@ const ForexMarket = () => {
         );
       })}
     </div>
-    )
   );
 };
 
