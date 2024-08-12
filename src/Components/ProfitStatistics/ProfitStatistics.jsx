@@ -84,7 +84,7 @@ const ProfitStatistics = () => {
     >
       <Header pageTitle="Profit Statistics" />
 
-      <div className="content ff_NunitoSemiBold">
+      {/* <div className="content ff_NunitoSemiBold">
         <div className="board tc">
           <div className="board-content">
             <div className="fs-20 colorfff ff_NunitoSemiBold over-line-1">
@@ -113,7 +113,7 @@ const ProfitStatistics = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="switch_container">
         <div className="switch_content">

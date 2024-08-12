@@ -5,16 +5,39 @@ import fetchMarketData from "../utils/getMarketData";
 import numberFormat from "../utils/numberFormat";
 import BusinessChart from "../Chart/BusinessChart";
 import getMetalCoinName from "../utils/getMetalCoinName";
+import { useUser } from "../../context/UserContext";
+import axios from "axios";
 
-const Business = () => {
+const Business = ({wallet}) => {
   // Using react-router hooks to get the URL search params
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
   const type = searchParams.get("type");
 
   const [market, setMarket] = useState(null);
-  const [wallets, setWallets] = useState([]);
-  const [user, setUser] = useState(null);
+  const [wallets, setWallets] = useState([{
+    ID: 1,
+    post_type: "ssb-crypto-wallet",
+    coin_id: "1",
+    coin_symbol: "ETH",
+    coin_logo: "/assets/images/coins/eth-logo.png",
+  },
+  {
+    ID: 2,
+    post_type: "ssb-crypto-wallet",
+    coin_id: "2",
+    coin_symbol: "BTC",
+    coin_logo: "/assets/images/coins/btc-logo.png",
+  },
+  {
+    ID: 3,
+    post_type: "ssb-crypto-wallet",
+    coin_id: "3",
+    coin_symbol: "LTC",
+    coin_logo: "/assets/images/coins/ltc-logo.png",
+  },
+]);
+  // const [user] = useUser();
   const [userBalance, setUserBalance] = useState("0.0000");
   const [timePopupVisible, setTimePopupVisible] = useState(false);
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
@@ -77,6 +100,9 @@ const Business = () => {
   };
 
   useEffect(() => {
+    // if(user){
+    //   console.log("user details", user);
+    // }
     const walletsData = get_posts({
       posts_per_page: -1,
       post_type: "ssb-crypto-wallet",
@@ -96,12 +122,12 @@ const Business = () => {
           } else {
             setMarket(marketData[0]?.meta);
           }
-          setWallets(walletsData);
+          // setWallets(walletsData);
 
           const currentUser = get_ssb_crypto_trade_landing_wallet_user(
             sessionStorage.getItem("user_wallet")
           );
-          setUser(currentUser);
+        
 
           const balance = get_ssb_crypto_trade_landing_user_wallet_balance(
             currentUser.id,
@@ -150,10 +176,134 @@ const Business = () => {
   };
 
   const handleSelectCoin = (item) => {
-    setSelectedTime(item.timer_profit.timer);
-    setSelectedProfit(item.timer_profit.profit);
-    setSelectedMiniUsdt(item.timer_profit.mini_usdt);
-    handlePopupTime();
+    setSelectedWallet(item);
+    handlePopupCoin();
+  };
+
+
+  const [user, setUser] = useState(null);
+  const [amount, setAmount] = useState(0);
+
+  const [formData, setFormData] = useState({
+    order_type: '',
+    order_position: '',
+    wallet_coin_id: '',
+    trade_coin_id: '',
+    amount: 0,
+    delivery_time: '',
+  });
+  const [responseMessage, setResponseMessage] = useState('');
+  const [redirect, setRedirect] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setAmount(value);
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // if (!user) {
+    //   setResponseMessage('Session is not existed. Do login. Or Refresh Page.');
+    //   setRedirect(true);
+    //   return;
+    // }
+
+    // const {
+    //   order_type,
+    //   order_position,
+    //   wallet_coin_id,
+    //   trade_coin_id,
+    //   amount,
+    //   delivery_time,
+    // } = formData;
+
+    // const trade_amount_limit = 10; // Replace with API call to get limit if needed
+    // const coin_amount_str = await axios.get(`/api/coin-amount?coin_id=${wallet_coin_id}`);
+    // const coin_amount = parseFloat(coin_amount_str.data.replace(',', ''));
+
+    // // Validation
+    // if (
+    //   !type ||
+    //   !order_position ||
+    //   !wallet_coin_id ||
+    //   !trade_coin_id ||
+    //   !delivery_time
+    // ) {
+    //   setResponseMessage('Something is wrong. Try Again!');
+    // } else if (amount <= 0) {
+    //   setResponseMessage('Amount should be a number without 0.');
+    // } else if (amount < trade_amount_limit) {
+    //   setResponseMessage(`Minimum deposit amount is ${trade_amount_limit} USDT`);
+    // } else if (amount > coin_amount) {
+    //   setResponseMessage('Amount shouldn\'t be greater than your balance');
+    // } else {
+      // try {
+    //     const balance = await axios.get(`/api/balance?user_id=${user.id}&coin_id=${wallet_coin_id}`);
+    //     const wallet_amount = await axios.get(`/api/usdt-to-coin?amount=${amount}&coin_id=${wallet_coin_id}`);
+    //     const timer_profit = await axios.get(`/api/timer-profit?delivery_time=${delivery_time}`);
+
+    //     const profit_level = timer_profit.data.find(tp => tp.timer === delivery_time)?.profit || 0;
+    //     const percent = profit_level / 100;
+    //     const profit_amount = amount * percent;
+    //     const wallet_profit_amount = wallet_amount * percent;
+
+    //     let purchase_price = 0;
+
+    //     if (order_type === 'crypto') {
+    //       const market = await axios.get(`/api/crypto-market?coin_id=${trade_coin_id}`);
+    //       purchase_price = market.data[0].price_usd;
+    //     } else if (order_type === 'forex') {
+    //       const market = await axios.get(`/api/forex-market?coin_id=${trade_coin_id}`);
+    //       purchase_price = market.data[0].meta.regularMarketPrice;
+    //     } else if (order_type === 'metal') {
+    //       const market = await axios.get(`/api/metal-market?coin_id=${trade_coin_id}`);
+    //       purchase_price = market.data[0].meta.regularMarketPrice;
+    //     }
+    try {
+        const order_id = Math.floor(100000 + Math.random() * 900000);
+        const percent = selectedProfit / 100;
+        const profit_amount = amount * percent;
+        // Create the trade order
+        const tradeOrderResponse = await axios.post('/api/trade-order', {
+          order_id,
+          order_type:type,
+          order_position: selectedType.toLowerCase(),
+          user_id: user.id,
+          user_wallet: wallet,
+          wallet_coin_id:80,
+          trade_coin_id:coin,
+          amount,
+          wallet_amount:50,
+          profit_amount:20,
+          purchase_price:10,
+          wallet_profit_amount:10,
+          delivery_time:selectedTime,
+          profit_level:selectedProfit,
+          is_profit: user.is_profit,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+        // Update user balance
+        // const new_balance = balance.data.coin_amount - wallet_amount;
+        // await axios.put(`/api/balance`, {
+        //   user_id: user.id,
+        //   coin_id: wallet_coin_id,
+        //   coin_amount: new_balance,
+        // });
+
+        setResponseMessage('Trade Order request successfully sent.');
+        setRedirect(true);
+      } catch (error) {
+        console.error('Error submitting trade order:', error);
+        setResponseMessage('Something is wrong. Try Again!');
+      }
+    // }
   };
 
 
@@ -522,6 +672,7 @@ const Business = () => {
                     </div>
                     <div className="amount_input">
                       <input
+                        onChange={handleInputChange}
                         type="number"
                         inputMode="numeric"
                         name="amount"
@@ -642,23 +793,19 @@ const Business = () => {
                               "coin_id",
                               true
                             )}
-                            data-coin_logo={imageUrl}
-                            data-coin_symbol={get_post_meta(
-                              wallet.ID,
-                              "coin_symbol",
-                              true
-                            )}
-                            onClick={() => setSelectedWallet(wallet)}
+                            data-coin_logo={wallet.coin_logo}
+                            data-coin_symbol={wallet.coin_symbol}
+                            onClick={() => handleSelectCoin(wallet)}
                           >
                             <img
-                              src={imageUrl}
+                              src={wallet.coin_logo}
                               alt={get_post_meta(
                                 wallet.ID,
                                 "coin_symbol",
                                 true
                               )}
                             />
-                            {get_post_meta(wallet.ID, "coin_symbol", true)}
+                            {` ${wallet.coin_symbol}`}
                           </div>
                         </div>
                       );

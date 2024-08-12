@@ -1,12 +1,11 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5000/api/v1/users';
+import API_BASE_URL from '../../api/getApiURL';
 
 export const createMetaCtUser = async (wallet, referral = '', setUser) => {
     try {
         let user;
         try {
-            const response = await axios.get(`${API_BASE_URL}/wallet/${wallet}`);
+            const response = await axios.get(`${API_BASE_URL}/users/wallet/${wallet}`);
             user = response.data;
         } catch (error) {
             if (error.response && error.response.data.error === "User not found") {
@@ -23,7 +22,7 @@ export const createMetaCtUser = async (wallet, referral = '', setUser) => {
             console.log("User retrieved successfully");
         } else {
             // Create a new user since it wasn't found
-            const newUserResponse = await axios.post(`${API_BASE_URL}/create`, {
+            const newUserResponse = await axios.post(`${API_BASE_URL}/users/create`, {
                 user_wallet: wallet,
                 referral_uuid: referral,
             });

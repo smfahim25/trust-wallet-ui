@@ -112,7 +112,7 @@ function App() {
           <Route path="/profit-stat" element={<ProfitStatistics />} />
           <Route path="/notification" element={<Notification />} />
           <Route path="/funds" element={<Funds />} />
-          <Route path="/business" element={<Business />} />
+          <Route path="/business" element={<Business wallet={account}/>} />
           <Route path="/referral-list" element={<ReferralList />} />
           <Route path="/referral-history" element={<ReferralBonusHistory />} />
           <Route path="/contact-us" element={<Contact />} />
