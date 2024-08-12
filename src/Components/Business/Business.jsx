@@ -8,8 +8,8 @@ import BusinessChart from "../Chart/BusinessChart";
 const Business = () => {
   // Using react-router hooks to get the URL search params
   const [searchParams] = useSearchParams();
-  const coin = searchParams.get('coin');
-  const type = searchParams.get('type');
+  const coin = searchParams.get("coin");
+  const type = searchParams.get("type");
 
   const [market, setMarket] = useState(null);
   const [wallets, setWallets] = useState([]);
@@ -21,6 +21,7 @@ const Business = () => {
   const [selectedMiniUsdt, setSelectedMiniUsdt] = useState("");
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [tradeCoinId, setTradeCoinId] = useState(coin);
+  const [selectedTrade, setSelectedTrade] = useState("Buy");
 
   const repeaterItems = [
     {
@@ -79,7 +80,6 @@ const Business = () => {
   };
 
   useEffect(() => {
-
     const walletsData = get_posts({
       posts_per_page: -1,
       post_type: "ssb-crypto-wallet",
@@ -91,42 +91,37 @@ const Business = () => {
 
     const loadData = async () => {
       if (coin && type) {
-      const marketData = await fetchMarketData(coin, type);
+        const marketData = await fetchMarketData(coin, type);
 
-      if (marketData && walletsData.length > 0) {
-        console.log("Getting market data",marketData[0]);
-        setMarket(marketData[0]);
-        setWallets(walletsData);
-  
-        const currentUser = get_ssb_crypto_trade_landing_wallet_user(
-          sessionStorage.getItem("user_wallet")
-        );
-        setUser(currentUser);
-  
-        const balance = get_ssb_crypto_trade_landing_user_wallet_balance(
-          currentUser.id,
-          get_post_meta(walletsData[0].ID, "coin_id", true)
-        );
-        setUserBalance(balance ? balance.coin_amount : "0.0000");
-  
-        // Repeater items for initial popup values
-        const repeaterItems = get_option("ssb_crypto_trade_timer_profit");
-        if (repeaterItems) {
-          setSelectedTime(repeaterItems[0].timer_profit.timer);
-          setSelectedProfit(repeaterItems[0].timer_profit.profit);
-          setSelectedMiniUsdt(repeaterItems[0].timer_profit.mini_usdt);
+        if (marketData && walletsData.length > 0) {
+          setMarket(marketData[0]);
+          setWallets(walletsData);
+
+          const currentUser = get_ssb_crypto_trade_landing_wallet_user(
+            sessionStorage.getItem("user_wallet")
+          );
+          setUser(currentUser);
+
+          const balance = get_ssb_crypto_trade_landing_user_wallet_balance(
+            currentUser.id,
+            get_post_meta(walletsData[0].ID, "coin_id", true)
+          );
+          setUserBalance(balance ? balance.coin_amount : "0.0000");
+
+          // Repeater items for initial popup values
+          const repeaterItems = get_option("ssb_crypto_trade_timer_profit");
+          if (repeaterItems) {
+            setSelectedTime(repeaterItems[0].timer_profit.timer);
+            setSelectedProfit(repeaterItems[0].timer_profit.profit);
+            setSelectedMiniUsdt(repeaterItems[0].timer_profit.mini_usdt);
+          }
+          setSelectedWallet(walletsData[0]);
         }
-        setSelectedWallet(walletsData[0]);
-      }
       }
     };
 
     loadData();
-
- 
-
-    
-  }, [coin]);
+  }, [coin, type]);
 
   const handleTradeClick = () => {
     setPopupVisible(true);
@@ -162,7 +157,7 @@ const Business = () => {
           </div>
           <div className="value_info">
             <div className="fs-22 ff_InterSemiBold">
-              US$ {numberFormat(market?.price_usd,2)}
+              US$ {numberFormat(market?.price_usd, 2)}
             </div>
             <div
               className="change fs-15 ff_InterRegular"
@@ -229,7 +224,7 @@ const Business = () => {
               <span className="fs-16 fc-353F52">Market Cap</span>
             </div>
             <div className="item_value fs-16 fc-5B616E">
-              US$ {numberFormat(market?.market_cap_usd,2) }
+              US$ {numberFormat(market?.market_cap_usd, 2)}
             </div>
           </div>
         </div>
@@ -347,17 +342,17 @@ const Business = () => {
                     <div className="type_select_content fs-16 ff_NunitoSemiBold">
                       <div
                         className={`type_item ${
-                          selectedTime === "Buy" ? "up active" : "up"
+                          selectedTrade === "Buy" ? "up active" : "up"
                         }`}
-                        onClick={() => setSelectedTime("Buy")}
+                        onClick={() => setSelectedTrade("Buy")}
                       >
                         Buy
                       </div>
                       <div
                         className={`type_item ${
-                          selectedTime === "Sell" ? "down active" : "down"
+                          selectedTrade === "Sell" ? "down active" : "down"
                         }`}
-                        onClick={() => setSelectedTime("Sell")}
+                        onClick={() => setSelectedTrade("Sell")}
                       >
                         Sell
                       </div>
@@ -454,12 +449,12 @@ const Business = () => {
                     type="button"
                     className="submit fs-18 ff_NunitoBold"
                     style={
-                      selectedTime === "Buy"
+                      selectedTrade === "Buy"
                         ? {
                             backgroundColor: "rgb(19, 178, 111)",
                             lineHeight: 0,
                           }
-                        : selectedTime === "Sell"
+                        : selectedTrade === "Sell"
                         ? { backgroundColor: "#cf202f", lineHeight: 0 }
                         : {
                             backgroundColor: "rgb(19, 178, 111)",
