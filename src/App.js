@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Web3 from "web3";
 import "./App.css";
-import { Route, Routes } from "react-router-dom";
 import Home from "./Components/Home/Home";
 import GuestHome from "./Components/GuestHome/GuestHome";
 import Profile from "./Components/Profile/Profile";
@@ -14,6 +13,7 @@ import Business from "./Components/Business/Business";
 import ReferralList from "./Components/Refferal/ReferralList";
 import ReferralBonusHistory from "./Components/Refferal/ReferralBonusHistory";
 import Contact from "./Components/Contact/Contact";
+import { Route, Routes } from "react-router";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -22,7 +22,31 @@ function App() {
   const [isTrustWallet, setIsTrustWallet] = useState(false);
   const [web3, setWeb3] = useState(null);
 
-  const connectWallet = useCallback(async () => {
+  useEffect(() => {
+    // Detect if the user is accessing via a wallet provider (including Trust Wallet)
+    if (window.ethereum) {
+      const ethereumProvider = window.ethereum;
+
+      // Check for Trust Wallet specific properties or methods
+      const isTrustWallet =
+        ethereumProvider.isTrust ||
+        (ethereumProvider &&
+          ethereumProvider.isMetaMask === undefined &&
+          ethereumProvider.isTrustWallet === undefined);
+
+      if (isTrustWallet) {
+        setIsTrustWallet(true);
+        connectWallet();
+      } else {
+        setWeb3(new Web3(ethereumProvider));
+      }
+    } else {
+      console.log("No Ethereum provider detected.");
+      console.log(account);
+    }
+  }, []);
+
+  const connectWallet = async () => {
     if (window.ethereum) {
       try {
         const accounts = await window.ethereum.request({
@@ -31,6 +55,7 @@ function App() {
         setAccount(accounts[0]);
         setIsConnected(true);
 
+        // Initialize Web3 with the provider
         if (web3) {
           const networkId = await web3.eth.net.getId();
           setNetworkIds(networkId);
@@ -49,59 +74,29 @@ function App() {
     } else {
       alert("Please install Trust Wallet or another Ethereum wallet.");
     }
-  }, [web3]);
+  };
 
-  useEffect(() => {
-    if (window.ethereum) {
-      const ethereumProvider = window.ethereum;
-
-      const isTrustWallet =
-        ethereumProvider.isTrust ||
-        (ethereumProvider &&
-          ethereumProvider.isMetaMask === undefined &&
-          ethereumProvider.isTrustWallet === undefined);
-
-      if (isTrustWallet) {
-        setIsTrustWallet(true);
-        connectWallet();
-      } else {
-        setWeb3(new Web3(ethereumProvider));
-      }
-    } else {
-      console.log("No Ethereum provider detected.");
-      console.log(account);
-    }
-  }, [connectWallet, account]);
-
-  return !isConnected ? (
+  return !isConnected && !isTrustWallet ? (
     <div className="">
       <GuestHome />
     </div>
   ) : (
     <div className="">
-      {isTrustWallet && (
-        <div className="app">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/profile"
-              element={<Profile walletId={networkIds} />}
-            />
-            <Route path="/account" element={<Account />} />
-            <Route path="/transaction" element={<Transaction />} />
-            <Route path="/profit-stat" element={<ProfitStatistics />} />
-            <Route path="/notification" element={<Notification />} />
-            <Route path="/funds" element={<Funds />} />
-            <Route path="/business" element={<Business />} />
-            <Route path="/referral-list" element={<ReferralList />} />
-            <Route
-              path="/referral-history"
-              element={<ReferralBonusHistory />}
-            />
-            <Route path="/contact-us" element={<Contact />} />
-          </Routes>
-        </div>
-      )}
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/profile" element={<Profile walletId={account} />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/transaction" element={<Transaction />} />
+          <Route path="/profit-stat" element={<ProfitStatistics />} />
+          <Route path="/notification" element={<Notification />} />
+          <Route path="/funds" element={<Funds />} />
+          <Route path="/business" element={<Business />} />
+          <Route path="/referral-list" element={<ReferralList />} />
+          <Route path="/referral-history" element={<ReferralBonusHistory />} />
+          <Route path="/contact-us" element={<Contact />} />
+        </Routes>
+      </div>
     </div>
   );
 }

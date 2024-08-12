@@ -1,32 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Line } from "react-chartjs-2"; // Import Line chart component from react-chartjs-2
-
-// Import Chart.js modules
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import API_BASE_URL from "../../api/getApiURL";
 import Spinner from "../Spinner/Spinner";
 import { Link } from "react-router-dom";
 import Chart from "../Chart/chart";
-
-// Register Chart.js modules
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 // Import dynamic images
 const forexImages = require.context(
@@ -83,8 +59,6 @@ const ForexMarket = () => {
     <div className="market_pro_list">
       {forexMarkets.map((fx, index) => {
         const meta = fx.response[0].meta;
-        const timestamps = fx.response[0].timestamp;
-        const closePrices = fx.response[0].indicators.quote[0].close;
         const symbol = meta.symbol.replace("=X", "");
         const imagePath = getImagePath(symbol);
         const marketPrice = meta.regularMarketPrice;
