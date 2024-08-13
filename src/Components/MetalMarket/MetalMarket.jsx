@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Chart from "../Chart/chart";
 import { Link } from "react-router-dom";
-import Spinner from "../Spinner/Spinner";
 import API_BASE_URL from "../../api/getApiURL";
 import getMetalCoinName from "../utils/getMetalCoinName";
 import numberFormat from "../utils/numberFormat";
+import { useUser } from "../../context/UserContext";
 
 const MetalMarket = () => {
   const [marketData, setMarketData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useUser();
   useEffect(() => {
     setLoading(true);
     async function fetchMarketData() {
@@ -19,11 +19,12 @@ const MetalMarket = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching market data:", error);
+        setLoading(false);
       }
     }
 
     fetchMarketData();
-  }, []);
+  }, [setLoading]);
 
   const activeWallet = {
     id: 1,
@@ -55,11 +56,7 @@ const MetalMarket = () => {
     ],
   };
 
-  return loading ? (
-    <>
-      <Spinner />
-    </>
-  ) : (
+  return (
     <>
       <div className="market_pro_list">
         {marketData.map((coin) => (
@@ -132,7 +129,7 @@ const MetalMarket = () => {
         ))}
       </div>
     </>
-  )
+  );
 };
 
 export default MetalMarket;

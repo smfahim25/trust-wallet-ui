@@ -1,53 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import imgNoData from "../../Assets/images/img_nodata.png";
 import iconMenuArrow from "../../Assets/images/icon_menu_arrow.svg";
 import iconClose from "../../Assets/images/icon_close.svg";
 import Header from "../Header/Header";
+import { useUser } from "../../context/UserContext";
+import API_BASE_URL from "../../api/getApiURL";
 
 const ProfitStatistics = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [showPopup, setShowPopup] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
-  const runningOrders = [
-    {
-      id: 1,
-      order_type: "crypto",
-      trade_coin_id: "BTC",
-      coin_symbol: "USDT",
-      created_at: "2024-08-07 14:00:00",
-      amount: 1500.0,
-      delivery_time: 3600,
-      purchase_price: 45000.0,
-      profit_amount: 100.0,
-      is_profit: true,
-      delivery_price: 45100.0,
-      order_position: "Buy",
-      coin_name: "Bitcoin",
-      coin_logo: "bitcoin-logo.png",
-    },
-    // Add more running orders as needed
-  ];
-
-  const finishedOrders = [
-    {
-      id: 1,
-      order_type: "crypto",
-      trade_coin_id: "ETH",
-      coin_symbol: "USDT",
-      created_at: "2024-08-06 10:00:00",
-      amount: 1000.0,
-      delivery_time: 7200,
-      purchase_price: 3000.0,
-      profit_amount: 50.0,
-      is_profit: false,
-      delivery_price: 2950.0,
-      order_position: "Sell",
-      coin_name: "Ethereum",
-      coin_logo: "ethereum-logo.png",
-    },
-    // Add more finished orders as needed
-  ];
+  const [runningOrders, setRunningOrders] = useState([]);
+  const [finishOrders, setFinishOrders] = useState([]);
+  const { setLoading, user } = useUser();
 
   const switchTab = (tab) => {
     setActiveTab(tab);
@@ -67,6 +32,27 @@ const ProfitStatistics = () => {
     date.setSeconds(date.getSeconds() + deliveryTimeInSeconds);
     return date.toISOString().split("T").join(" ").slice(0, 19); // Format as 'YYYY-MM-DD HH:mm:ss'
   };
+  useEffect(() => {
+    setLoading(true);
+    async function fetchMarketData() {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/tradeorder/user/${user?.id}`
+        );
+        const data = await response.json();
+        if (response.status !== 404) {
+          setRunningOrders(data);
+          setFinishOrders(data);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching market data:", error);
+        setLoading(false);
+      }
+    }
+
+    fetchMarketData();
+  }, [setLoading, user]);
 
   return (
     <div
@@ -113,7 +99,7 @@ const ProfitStatistics = () => {
                   </div>
                 ) : (
                   <div className="profit-history">
-                    {runningOrders.map((order) => {
+                    {runningOrders?.map((order) => {
                       const tradeCoin =
                         order.order_type === "crypto"
                           ? order.trade_coin_id
@@ -163,7 +149,7 @@ const ProfitStatistics = () => {
                     })}
                   </div>
                 )
-              ) : finishedOrders.length === 0 ? (
+              ) : finishOrders.length === 0 ? (
                 <div
                   className="no_data_content ff_NunitoSemiBold"
                   style={{ minHeight: "calc(-260px + 100vh)" }}
@@ -173,7 +159,7 @@ const ProfitStatistics = () => {
                 </div>
               ) : (
                 <div className="profit-history">
-                  {finishedOrders.map((order) => {
+                  {finishOrders?.map((order) => {
                     const tradeCoin =
                       order.order_type === "crypto"
                         ? order.trade_coin_id

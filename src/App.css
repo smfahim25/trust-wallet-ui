@@ -5,11 +5,9 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
-
 h1 {
   color: #333;
 }
-
 .standard-ui,
 .trust-wallet-connect,
 .trust-wallet-ui {
@@ -71,7 +69,8 @@ a:active {
 #global-loader {
   position: fixed;
   z-index: 50000;
-  background: white;
+  background-color: rgba(255, 255, 255, 0.5);
+  opacity: 50;
   left: 0;
   top: 0;
   right: 0;

@@ -16,15 +16,16 @@ import Contact from "./Components/Contact/Contact";
 import { Route, Routes } from "react-router";
 import { createMetaCtUser } from "./Components/utils/createMetaCtUser";
 import { useUser } from "./context/UserContext";
+import Spinner from "./Components/Spinner/Spinner";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
   const [networkIds, setNetworkIds] = useState(null);
   const [isTrustWallet, setIsTrustWallet] = useState(false);
-  const [referral, setReferral] = useState('');
+  const [referral, setReferral] = useState("");
   const [web3, setWeb3] = useState(null);
-  const { setUser } = useUser();
+  const { setUser, loading, setLoading } = useUser();
 
   useEffect(() => {
     // Detect if the user is accessing via a wallet provider (including Trust Wallet)
@@ -81,28 +82,30 @@ function App() {
   };
 
   useEffect(() => {
-    
     if (isConnected && isTrustWallet) {
       const initializeUser = async () => {
         try {
-            await createMetaCtUser
-            (account, referral,setUser);
+          await createMetaCtUser(account, referral, setUser, setLoading);
         } catch (error) {
-            console.error('Failed to initialize user:', error);
+          console.error("Failed to initialize user:", error);
         }
-    };
+      };
 
-    initializeUser();
+      initializeUser();
     }
-  }, [isConnected,isTrustWallet,account,referral,setUser]);
-
+  }, [isConnected, isTrustWallet, account, referral, setUser, setLoading]);
 
   return !isConnected && !isTrustWallet ? (
     <div className="">
       <GuestHome />
     </div>
   ) : (
-    <div className="">
+    <div>
+      {loading && (
+        <div id="global-loader">
+          <Spinner />
+        </div>
+      )}
       <div className="app">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -112,7 +115,7 @@ function App() {
           <Route path="/profit-stat" element={<ProfitStatistics />} />
           <Route path="/notification" element={<Notification />} />
           <Route path="/funds" element={<Funds />} />
-          <Route path="/business" element={<Business wallet={account}/>} />
+          <Route path="/business" element={<Business wallet={account} />} />
           <Route path="/referral-list" element={<ReferralList />} />
           <Route path="/referral-history" element={<ReferralBonusHistory />} />
           <Route path="/contact-us" element={<Contact />} />
