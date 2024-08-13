@@ -39,6 +39,7 @@ const Business = () => {
   const [tradeCoinId, setTradeCoinId] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
+  const [tradeErrorText, setTradeErrorText] = useState("");
 
   const timerProfits = useMemo(
     () => [
@@ -131,10 +132,7 @@ const Business = () => {
   };
 
   const [amount, setAmount] = useState(0);
-
-  const [responseMessage, setResponseMessage] = useState("");
   const [redirect, setRedirect] = useState(false);
-  // const [responseMessage, setResponseMessage] = useState('');
 
   const handleInputChange = (e) => {
     const { value } = e.target;
@@ -157,17 +155,14 @@ const Business = () => {
       !coin ||
       !selectedTime
     ) {
-      setResponseMessage("Something is wrong. Try Again!");
+      setTradeErrorText("Something is wrong. Try Again!");
       console.log("Something is wrong. Try Again!");
     } else if (amount <= 0) {
-      setResponseMessage("Amount should be a number without 0.");
-      console.log("Amount should be a number without 0.");
+      setTradeErrorText("Your amount should be grater than 0.");
     } else if (amount < selectedMiniUsdt) {
-      setResponseMessage(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
-      console.log(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
+      setTradeErrorText(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
     } else if (amount > userBalance) {
-      setResponseMessage("Amount shouldn't be greater than your balance");
-      console.log("Amount shouldn't be greater than your balance");
+      setTradeErrorText("Amount shouldn't be greater than your balance");
     } else {
       try {
         const order_id = Math.floor(100000 + Math.random() * 900000);
@@ -204,7 +199,7 @@ const Business = () => {
         setRedirect(true);
       } catch (error) {
         console.error("Error submitting trade order:", error);
-        setResponseMessage("Something is wrong. Try Again!");
+        setTradeErrorText("Something is wrong. Try Again!");
       }
     }
   };
@@ -600,6 +595,15 @@ const Business = () => {
                   <div className="expect_value fc-1652F0">Estimation: 0.00</div>
                 </div>
                 <div className="submit_container">
+                  <span
+                    style={{
+                      color: "red",
+                      fontWeight: "bold",
+                      fontSize: "15px",
+                    }}
+                  >
+                    {tradeErrorText}
+                  </span>
                   <button
                     onClick={handleSubmit}
                     type="button"
