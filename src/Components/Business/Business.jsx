@@ -5,19 +5,16 @@ import fetchMarketData from "../utils/getMarketData";
 import numberFormat from "../utils/numberFormat";
 import BusinessChart from "../Chart/BusinessChart";
 import getMetalCoinName from "../utils/getMetalCoinName";
-import { useUser } from "../../context/UserContext";
-import axios from "axios";
-import useWallets from "../../hooks/useWallets";
 
-const Business = ({wallet}) => {
+const Business = () => {
   // Using react-router hooks to get the URL search params
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
   const type = searchParams.get("type");
 
   const [market, setMarket] = useState(null);
-  const { wallets, loading, error } = useWallets();
-  // const [user] = useUser();
+  const [wallets, setWallets] = useState([]);
+  const [user, setUser] = useState(null);
   const [userBalance, setUserBalance] = useState("0.0000");
   const [timePopupVisible, setTimePopupVisible] = useState(false);
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
@@ -68,31 +65,47 @@ const Business = ({wallet}) => {
     },
   ];
 
+  // Mock implementation of wp_get_attachment_image_src
+  const wp_get_attachment_image_src = (imageId, size) => {
+    const mockImages = {
+      1: "https://example.com/images/coin1.png",
+      2: "https://example.com/images/coin2.png",
+      3: "https://example.com/images/coin3.png",
+    };
+
+    return [mockImages[imageId] || "", "", ""];
+  };
+
   useEffect(() => {
-    // if(user){
-    //   console.log("user details", user);
-    // }
+    const walletsData = get_posts({
+      posts_per_page: -1,
+      post_type: "ssb-crypto-wallet",
+      meta_key: "status",
+      meta_value: "active",
+      orderby: "ID",
+      order: "ASC",
+    });
 
     const loadData = async () => {
       if (coin && type) {
         const marketData = await fetchMarketData(coin, type);
 
-        if (marketData && wallets.length > 0) {
+        if (marketData && walletsData.length > 0) {
           if (type === "crypto") {
             setMarket(marketData[0]);
           } else {
             setMarket(marketData[0]?.meta);
           }
-          // setWallets(walletsData);
+          setWallets(walletsData);
 
           const currentUser = get_ssb_crypto_trade_landing_wallet_user(
             sessionStorage.getItem("user_wallet")
           );
-        
+          setUser(currentUser);
 
           const balance = get_ssb_crypto_trade_landing_user_wallet_balance(
             currentUser.id,
-            get_post_meta(wallets[0].ID, "coin_id", true)
+            get_post_meta(walletsData[0].ID, "coin_id", true)
           );
           setUserBalance(balance ? balance.coin_amount : "0.0000");
 
@@ -103,13 +116,13 @@ const Business = ({wallet}) => {
             setSelectedProfit(repeaterItems[0].timer_profit.profit);
             setSelectedMiniUsdt(repeaterItems[0].timer_profit.mini_usdt);
           }
-          setSelectedWallet(wallets[0]);
+          setSelectedWallet(walletsData[0]);
         }
       }
     };
 
     loadData();
-  }, [coin, type,wallets]);
+  }, [coin, type]);
 
   const handleTradeClick = () => {
     setPopupVisible(true);
@@ -130,143 +143,19 @@ const Business = ({wallet}) => {
     handlePopupTime();
   };
 
-  
-
   const handlePopupCoin = () => {
     setCoinPopupVisible(!coinPopupVisible);
   };
 
   const handleSelectCoin = (item) => {
-    setSelectedWallet(item);
-    handlePopupCoin();
+    setSelectedTime(item.timer_profit.timer);
+    setSelectedProfit(item.timer_profit.profit);
+    setSelectedMiniUsdt(item.timer_profit.mini_usdt);
+    handlePopupTime();
   };
-
-
-  const [user, setUser] = useState(null);
-  const [amount, setAmount] = useState(0);
-
-  const [formData, setFormData] = useState({
-    order_type: '',
-    order_position: '',
-    wallet_coin_id: '',
-    trade_coin_id: '',
-    amount: 0,
-    delivery_time: '',
-  });
-  const [responseMessage, setResponseMessage] = useState('');
-  const [redirect, setRedirect] = useState(false);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setAmount(value);
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const handleSelectType = (data) => {
+    setSelectedType(data);
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // if (!user) {
-    //   setResponseMessage('Session is not existed. Do login. Or Refresh Page.');
-    //   setRedirect(true);
-    //   return;
-    // }
-
-    // const {
-    //   order_type,
-    //   order_position,
-    //   wallet_coin_id,
-    //   trade_coin_id,
-    //   amount,
-    //   delivery_time,
-    // } = formData;
-
-    // const trade_amount_limit = 10; // Replace with API call to get limit if needed
-    // const coin_amount_str = await axios.get(`/api/coin-amount?coin_id=${wallet_coin_id}`);
-    // const coin_amount = parseFloat(coin_amount_str.data.replace(',', ''));
-
-    // // Validation
-    // if (
-    //   !type ||
-    //   !order_position ||
-    //   !wallet_coin_id ||
-    //   !trade_coin_id ||
-    //   !delivery_time
-    // ) {
-    //   setResponseMessage('Something is wrong. Try Again!');
-    // } else if (amount <= 0) {
-    //   setResponseMessage('Amount should be a number without 0.');
-    // } else if (amount < trade_amount_limit) {
-    //   setResponseMessage(`Minimum deposit amount is ${trade_amount_limit} USDT`);
-    // } else if (amount > coin_amount) {
-    //   setResponseMessage('Amount shouldn\'t be greater than your balance');
-    // } else {
-      // try {
-    //     const balance = await axios.get(`/api/balance?user_id=${user.id}&coin_id=${wallet_coin_id}`);
-    //     const wallet_amount = await axios.get(`/api/usdt-to-coin?amount=${amount}&coin_id=${wallet_coin_id}`);
-    //     const timer_profit = await axios.get(`/api/timer-profit?delivery_time=${delivery_time}`);
-
-    //     const profit_level = timer_profit.data.find(tp => tp.timer === delivery_time)?.profit || 0;
-    //     const percent = profit_level / 100;
-    //     const profit_amount = amount * percent;
-    //     const wallet_profit_amount = wallet_amount * percent;
-
-    //     let purchase_price = 0;
-
-    //     if (order_type === 'crypto') {
-    //       const market = await axios.get(`/api/crypto-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market?.data[0].price_usd;
-    //     } else if (order_type === 'forex') {
-    //       const market = await axios.get(`/api/forex-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market?.data[0].meta.regularMarketPrice;
-    //     } else if (order_type === 'metal') {
-    //       const market = await axios.get(`/api/metal-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market?.data[0].meta.regularMarketPrice;
-    //     }
-    try {
-        const order_id = Math.floor(100000 + Math.random() * 900000);
-        const percent = selectedProfit / 100;
-        const profit_amount = amount * percent;
-        // Create the trade order
-        const tradeOrderResponse = await axios.post('/api/trade-order', {
-          order_id,
-          order_type:type,
-          order_position: selectedType.toLowerCase(),
-          user_id: user.id,
-          user_wallet: wallet,
-          wallet_coin_id:80,
-          trade_coin_id:coin,
-          amount,
-          wallet_amount:50,
-          profit_amount:20,
-          purchase_price:10,
-          wallet_profit_amount:10,
-          delivery_time:selectedTime,
-          profit_level:selectedProfit,
-          is_profit: user.is_profit,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-
-        // Update user balance
-        // const new_balance = balance.data.coin_amount - wallet_amount;
-        // await axios.put(`/api/balance`, {
-        //   user_id: user.id,
-        //   coin_id: wallet_coin_id,
-        //   coin_amount: new_balance,
-        // });
-
-        setResponseMessage('Trade Order request successfully sent.');
-        setRedirect(true);
-      } catch (error) {
-        console.error('Error submitting trade order:', error);
-        setResponseMessage('Something is wrong. Try Again!');
-      }
-    // }
-  };
-
 
   if (!market || wallets.length === 0) return null;
 
@@ -279,33 +168,33 @@ const Business = ({wallet}) => {
           <div className="base_info">
             {type === "crypto" ? (
               <img
-                src={`/assets/images/coins/${market?.symbol.toLowerCase()}-logo.png`}
+                src={`/assets/images/coins/${market.symbol.toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market?.symbol} logo`}
+                alt={`${market.symbol} logo`}
               />
             ) : type === "metal" ? (
               <img
-                src={`/assets/images/coins/${market?.symbol
+                src={`/assets/images/coins/${market.symbol
                   .split("=")[0]
                   .trim()
                   .toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market?.symbol} logo`}
+                alt={`${market.symbol} logo`}
               />
             ) : (
               <img
-                src={`/assets/images/coins/${market?.symbol
+                src={`/assets/images/coins/${market.symbol
                   .split("=")[0]
                   .trim()
                   .toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market?.symbol} logo`}
+                alt={`${market.symbol} logo`}
               />
             )}
             <div>
               <div className="fs-16 ff_NunitoBold">
                 {type === "crypto"
-                  ? market?.symbol
+                  ? market.symbol
                   : type === "metal"
                   ? getMetalCoinName(market?.symbol.split("=")[0].trim())
                   : market?.shortName}
@@ -330,13 +219,13 @@ const Business = ({wallet}) => {
                 className="change fs-15 ff_InterRegular"
                 style={{
                   color:
-                    market?.percent_change_24h < 0
+                    market.percent_change_24h < 0
                       ? "rgb(207, 32, 47)"
                       : "rgb(19, 178, 111)",
                 }}
               >
-                {market?.price_usd * (market?.percent_change_24h / 100)} (
-                {market?.percent_change_24h}%)
+                {market.price_usd * (market.percent_change_24h / 100)} (
+                {market.percent_change_24h}%)
               </div>
             )}
             {type !== "crypto" && (
@@ -344,12 +233,12 @@ const Business = ({wallet}) => {
                 className="change fs-15 ff_InterRegular"
                 style={{
                   color:
-                    market?.regularMarketPrice - market?.previousClose < 0
+                    market.regularMarketPrice - market.previousClose < 0
                       ? "rgb(207, 32, 47)"
                       : "rgb(19, 178, 111)",
                 }}
               >
-                {(market?.regularMarketPrice - market?.previousClose).toFixed(5)}
+                {(market.regularMarketPrice - market.previousClose).toFixed(5)}
               </div>
             )}
           </div>
@@ -393,7 +282,7 @@ const Business = ({wallet}) => {
                 <span className="fs-16 fc-353F52">24h volume</span>
               </div>
               <div className="item_value fs-16 fc-5B616E">
-                {market?.volume24.toLocaleString()}
+                {market.volume24.toLocaleString()}
               </div>
             </div>
             <div className="other_item ff_NunitoSemiBold">
@@ -437,7 +326,7 @@ const Business = ({wallet}) => {
                 <div className="title fs-18 fc-353F52">
                   <span>
                     {type === "crypto"
-                      ? market?.symbol
+                      ? market.symbol
                       : type === "metal"
                       ? getMetalCoinName(market?.symbol.split("=")[0].trim())
                       : market?.symbol.split("=")[0].trim()}
@@ -460,7 +349,7 @@ const Business = ({wallet}) => {
                       />
                     ) : type === "metal" ? (
                       <img
-                        src={`/assets/images/coins/${market?.symbol
+                        src={`/assets/images/coins/${market.symbol
                           .split("=")[0]
                           .trim()
                           .toLowerCase()}-logo.png`}
@@ -469,7 +358,7 @@ const Business = ({wallet}) => {
                       />
                     ) : (
                       <img
-                        src={`/assets/images/coins/${market?.symbol
+                        src={`/assets/images/coins/${market.symbol
                           .split("=")[0]
                           .trim()
                           .toLowerCase()}-logo.png`}
@@ -486,7 +375,7 @@ const Business = ({wallet}) => {
                       />
                       <div className="coin_name">
                         {type === "crypto"
-                          ? market?.symbol
+                          ? market.symbol
                           : type === "metal"
                           ? getMetalCoinName(
                               market?.symbol.split("=")[0].trim()
@@ -532,7 +421,7 @@ const Business = ({wallet}) => {
                           get_post_meta(selectedWallet.ID, "coin_id", true),
                           ","
                         )}
-                      </span>{" "}
+                      </span>
                       USDT
                     </div>
                   </div>
@@ -542,7 +431,10 @@ const Business = ({wallet}) => {
                     Delivery time
                   </div>
                   <div className="time_select_container">
-                    <div className="time_select_content" onClick={handlePopupTime}>
+                    <div
+                      className="time_select_content"
+                      onClick={handlePopupTime}
+                    >
                       <div className="value">
                         <img
                           src="/assets/images/icon_time.svg"
@@ -562,7 +454,7 @@ const Business = ({wallet}) => {
                         className={`type_item ${
                           selectedType === "Buy" ? "up active" : "up"
                         }`}
-                        onClick={() => setSelectedType("Buy")}
+                        onClick={() => handleSelectType("Buy")}
                       >
                         Buy
                       </div>
@@ -570,7 +462,7 @@ const Business = ({wallet}) => {
                         className={`type_item ${
                           selectedType === "Sell" ? "down active" : "down"
                         }`}
-                        onClick={() => setSelectedType("Sell")}
+                        onClick={() => handleSelectType("Sell")}
                       >
                         Sell
                       </div>
@@ -600,13 +492,16 @@ const Business = ({wallet}) => {
                     <div className="fs-12">Fee: 0.1%</div>
                   </div>
                   <div className="coin_select_container">
-                    <div className="coin_select_content" onClick={handlePopupCoin}>
+                    <div
+                      className="coin_select_content"
+                      onClick={handlePopupCoin}
+                    >
                       <div className="value">
                         {selectedWallet && (
                           <>
                             <img
                               className="icon_time"
-                              src={`/assets/images/coins/${selectedWallet.coin_symbol.toLowerCase()}-logo.png` || ""}
+                              src={selectedWallet.coin_logo || ""}
                               alt={selectedWallet.coin_symbol || ""}
                             />
                             <input
@@ -633,7 +528,6 @@ const Business = ({wallet}) => {
                     </div>
                     <div className="amount_input">
                       <input
-                        onChange={handleInputChange}
                         type="number"
                         inputMode="numeric"
                         name="amount"
@@ -685,85 +579,98 @@ const Business = ({wallet}) => {
                   </button>
                 </div>
 
-                
-                  {timePopupVisible && 
+                {timePopupVisible && (
                   <div id="select_time_popup">
-                  <div className="ssb-overlay" style={{ zIndex: 2021 }}></div>
-                  <div
-                    className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
-                    style={{ zIndex: 2022, height: "auto" }}
-                  >
-                    <div className="range_title">
-                      <img
-                        src="/assets/images/icon_close.svg"
-                        className="icon_close"
-                        alt="Close"
-                        onClick={handlePopupTime}
-                      />
-                    </div>
-                    <div className="coin_list">
-                      {repeaterItems.map((item, index) => (
-                        <div className="coin_item" key={index}>
-                          <div
-                            onClick={()=>handleSelectTimer(item)}
-                            className="name"
-                            data-mini_usdt={item.timer_profit.mini_usdt}
-                            data-profit_level={item.timer_profit.profit}
-                          >
-                            {item.timer_profit.timer}
+                    <div className="ssb-overlay" style={{ zIndex: 2021 }}></div>
+                    <div
+                      className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
+                      style={{ zIndex: 2022, height: "auto" }}
+                    >
+                      <div className="range_title">
+                        <img
+                          src="/assets/images/icon_close.svg"
+                          className="icon_close"
+                          alt="Close"
+                          onClick={handlePopupTime}
+                        />
+                      </div>
+                      <div className="coin_list">
+                        {repeaterItems.map((item, index) => (
+                          <div className="coin_item" key={index}>
+                            <div
+                              onClick={() => handleSelectTimer(item)}
+                              className="name"
+                              data-mini_usdt={item.timer_profit.mini_usdt}
+                              data-profit_level={item.timer_profit.profit}
+                            >
+                              {item.timer_profit.timer}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
+                )}
+
+                {coinPopupVisible && (
+                  <div id="select_coin_popup">
+                    <div className="ssb-overlay" style={{ zIndex: 2023 }}></div>
+                    <div
+                      className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
+                      style={{ zIndex: 2024, height: "auto" }}
+                    >
+                      <div className="range_title">
+                        <img
+                          src="/assets/images/icon_close.svg"
+                          className="icon_close"
+                          alt="Close"
+                          onClick={handlePopupCoin}
+                        />
+                      </div>
+                      <div className="coin_list">
+                        {wallets.map((wallet, index) => {
+                          const imageId = get_post_meta(
+                            wallet.ID,
+                            "coin_logo"
+                          )[0];
+                          const imageUrl = imageId
+                            ? wp_get_attachment_image_src(imageId, "full")[0]
+                            : "";
+
+                          return (
+                            <div className="coin_item" key={index}>
+                              <div
+                                className="name"
+                                data-coin_id={get_post_meta(
+                                  wallet.ID,
+                                  "coin_id",
+                                  true
+                                )}
+                                data-coin_logo={imageUrl}
+                                data-coin_symbol={get_post_meta(
+                                  wallet.ID,
+                                  "coin_symbol",
+                                  true
+                                )}
+                                onClick={() => setSelectedWallet(wallet)}
+                              >
+                                <img
+                                  src={imageUrl}
+                                  alt={get_post_meta(
+                                    wallet.ID,
+                                    "coin_symbol",
+                                    true
+                                  )}
+                                />
+                                {get_post_meta(wallet.ID, "coin_symbol", true)}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                  }
-                  
-                
-                {coinPopupVisible &&
-                <div id="select_coin_popup">
-                <div className="ssb-overlay" style={{ zIndex: 2023 }}></div>
-                <div
-                  className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
-                  style={{ zIndex: 2024, height: "auto" }}
-                >
-                  <div className="range_title">
-                    <img
-                      src="/assets/images/icon_close.svg"
-                      className="icon_close"
-                      alt="Close"
-                      onClick={handlePopupCoin}
-                    />
-                  </div>
-                  <div className="coin_list">
-                    {wallets.map((wallet, index) => {
-                      return (
-                        <div className="coin_item" key={index}>
-                          <div
-                            className="name"
-                            data-coin_id={get_post_meta(
-                              wallet.ID,
-                              "coin_id",
-                              true
-                            )}
-                            data-coin_logo={wallet.coin_logo}
-                            data-coin_symbol={wallet.coin_symbol}
-                            onClick={() => handleSelectCoin(wallet)}
-                          >
-                            <img
-                              src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
-                              alt={wallet.coin_symbol}
-                            />
-                            {` ${wallet.coin_symbol}`}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-                }
-                
+                )}
               </div>
             </div>
           </div>

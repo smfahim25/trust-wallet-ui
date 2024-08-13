@@ -22,7 +22,7 @@ function App() {
   const [account, setAccount] = useState(null);
   const [networkIds, setNetworkIds] = useState(null);
   const [isTrustWallet, setIsTrustWallet] = useState(false);
-  const [referral, setReferral] = useState('');
+  const [referral, setReferral] = useState("");
   const [web3, setWeb3] = useState(null);
   const { setUser } = useUser();
 
@@ -81,21 +81,18 @@ function App() {
   };
 
   useEffect(() => {
-    
     if (isConnected && isTrustWallet) {
       const initializeUser = async () => {
         try {
-            await createMetaCtUser
-            (account, referral,setUser);
+          await createMetaCtUser(account, referral, setUser);
         } catch (error) {
-            console.error('Failed to initialize user:', error);
+          console.error("Failed to initialize user:", error);
         }
-    };
+      };
 
-    initializeUser();
+      initializeUser();
     }
-  }, [isConnected,isTrustWallet,account,referral,setUser]);
-
+  }, [isConnected, isTrustWallet, account, referral, setUser]);
 
   return !isConnected && !isTrustWallet ? (
     <div className="">
@@ -112,7 +109,7 @@ function App() {
           <Route path="/profit-stat" element={<ProfitStatistics />} />
           <Route path="/notification" element={<Notification />} />
           <Route path="/funds" element={<Funds />} />
-          <Route path="/business" element={<Business wallet={account}/>} />
+          <Route path="/business" element={<Business wallet={account} />} />
           <Route path="/referral-list" element={<ReferralList />} />
           <Route path="/referral-history" element={<ReferralBonusHistory />} />
           <Route path="/contact-us" element={<Contact />} />
