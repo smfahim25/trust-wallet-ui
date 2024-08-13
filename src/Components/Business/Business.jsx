@@ -158,11 +158,11 @@ const Business = () => {
       setTradeErrorText("Something is wrong. Try Again!");
       console.log("Something is wrong. Try Again!");
     } else if (amount <= 0) {
-      setTradeErrorText("Your amount should be grater than 0.");
+      setTradeErrorText("Amount is required!!! Please place amount");
     } else if (amount < selectedMiniUsdt) {
       setTradeErrorText(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
     } else if (amount > userBalance) {
-      setTradeErrorText("Amount shouldn't be greater than your balance");
+      setTradeErrorText("Balance is not available");
     } else {
       try {
         const order_id = Math.floor(100000 + Math.random() * 900000);
