@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Chart from "../Chart/chart";
 import { Link } from "react-router-dom";
-import Spinner from "../Spinner/Spinner";
+import { useUser } from "../../context/UserContext";
 // import imgPath from '../../Assets/images/coins';
 
 function CryptoMarket() {
   const [marketData, setMarketData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useUser();
   //   const [activeWallet, setActiveWallet] = useState(null);
   useEffect(() => {
     setLoading(true);
@@ -24,43 +24,9 @@ function CryptoMarket() {
     }
 
     fetchMarketData();
-  }, []);
+  }, [setLoading]);
 
-  const activeWallet = {
-    id: 1,
-    coin_symbol: "ETH",
-    coin_name: "Bitcoin",
-    balance: 0.05,
-    usd_balance: 1467.5, // This can be calculated based on the current price of the coin
-    coin_logo: {
-      url: "/assets/images/btc_logo.png",
-      alt: "Bitcoin Logo",
-    },
-    status: "active", // Wallet status
-    last_transaction_date: "2024-07-15", // Last transaction date
-    transactions: [
-      {
-        id: 101,
-        date: "2024-07-10",
-        type: "Deposit",
-        amount: 0.01,
-        usd_value: 294.5,
-      },
-      {
-        id: 102,
-        date: "2024-07-08",
-        type: "Withdrawal",
-        amount: 0.005,
-        usd_value: 147.25,
-      },
-    ],
-  };
-
-  return loading ? (
-    <>
-      <Spinner />
-    </>
-  ) : (
+  return (
     <>
       <div className="market_pro_list">
         {marketData.map((coin) => (

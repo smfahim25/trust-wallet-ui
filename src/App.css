@@ -5,11 +5,9 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
-
 h1 {
   color: #333;
 }
-
 .standard-ui,
 .trust-wallet-connect,
 .trust-wallet-ui {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import API_BASE_URL from "../../api/getApiURL";
-import Spinner from "../Spinner/Spinner";
 import { Link } from "react-router-dom";
 import Chart from "../Chart/chart";
+import { useUser } from "../../context/UserContext";
 
 // Import dynamic images
 const forexImages = require.context(
@@ -25,7 +25,7 @@ const getImagePath = (symbol) => {
 const ForexMarket = () => {
   const [forexMarkets, setForexMarkets] = useState([]);
   const [wallet, setWallet] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useUser();
 
   useEffect(() => {
     // Fetch Forex market data
@@ -51,11 +51,9 @@ const ForexMarket = () => {
 
     fetchForexMarkets();
     fetchWallet();
-  }, []);
+  }, [setLoading]);
 
-  return loading ? (
-    <Spinner />
-  ) : (
+  return (
     <div className="market_pro_list">
       {forexMarkets.map((fx, index) => {
         const meta = fx.response[0].meta;

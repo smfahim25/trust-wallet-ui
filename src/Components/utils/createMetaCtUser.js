@@ -1,9 +1,15 @@
 import axios from "axios";
 import API_BASE_URL from "../../api/getApiURL";
 
-export const createMetaCtUser = async (wallet, referral = "", setUser) => {
+export const createMetaCtUser = async (
+  wallet,
+  referral = "",
+  setUser,
+  setLoading
+) => {
   try {
     let user;
+    setLoading(true);
     try {
       const response = await axios.get(
         `${API_BASE_URL}/users/wallet/${wallet}`
@@ -33,11 +39,15 @@ export const createMetaCtUser = async (wallet, referral = "", setUser) => {
         setUser(newUserResponse.data);
         console.log("New user registered successfully");
       } else {
+        setLoading(false);
         throw new Error("User creation failed");
       }
     }
   } catch (error) {
     console.error("Error in createMetaCtUser:", error);
+    setLoading(false);
     throw error;
+  } finally {
+    setLoading(false);
   }
 };
