@@ -1,8 +1,15 @@
 import React, { useState } from "react";
 import Header from "../Header/Header";
+import axios from "axios";
+import { useUser } from "../../context/UserContext";
+import { useLocation } from "react-router";
+import API_BASE_URL from "../../api/getApiURL";
 
 const Funds = () => {
-  // Mock data
+  const location = useLocation();
+  const wallet = location.state?.wallet;
+  const { user } = useUser();
+  console.log("user details: ",user);
   const [activeTab, setActiveTab] = useState('deposit');
   const [rechargeModal, setRechargeModal] = useState(false);
   const handleSwitchTab = (tab) => {
@@ -13,10 +20,6 @@ const Funds = () => {
         setRechargeModal(!rechargeModal);
       };
   const fundCoin = "bitcoin"; 
-  const user = {
-    id: 1,
-    wallet: "user_wallet_address",
-  };
   const post = {
     ID: 123,
     coin_symbol: "BTC",
@@ -41,14 +44,53 @@ const Funds = () => {
   const withdrawLimit = 10; // USD
   const withdrawalFee = 0.001; // 0.1%
 
-  const handleRechargeSubmit = () => {
-    // Implement recharge submit functionality
-    alert("Recharge Submitted");
-  };
-
   const handleSend = () => {
     // Implement send functionality
     alert("Funds Sent");
+  };
+
+  const [amount, setAmount] = useState('');
+  const [screenshot, setScreenshot] = useState(null);
+  const [preview, setPreview] = useState(null);
+
+  const handleAmountChange = (e) => {
+    setAmount(e.target.value);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setScreenshot(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const handleRechargeSubmit = async (e) => {
+    e.preventDefault();
+    if (!amount || !screenshot) {
+      alert('Please provide both amount and screenshot');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('user_id', user.id);
+    formData.append('wallet_to', 'ex5457ad3ess');
+    formData.append('wallet_from', 'ex5457ad3ess');
+
+    formData.append('coin_id', wallet?.coin_id);
+    formData.append('trans_hash', 'ex3j3h2sh');
+    
+    formData.append('amount', amount);
+    formData.append('documents', screenshot);
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/deposits`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error uploading data:', error);
+    }
   };
 
   return (
@@ -62,7 +104,7 @@ const Funds = () => {
       <div className="amount">
         <div className="money_symbol ff_InterSemiBold"></div>
         <div className="us_num ff_InterSemiBold">
-          US$ {parseFloat(balance.coin_amount).toFixed(2)} {/* Mock conversion */}
+          US$ {parseFloat(balance.coin_amount).toFixed(2)} 
         </div>
         <div className="coin_num flex align-center">
           {post.coin_logo.url ? (
@@ -162,6 +204,8 @@ const Funds = () => {
                                 }}
                             >
                                 <input
+                                 value={amount}
+                                 onChange={handleAmountChange}
                                 type="number"
                                 inputMode="numeric"
                                 name="amount"
@@ -186,13 +230,15 @@ const Funds = () => {
                                 <div className="ssb-uploader__upload">
                                     <img
                                     className="ssb-uploader__upload_img"
-                                    src="/assets/images/icon_camera.svg"
-                                    alt=""
+                                    src={preview || "/assets/images/icon_camera.svg"}
+                                    alt="Preview"
                                     />
                                     <input
                                     type="file"
                                     name="documents"
                                     accept="image/*"
+                 
+                                    onChange={handleFileChange}
                                     className="ssb-uploader__input"
                                     />
                                 </div>

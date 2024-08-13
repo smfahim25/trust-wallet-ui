@@ -7,6 +7,8 @@ import btcLogo from "../../Assets/images/coins/btc-logo.png";
 import solLogo from "../../Assets/images/coins/sol-logo.png";
 import Header from "../Header/Header";
 import { Link } from "react-router-dom";
+import useWallets from "../../hooks/useWallets";
+import { useUser } from "../../context/UserContext";
 
 // A utility function to fetch data
 async function fetchData(endpoint) {
@@ -18,33 +20,9 @@ async function fetchData(endpoint) {
 }
 
 function Account() {
-  const [wallets, setWallets] = useState([]);
+  const {wallets, setWallets} = useWallets();
   const [searchTerm, setSearchTerm] = useState("");
-  const [user, setUser] = useState(null);
-
-  // Fetch user and wallet data from the API
-  useEffect(() => {
-    async function loadData() {
-      try {
-        // Fetch user data
-        const user = await fetchData("/api/get_user");
-        setUser(user);
-
-        // Fetch wallet posts
-        const posts = await fetchData("/api/get_wallets");
-        setWallets(posts);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-
-    loadData();
-  }, []);
-
-  // Filter wallets based on the search term
-  //   const filteredWallets = wallets.filter(wallet =>
-  //     wallet.coin_symbol.toLowerCase().includes(searchTerm.toLowerCase())
-  //   );
+  const {user, setUser} = useUser();
 
   const filteredWallets = [
     {
@@ -138,16 +116,24 @@ function Account() {
           </div>
         </div>
 
-        {filteredWallets.length > 0 && (
+        {wallets?.length > 0 && (
           <div className="wallet_list">
-            {filteredWallets.map((wallet) => (
-              <Link to={"/funds"} key={wallet.id} className="wallet_item">
+            {wallets?.map((wallet) => (
+               <Link 
+               to={{
+                 pathname: "/funds",
+                 state: { wallet } 
+               }} 
+               key={wallet.id} 
+               className="wallet_item"
+             >
                 <div className="item_info">
                   {wallet.coin_logo ? (
                     <img
                       className="icon"
-                      src={wallet.coin_logo.url}
-                      alt={wallet.coin_logo.alt}
+                      src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png` || ""}
+                      alt={wallet.coin_symbol || ""}
+                     
                     />
                   ) : (
                     <img src="" alt="No Icon" className="icon" />
@@ -162,15 +148,15 @@ function Account() {
                     </div>
                   </div>
                 </div>
-
                 <div className="item_value">
                   <div className="value_us fs-32 fc-353F52 ff_InterSemiBold">
-                    US$ {wallet.usd_value}
+                    US$ {wallet.usd_value || '0.00'}
                   </div>
                   <div className="value_num fs-26 fc-5B616E ff_InterMedium">
-                    {wallet.coin_amount} {wallet.coin_symbol}
+                    {wallet.coin_amount || '0.00'} {wallet.coin_symbol}
                   </div>
                 </div>
+
               
               </Link>
               
