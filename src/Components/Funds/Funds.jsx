@@ -49,11 +49,23 @@ const Funds = () => {
   };
 
   const [amount, setAmount] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawAddress, setWithdrawAddress] = useState('');
   const [screenshot, setScreenshot] = useState(null);
   const [preview, setPreview] = useState(null);
 
   const handleAmountChange = (e) => {
     setAmount(e.target.value);
+  };
+
+  const handleWithdrawChange = (e) => {
+    if(e.target.name === "withdrawAddress"){
+      setWithdrawAddress(e.target.value);
+      
+    } else if(e.target.name === "withdrawAmount"){
+      setWithdrawAmount(e.target.value);
+    }
+    
   };
 
   const handleFileChange = (e) => {
@@ -91,6 +103,39 @@ const Funds = () => {
       console.error('Error uploading data:', error);
     }
   };
+
+  const handleWithdrawSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Validate inputs
+    if (!withdrawAmount || !withdrawAddress) {
+      alert('Please provide both amount and address');
+      return;
+    }
+  
+    const data = {
+      user_id: user.id,
+      wallet_to: withdrawAddress,
+      wallet_from: 'ex5457ad3ess',
+      coin_id: wallet?.coin_id,
+      trans_hash: 'ex3j3h2sh',
+      amount: withdrawAmount,
+    };
+  
+    console.log(data); 
+  
+    try {
+      const response = await axios.post(`${API_BASE_URL}/withdraws`, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error sending data:', error);
+    }
+  };
+  
 
   return (
     <div className="recharge">
@@ -342,6 +387,8 @@ const Funds = () => {
           <div className="input_content ff_NunitoSemiBold">
             <div className="address">
               <input
+                onChange={handleWithdrawChange}
+                name="withdrawAddress"
                 type="text"
                 id="receiver_account"
                 placeholder="Receiving Address"
@@ -364,6 +411,8 @@ const Funds = () => {
                 <img src="" alt="" className="coin_icon" />
               )}
               <input
+               onChange={handleWithdrawChange}
+                name="withdrawAmount"
                 type="number"
                 inputMode="numeric"
                 id="receiver_amount"
@@ -390,7 +439,7 @@ const Funds = () => {
             <button
               type="button"
               className="send_action fs-16 ff_NunitoBold"
-              onClick={handleSend}
+              onClick={handleWithdrawSubmit}
             >
               Send now
             </button>
