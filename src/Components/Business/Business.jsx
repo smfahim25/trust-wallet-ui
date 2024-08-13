@@ -230,27 +230,27 @@ const Business = () => {
           <div className="base_info">
             {type === "crypto" ? (
               <img
-                src={`/assets/images/coins/${market.symbol.toLowerCase()}-logo.png`}
+              src={`/assets/images/coins/${market?.symbol.toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market.symbol} logo`}
+                alt={`${market?.symbol} logo`}
               />
             ) : type === "metal" ? (
               <img
-                src={`/assets/images/coins/${market.symbol
+                src={`/assets/images/coins/${market?.symbol
                   .split("=")[0]
                   .trim()
                   .toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market.symbol} logo`}
+                alt={`${market?.symbol} logo`}
               />
             ) : (
               <img
-                src={`/assets/images/coins/${market.symbol
+                src={`/assets/images/coins/${market?.symbol
                   .split("=")[0]
                   .trim()
                   .toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market.symbol} logo`}
+                alt={`${market?.symbol} logo`}
               />
             )}
             <div>
@@ -286,8 +286,8 @@ const Business = () => {
                       : "rgb(19, 178, 111)",
                 }}
               >
-                {market.price_usd * (market.percent_change_24h / 100)} (
-                {market.percent_change_24h}%)
+                {market?.price_usd * (market.percent_change_24h / 100)} (
+                {market?.percent_change_24h}%)
               </div>
             )}
             {type !== "crypto" && (
@@ -344,7 +344,7 @@ const Business = () => {
                 <span className="fs-16 fc-353F52">24h volume</span>
               </div>
               <div className="item_value fs-16 fc-5B616E">
-                {market.volume24.toLocaleString()}
+                {market?.volume24.toLocaleString()}
               </div>
             </div>
             <div className="other_item ff_NunitoSemiBold">
@@ -411,7 +411,7 @@ const Business = () => {
                       />
                     ) : type === "metal" ? (
                       <img
-                        src={`/assets/images/coins/${market.symbol
+                        src={`/assets/images/coins/${market?.symbol
                           .split("=")[0]
                           .trim()
                           .toLowerCase()}-logo.png`}
@@ -420,7 +420,7 @@ const Business = () => {
                       />
                     ) : (
                       <img
-                        src={`/assets/images/coins/${market.symbol
+                        src={`/assets/images/coins/${market?.symbol
                           .split("=")[0]
                           .trim()
                           .toLowerCase()}-logo.png`}
@@ -558,7 +558,7 @@ const Business = () => {
                           <>
                             <img
                               className="icon_time"
-                              src={selectedWallet.coin_logo || ""}
+                              src={`/assets/images/coins/${selectedWallet.coin_symbol.toLowerCase()}-logo.png` || ""}
                               alt={selectedWallet.coin_symbol || ""}
                             />
                             <input
@@ -585,6 +585,7 @@ const Business = () => {
                     </div>
                     <div className="amount_input">
                       <input
+                      onChange={handleInputChange}
                         type="number"
                         inputMode="numeric"
                         name="amount"
@@ -684,20 +685,13 @@ const Business = () => {
                       </div>
                       <div className="coin_list">
                         {wallets.map((wallet, index) => {
-                          const imageId = get_post_meta(
-                            wallet.ID,
-                            "coin_logo"
-                          )[0];
-                         
-
                           return (
                             <div className="coin_item" key={index}>
                               <div
                                 className="name"
-                                data-coin_id={wallet.coin_logo}
-                                data-coin_logo={wallet.coin_symbol}
+                                data-coin_logo={wallet.coin_logo}
                                 data-coin_symbol={wallet.coin_symbol}
-                                onClick={() => setSelectedWallet(wallet)}
+                                onClick={() => handleSelectCoin(wallet)}
                               >
                                 <img
                                   src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
@@ -723,19 +717,6 @@ const Business = () => {
 
 
 
-const get_ssb_crypto_trade_landing_user_wallet_balance = (userId, coinId) => {
-  // Mock data; replace with actual API call
-  return { coin_amount: "0.1234" };
-};
-
-const get_ssb_crypto_trade_landing_current_user_usdt_convert_coin = (
-  coinId,
-  format = ""
-) => {
-  // Mock data; replace with actual API call
-  return "10,000.00";
-};
-
 const get_post_meta = (postId, metaKey, single) => {
   // Mock data; replace with actual API call
   return {
@@ -745,18 +726,6 @@ const get_post_meta = (postId, metaKey, single) => {
   }[metaKey];
 };
 
-const get_option = (option) => {
-  // Mock data; replace with actual API call
-  return [
-    {
-      timer_profit: {
-        timer: "60S",
-        profit: "10%",
-        mini_usdt: "10",
-      },
-    },
-  ];
-};
 
 // Export the component
 export default Business;
