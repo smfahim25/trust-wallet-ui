@@ -7,6 +7,7 @@ import BusinessChart from "../Chart/BusinessChart";
 import getMetalCoinName from "../utils/getMetalCoinName";
 import { useUser } from "../../context/UserContext";
 import axios from "axios";
+import useWallets from "../../hooks/useWallets";
 
 const Business = ({wallet}) => {
   // Using react-router hooks to get the URL search params
@@ -15,28 +16,7 @@ const Business = ({wallet}) => {
   const type = searchParams.get("type");
 
   const [market, setMarket] = useState(null);
-  const [wallets, setWallets] = useState([{
-    ID: 1,
-    post_type: "ssb-crypto-wallet",
-    coin_id: "1",
-    coin_symbol: "ETH",
-    coin_logo: "/assets/images/coins/eth-logo.png",
-  },
-  {
-    ID: 2,
-    post_type: "ssb-crypto-wallet",
-    coin_id: "2",
-    coin_symbol: "BTC",
-    coin_logo: "/assets/images/coins/btc-logo.png",
-  },
-  {
-    ID: 3,
-    post_type: "ssb-crypto-wallet",
-    coin_id: "3",
-    coin_symbol: "LTC",
-    coin_logo: "/assets/images/coins/ltc-logo.png",
-  },
-]);
+  const { wallets, loading, error } = useWallets();
   // const [user] = useUser();
   const [userBalance, setUserBalance] = useState("0.0000");
   const [timePopupVisible, setTimePopupVisible] = useState(false);
@@ -88,35 +68,16 @@ const Business = ({wallet}) => {
     },
   ];
 
-  // Mock implementation of wp_get_attachment_image_src
-  const wp_get_attachment_image_src = (imageId, size) => {
-    const mockImages = {
-      1: "https://example.com/images/coin1.png",
-      2: "https://example.com/images/coin2.png",
-      3: "https://example.com/images/coin3.png",
-    };
-
-    return [mockImages[imageId] || "", "", ""];
-  };
-
   useEffect(() => {
     // if(user){
     //   console.log("user details", user);
     // }
-    const walletsData = get_posts({
-      posts_per_page: -1,
-      post_type: "ssb-crypto-wallet",
-      meta_key: "status",
-      meta_value: "active",
-      orderby: "ID",
-      order: "ASC",
-    });
 
     const loadData = async () => {
       if (coin && type) {
         const marketData = await fetchMarketData(coin, type);
 
-        if (marketData && walletsData.length > 0) {
+        if (marketData && wallets.length > 0) {
           if (type === "crypto") {
             setMarket(marketData[0]);
           } else {
@@ -131,7 +92,7 @@ const Business = ({wallet}) => {
 
           const balance = get_ssb_crypto_trade_landing_user_wallet_balance(
             currentUser.id,
-            get_post_meta(walletsData[0].ID, "coin_id", true)
+            get_post_meta(wallets[0].ID, "coin_id", true)
           );
           setUserBalance(balance ? balance.coin_amount : "0.0000");
 
@@ -142,13 +103,13 @@ const Business = ({wallet}) => {
             setSelectedProfit(repeaterItems[0].timer_profit.profit);
             setSelectedMiniUsdt(repeaterItems[0].timer_profit.mini_usdt);
           }
-          setSelectedWallet(walletsData[0]);
+          setSelectedWallet(wallets[0]);
         }
       }
     };
 
     loadData();
-  }, [coin, type]);
+  }, [coin, type,wallets]);
 
   const handleTradeClick = () => {
     setPopupVisible(true);
@@ -256,13 +217,13 @@ const Business = ({wallet}) => {
 
     //     if (order_type === 'crypto') {
     //       const market = await axios.get(`/api/crypto-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market.data[0].price_usd;
+    //       purchase_price = market?.data[0].price_usd;
     //     } else if (order_type === 'forex') {
     //       const market = await axios.get(`/api/forex-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market.data[0].meta.regularMarketPrice;
+    //       purchase_price = market?.data[0].meta.regularMarketPrice;
     //     } else if (order_type === 'metal') {
     //       const market = await axios.get(`/api/metal-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market.data[0].meta.regularMarketPrice;
+    //       purchase_price = market?.data[0].meta.regularMarketPrice;
     //     }
     try {
         const order_id = Math.floor(100000 + Math.random() * 900000);
@@ -318,33 +279,33 @@ const Business = ({wallet}) => {
           <div className="base_info">
             {type === "crypto" ? (
               <img
-                src={`/assets/images/coins/${market.symbol.toLowerCase()}-logo.png`}
+                src={`/assets/images/coins/${market?.symbol.toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market.symbol} logo`}
+                alt={`${market?.symbol} logo`}
               />
             ) : type === "metal" ? (
               <img
-                src={`/assets/images/coins/${market.symbol
+                src={`/assets/images/coins/${market?.symbol
                   .split("=")[0]
                   .trim()
                   .toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market.symbol} logo`}
+                alt={`${market?.symbol} logo`}
               />
             ) : (
               <img
-                src={`/assets/images/coins/${market.symbol
+                src={`/assets/images/coins/${market?.symbol
                   .split("=")[0]
                   .trim()
                   .toLowerCase()}-logo.png`}
                 className="icon"
-                alt={`${market.symbol} logo`}
+                alt={`${market?.symbol} logo`}
               />
             )}
             <div>
               <div className="fs-16 ff_NunitoBold">
                 {type === "crypto"
-                  ? market.symbol
+                  ? market?.symbol
                   : type === "metal"
                   ? getMetalCoinName(market?.symbol.split("=")[0].trim())
                   : market?.shortName}
@@ -369,13 +330,13 @@ const Business = ({wallet}) => {
                 className="change fs-15 ff_InterRegular"
                 style={{
                   color:
-                    market.percent_change_24h < 0
+                    market?.percent_change_24h < 0
                       ? "rgb(207, 32, 47)"
                       : "rgb(19, 178, 111)",
                 }}
               >
-                {market.price_usd * (market.percent_change_24h / 100)} (
-                {market.percent_change_24h}%)
+                {market?.price_usd * (market?.percent_change_24h / 100)} (
+                {market?.percent_change_24h}%)
               </div>
             )}
             {type !== "crypto" && (
@@ -383,12 +344,12 @@ const Business = ({wallet}) => {
                 className="change fs-15 ff_InterRegular"
                 style={{
                   color:
-                    market.regularMarketPrice - market.previousClose < 0
+                    market?.regularMarketPrice - market?.previousClose < 0
                       ? "rgb(207, 32, 47)"
                       : "rgb(19, 178, 111)",
                 }}
               >
-                {(market.regularMarketPrice - market.previousClose).toFixed(5)}
+                {(market?.regularMarketPrice - market?.previousClose).toFixed(5)}
               </div>
             )}
           </div>
@@ -432,7 +393,7 @@ const Business = ({wallet}) => {
                 <span className="fs-16 fc-353F52">24h volume</span>
               </div>
               <div className="item_value fs-16 fc-5B616E">
-                {market.volume24.toLocaleString()}
+                {market?.volume24.toLocaleString()}
               </div>
             </div>
             <div className="other_item ff_NunitoSemiBold">
@@ -476,7 +437,7 @@ const Business = ({wallet}) => {
                 <div className="title fs-18 fc-353F52">
                   <span>
                     {type === "crypto"
-                      ? market.symbol
+                      ? market?.symbol
                       : type === "metal"
                       ? getMetalCoinName(market?.symbol.split("=")[0].trim())
                       : market?.symbol.split("=")[0].trim()}
@@ -499,7 +460,7 @@ const Business = ({wallet}) => {
                       />
                     ) : type === "metal" ? (
                       <img
-                        src={`/assets/images/coins/${market.symbol
+                        src={`/assets/images/coins/${market?.symbol
                           .split("=")[0]
                           .trim()
                           .toLowerCase()}-logo.png`}
@@ -508,7 +469,7 @@ const Business = ({wallet}) => {
                       />
                     ) : (
                       <img
-                        src={`/assets/images/coins/${market.symbol
+                        src={`/assets/images/coins/${market?.symbol
                           .split("=")[0]
                           .trim()
                           .toLowerCase()}-logo.png`}
@@ -525,7 +486,7 @@ const Business = ({wallet}) => {
                       />
                       <div className="coin_name">
                         {type === "crypto"
-                          ? market.symbol
+                          ? market?.symbol
                           : type === "metal"
                           ? getMetalCoinName(
                               market?.symbol.split("=")[0].trim()
@@ -645,7 +606,7 @@ const Business = ({wallet}) => {
                           <>
                             <img
                               className="icon_time"
-                              src={selectedWallet.coin_logo || ""}
+                              src={`/assets/images/coins/${selectedWallet.coin_symbol.toLowerCase()}-logo.png` || ""}
                               alt={selectedWallet.coin_symbol || ""}
                             />
                             <input
@@ -776,14 +737,6 @@ const Business = ({wallet}) => {
                   </div>
                   <div className="coin_list">
                     {wallets.map((wallet, index) => {
-                      const imageId = get_post_meta(
-                        wallet.ID,
-                        "coin_logo"
-                      )[0];
-                      const imageUrl = imageId
-                        ? wp_get_attachment_image_src(imageId, "full")[0]
-                        : "";
-
                       return (
                         <div className="coin_item" key={index}>
                           <div
@@ -798,12 +751,8 @@ const Business = ({wallet}) => {
                             onClick={() => handleSelectCoin(wallet)}
                           >
                             <img
-                              src={wallet.coin_logo}
-                              alt={get_post_meta(
-                                wallet.ID,
-                                "coin_symbol",
-                                true
-                              )}
+                              src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
+                              alt={wallet.coin_symbol}
                             />
                             {` ${wallet.coin_symbol}`}
                           </div>
