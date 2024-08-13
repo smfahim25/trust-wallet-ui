@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Header from "../Header/Header";
 import { Link, useSearchParams } from "react-router-dom";
 import fetchMarketData from "../utils/getMarketData";
@@ -12,8 +12,8 @@ import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
+
 const Business = () => {
-  // Using react-router hooks to get the URL search params
   const { user, setLoading } = useUser();
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
@@ -21,7 +21,7 @@ const Business = () => {
 
   const [market, setMarket] = useState(null);
   const [purchasePrice, setPurchasePrice] = useState(null);
-  const { wallets, loading, error } = useWallets();
+  const { wallets } = useWallets();
   const { convertCoinToUSDT, convertUSDTToCoin } = useCryptoTradeConverter();
 
   const { updateUserBalance, success } = useUpdateUserBalance();
@@ -35,81 +35,73 @@ const Business = () => {
   const [selectedType, setSelectedType] = useState("Buy");
   const [selectedProfit, setSelectedProfit] = useState("");
   const [selectedMiniUsdt, setSelectedMiniUsdt] = useState("");
-  const [selectedWallet, setSelectedWallet] = useState(wallets[0]);
+  const [selectedWallet, setSelectedWallet] = useState([]);
   const [tradeCoinId, setTradeCoinId] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
-
-  const timerProfits = [
-    {
-      timer_profit: {
-        timer: "60S",
-        profit: "10",
-        mini_usdt: "10",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "120S",
-        profit: "35",
-        mini_usdt: "1000",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "12H",
-        profit: "87",
-        mini_usdt: "10000",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "36H",
-        profit: "205",
-        mini_usdt: "50000",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "7D",
-        profit: "305",
-        mini_usdt: "100000",
-      },
-    },
-  ];
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
+  const [tradeErrorText, setTradeErrorText] = useState("");
+
+  const timerProfits = useMemo(
+    () => [
+      {
+        timer_profit: { timer: "60S", profit: "10", mini_usdt: "10" },
+      },
+      {
+        timer_profit: { timer: "120S", profit: "35", mini_usdt: "1000" },
+      },
+      {
+        timer_profit: { timer: "12H", profit: "87", mini_usdt: "10000" },
+      },
+      {
+        timer_profit: { timer: "36H", profit: "205", mini_usdt: "50000" },
+      },
+      {
+        timer_profit: { timer: "7D", profit: "305", mini_usdt: "100000" },
+      },
+    ],
+    []
+  );
+
   useEffect(() => {
-    setLoading(true);
     const loadData = async () => {
+      setLoading(true);
       if (coin && type) {
         const marketData = await fetchMarketData(coin, type);
-
-        if (user?.id && selectedWallet?.coin_id) {
-          setUserBalance(balance ? balance.usd_amount : "0.0000");
-          setUserCoinBalance(balance ? balance.coin_amount : "0.0000");
-        }
 
         if (marketData && wallets.length > 0) {
           if (type === "crypto") {
             setPurchasePrice(marketData[0].price_usd);
             setMarket(marketData[0]);
+            setLoading(false);
           } else {
             setMarket(marketData[0]?.meta);
             setPurchasePrice(marketData[0]?.meta.regularMarketPrice);
+            setLoading(false);
           }
-
-          if (timerProfits) {
-            setSelectedTime(timerProfits[0].timer_profit.timer);
-            setSelectedProfit(timerProfits[0].timer_profit.profit);
-            setSelectedMiniUsdt(timerProfits[0].timer_profit.mini_usdt);
-          }
-          setSelectedWallet(wallets[0]);
         }
         setLoading(false);
       }
     };
 
     loadData();
-  }, [coin, type, wallets, user, balance]);
+  }, [coin, type, wallets.length, setLoading]);
+
+  useEffect(() => {
+    if (user?.id && selectedWallet?.coin_id) {
+      setUserBalance(balance ? balance.usd_amount : "0.0000");
+      setUserCoinBalance(balance ? balance.coin_amount : "0.0000");
+    }
+  }, [balance, selectedWallet, user]);
+
+  useEffect(() => {
+    setSelectedWallet(wallets[0]);
+
+    if (timerProfits) {
+      setSelectedTime(timerProfits[0].timer_profit.timer);
+      setSelectedProfit(timerProfits[0].timer_profit.profit);
+      setSelectedMiniUsdt(timerProfits[0].timer_profit.mini_usdt);
+    }
+  }, [wallets, timerProfits]);
 
   const handleTradeClick = () => {
     setPopupVisible(true);
@@ -140,10 +132,7 @@ const Business = () => {
   };
 
   const [amount, setAmount] = useState(0);
-
-  const [responseMessage, setResponseMessage] = useState("");
   const [redirect, setRedirect] = useState(false);
-  // const [responseMessage, setResponseMessage] = useState('');
 
   const handleInputChange = (e) => {
     const { value } = e.target;
@@ -166,17 +155,14 @@ const Business = () => {
       !coin ||
       !selectedTime
     ) {
-      setResponseMessage("Something is wrong. Try Again!");
+      setTradeErrorText("Something is wrong. Try Again!");
       console.log("Something is wrong. Try Again!");
     } else if (amount <= 0) {
-      setResponseMessage("Amount should be a number without 0.");
-      console.log("Amount should be a number without 0.");
+      setTradeErrorText("Your amount should be grater than 0.");
     } else if (amount < selectedMiniUsdt) {
-      setResponseMessage(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
-      console.log(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
+      setTradeErrorText(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
     } else if (amount > userBalance) {
-      setResponseMessage("Amount shouldn't be greater than your balance");
-      console.log("Amount shouldn't be greater than your balance");
+      setTradeErrorText("Amount shouldn't be greater than your balance");
     } else {
       try {
         const order_id = Math.floor(100000 + Math.random() * 900000);
@@ -213,7 +199,7 @@ const Business = () => {
         setRedirect(true);
       } catch (error) {
         console.error("Error submitting trade order:", error);
-        setResponseMessage("Something is wrong. Try Again!");
+        setTradeErrorText("Something is wrong. Try Again!");
       }
     }
   };
@@ -597,7 +583,7 @@ const Business = () => {
                 </div>
                 <div className="balance fs-26 ff_NunitoRegular">
                   <div className="balalce_value fc-353F52">
-                    Available:{" "}
+                    Available:
                     <span className="coin_amount">{userBalance}</span> USDT
                   </div>
                 </div>
@@ -609,6 +595,15 @@ const Business = () => {
                   <div className="expect_value fc-1652F0">Estimation: 0.00</div>
                 </div>
                 <div className="submit_container">
+                  <span
+                    style={{
+                      color: "red",
+                      fontWeight: "bold",
+                      fontSize: "15px",
+                    }}
+                  >
+                    {tradeErrorText}
+                  </span>
                   <button
                     onClick={handleSubmit}
                     type="button"
@@ -693,7 +688,9 @@ const Business = () => {
                                   src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
                                   alt={wallet.coin_symbol}
                                 />
-                                {` ${wallet.coin_symbol}`}
+                                <div
+                                  style={{ marginLeft: "5px" }}
+                                >{` ${wallet.coin_symbol}`}</div>
                               </div>
                             </div>
                           );
