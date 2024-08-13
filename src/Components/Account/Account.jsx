@@ -1,75 +1,17 @@
 import React, { useEffect, useState } from "react";
 import imgWallet from "../../Assets/images/img_wallet.png";
-import ethLogo from "../../Assets/images/coins/eth-logo.png";
-
-import usdtLogo from "../../Assets/images/coins/usdt.png";
-import btcLogo from "../../Assets/images/coins/btc-logo.png";
-import solLogo from "../../Assets/images/coins/sol-logo.png";
 import Header from "../Header/Header";
 import { Link } from "react-router-dom";
 import useWallets from "../../hooks/useWallets";
 import { useUser } from "../../context/UserContext";
 
-// A utility function to fetch data
-async function fetchData(endpoint) {
-  const response = await fetch(endpoint);
-  if (!response.ok) {
-    throw new Error(`HTTP error! Status: ${response.status}`);
-  }
-  return response.json();
-}
 
 function Account() {
   const {wallets, setWallets} = useWallets();
   const [searchTerm, setSearchTerm] = useState("");
   const {user, setUser} = useUser();
 
-  const filteredWallets = [
-    {
-      id: 1,
-      post_name: "BTC Wallet",
-      coin_symbol: "BTC",
-      coin_logo: {
-        url: btcLogo,
-        alt: "Bitcoin Logo",
-      },
-      usd_value: "12,345.67", // USD value of the wallet
-      coin_amount: "0.05", // Amount of cryptocurrency in the wallet
-    },
-    {
-      id: 2,
-      post_name: "ETH Wallet",
-      coin_symbol: "ETH",
-      coin_logo: {
-        url: ethLogo,
-        alt: "Ethereum Logo",
-      },
-      usd_value: "2,345.89",
-      coin_amount: "1.2",
-    },
-    {
-      id: 3,
-      post_name: "USDT Wallet",
-      coin_symbol: "USDT",
-      coin_logo: {
-        url: usdtLogo,
-        alt: "Ripple Logo",
-      },
-      usd_value: "345.67",
-      coin_amount: "500.0",
-    },
-    {
-      id: 4,
-      post_name: "SOL Wallet",
-      coin_symbol: "SOL",
-      coin_logo: {
-        url: solLogo,
-        alt: "Litecoin Logo",
-      },
-      usd_value: "456.78",
-      coin_amount: "3.5",
-    },
-  ];
+
 
   return (
     <div className="main">
@@ -119,14 +61,12 @@ function Account() {
         {wallets?.length > 0 && (
           <div className="wallet_list">
             {wallets?.map((wallet) => (
-               <Link 
-               to={{
-                 pathname: "/funds",
-                 state: { wallet } 
-               }} 
-               key={wallet.id} 
-               className="wallet_item"
-             >
+                <Link
+                key={wallet.id}
+                to="/funds"
+                state={{ wallet }}
+                className="wallet_item"
+              >
                 <div className="item_info">
                   {wallet.coin_logo ? (
                     <img

@@ -9,7 +9,6 @@ const Funds = () => {
   const location = useLocation();
   const wallet = location.state?.wallet;
   const { user } = useUser();
-  console.log("user details: ",user);
   const [activeTab, setActiveTab] = useState('deposit');
   const [rechargeModal, setRechargeModal] = useState(false);
   const handleSwitchTab = (tab) => {
