@@ -5,20 +5,30 @@ import fetchMarketData from "../utils/getMarketData";
 import numberFormat from "../utils/numberFormat";
 import BusinessChart from "../Chart/BusinessChart";
 import getMetalCoinName from "../utils/getMetalCoinName";
-import { useUser } from "../../context/UserContext";
 import axios from "axios";
 import useWallets from "../../hooks/useWallets";
+import { useUser } from "../../context/UserContext";
+import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
+import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
+import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
+import API_BASE_URL from "../../api/getApiURL";
 
-const Business = ({wallet}) => {
+const Business = () => {
   // Using react-router hooks to get the URL search params
+  const { user } = useUser();
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
   const type = searchParams.get("type");
 
   const [market, setMarket] = useState(null);
+  const [purchasePrice, setPurchasePrice] = useState(null);
   const { wallets, loading, error } = useWallets();
-  // const [user] = useUser();
-  const [userBalance, setUserBalance] = useState("0.0000");
+  const { convertCoinToUSDT, convertUSDTToCoin } = useCryptoTradeConverter();
+ 
+  const {updateUserBalance,success} = useUpdateUserBalance();
+
+  const [userBalance, setUserBalance] = useState(0.0000);
+  const [userCoinBalance, setUserCoinBalance] = useState(0.0000);
   const [timePopupVisible, setTimePopupVisible] = useState(false);
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -26,82 +36,73 @@ const Business = ({wallet}) => {
   const [selectedType, setSelectedType] = useState("Buy");
   const [selectedProfit, setSelectedProfit] = useState("");
   const [selectedMiniUsdt, setSelectedMiniUsdt] = useState("");
-  const [selectedWallet, setSelectedWallet] = useState(null);
+  const [selectedWallet, setSelectedWallet] = useState(wallets[0]);
   const [tradeCoinId, setTradeCoinId] = useState(coin);
-  const [selectedTrade, setSelectedTrade] = useState("Buy");
+  const [walletAmount, setWalletAmount] = useState(0.0000000);
 
-  const repeaterItems = [
+  const timerProfits = [
     {
       timer_profit: {
         timer: "60S",
-        profit: "*10%",
+        profit: "10",
         mini_usdt: "10",
       },
     },
     {
       timer_profit: {
         timer: "120S",
-        profit: "*35%",
+        profit: "35",
         mini_usdt: "1000",
       },
     },
     {
       timer_profit: {
         timer: "12H",
-        profit: "*87%",
+        profit: "87",
         mini_usdt: "10000",
       },
     },
     {
       timer_profit: {
         timer: "36H",
-        profit: "*205%",
+        profit: "205",
         mini_usdt: "50000",
       },
     },
     {
       timer_profit: {
         timer: "7D",
-        profit: "*305%",
+        profit: "305",
         mini_usdt: "100000",
       },
     },
   ];
-
+  const {balance} = useFetchUserBalance(user?.id,selectedWallet?.coin_id);
   useEffect(() => {
-    // if(user){
-    //   console.log("user details", user);
-    // }
-
     const loadData = async () => {
       if (coin && type) {
         const marketData = await fetchMarketData(coin, type);
 
+        if(user?.id && selectedWallet?.coin_id){
+          setUserBalance(balance ? balance.usd_amount : "0.0000");
+          setUserCoinBalance(balance ? balance.coin_amount : "0.0000");
+        }
+
         if (marketData && wallets.length > 0) {
           if (type === "crypto") {
+            setPurchasePrice(marketData[0].price_usd)
             setMarket(marketData[0]);
           } else {
             setMarket(marketData[0]?.meta);
+            setPurchasePrice(marketData[0]?.meta.regularMarketPrice);
           }
           // setWallets(walletsData);
 
-          const currentUser = get_ssb_crypto_trade_landing_wallet_user(
-            sessionStorage.getItem("user_wallet")
-          );
-        
-
-          const balance = get_ssb_crypto_trade_landing_user_wallet_balance(
-            currentUser.id,
-            get_post_meta(wallets[0].ID, "coin_id", true)
-          );
-          setUserBalance(balance ? balance.coin_amount : "0.0000");
-
-          // Repeater items for initial popup values
-          const repeaterItems = get_option("ssb_crypto_trade_timer_profit");
-          if (repeaterItems) {
-            setSelectedTime(repeaterItems[0].timer_profit.timer);
-            setSelectedProfit(repeaterItems[0].timer_profit.profit);
-            setSelectedMiniUsdt(repeaterItems[0].timer_profit.mini_usdt);
+          
+          if (timerProfits) {
+            setSelectedTime(timerProfits[0].timer_profit.timer);
+            setSelectedProfit(timerProfits[0].timer_profit.profit);
+            setSelectedMiniUsdt(timerProfits[0].timer_profit.mini_usdt);
           }
           setSelectedWallet(wallets[0]);
         }
@@ -109,7 +110,7 @@ const Business = ({wallet}) => {
     };
 
     loadData();
-  }, [coin, type,wallets]);
+  }, [coin, type,wallets,user,balance]);
 
   const handleTradeClick = () => {
     setPopupVisible(true);
@@ -141,130 +142,83 @@ const Business = ({wallet}) => {
     handlePopupCoin();
   };
 
-
-  const [user, setUser] = useState(null);
   const [amount, setAmount] = useState(0);
 
-  const [formData, setFormData] = useState({
-    order_type: '',
-    order_position: '',
-    wallet_coin_id: '',
-    trade_coin_id: '',
-    amount: 0,
-    delivery_time: '',
-  });
   const [responseMessage, setResponseMessage] = useState('');
   const [redirect, setRedirect] = useState(false);
+  // const [responseMessage, setResponseMessage] = useState('');
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
     setAmount(value);
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    
   };
-
+  
+  const handleConvertToCoin = async () => {
+    
+    const result = await convertUSDTToCoin(amount, selectedWallet.coin_id);
+    setWalletAmount(result);
+};
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // if (!user) {
-    //   setResponseMessage('Session is not existed. Do login. Or Refresh Page.');
-    //   setRedirect(true);
-    //   return;
-    // }
-
-    // const {
-    //   order_type,
-    //   order_position,
-    //   wallet_coin_id,
-    //   trade_coin_id,
-    //   amount,
-    //   delivery_time,
-    // } = formData;
-
-    // const trade_amount_limit = 10; // Replace with API call to get limit if needed
-    // const coin_amount_str = await axios.get(`/api/coin-amount?coin_id=${wallet_coin_id}`);
-    // const coin_amount = parseFloat(coin_amount_str.data.replace(',', ''));
-
-    // // Validation
-    // if (
-    //   !type ||
-    //   !order_position ||
-    //   !wallet_coin_id ||
-    //   !trade_coin_id ||
-    //   !delivery_time
-    // ) {
-    //   setResponseMessage('Something is wrong. Try Again!');
-    // } else if (amount <= 0) {
-    //   setResponseMessage('Amount should be a number without 0.');
-    // } else if (amount < trade_amount_limit) {
-    //   setResponseMessage(`Minimum deposit amount is ${trade_amount_limit} USDT`);
-    // } else if (amount > coin_amount) {
-    //   setResponseMessage('Amount shouldn\'t be greater than your balance');
-    // } else {
-      // try {
-    //     const balance = await axios.get(`/api/balance?user_id=${user.id}&coin_id=${wallet_coin_id}`);
-    //     const wallet_amount = await axios.get(`/api/usdt-to-coin?amount=${amount}&coin_id=${wallet_coin_id}`);
-    //     const timer_profit = await axios.get(`/api/timer-profit?delivery_time=${delivery_time}`);
-
-    //     const profit_level = timer_profit.data.find(tp => tp.timer === delivery_time)?.profit || 0;
-    //     const percent = profit_level / 100;
-    //     const profit_amount = amount * percent;
-    //     const wallet_profit_amount = wallet_amount * percent;
-
-    //     let purchase_price = 0;
-
-    //     if (order_type === 'crypto') {
-    //       const market = await axios.get(`/api/crypto-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market?.data[0].price_usd;
-    //     } else if (order_type === 'forex') {
-    //       const market = await axios.get(`/api/forex-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market?.data[0].meta.regularMarketPrice;
-    //     } else if (order_type === 'metal') {
-    //       const market = await axios.get(`/api/metal-market?coin_id=${trade_coin_id}`);
-    //       purchase_price = market?.data[0].meta.regularMarketPrice;
-    //     }
+    handleConvertToCoin();
+    // Validation
+    if (
+      !type ||
+      !selectedType ||
+      !selectedWallet.coin_id ||
+      !coin ||
+      !selectedTime
+    ) {
+      setResponseMessage('Something is wrong. Try Again!');
+      console.log('Something is wrong. Try Again!');
+    } else if (amount <= 0) {
+      setResponseMessage('Amount should be a number without 0.');
+      console.log('Amount should be a number without 0.');
+    } else if (amount < selectedMiniUsdt) {
+      setResponseMessage(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
+      console.log(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
+    } else if (amount > userBalance) {
+      setResponseMessage('Amount shouldn\'t be greater than your balance');
+      console.log('Amount shouldn\'t be greater than your balance');
+    } else {
+    
     try {
         const order_id = Math.floor(100000 + Math.random() * 900000);
-        const percent = selectedProfit / 100;
+        const percent = parseInt(selectedProfit)/ 100;
         const profit_amount = amount * percent;
+        const wallet_profit_amount = parseFloat(userCoinBalance)* percent;
         // Create the trade order
-        const tradeOrderResponse = await axios.post('/api/trade-order', {
+        const tradeOrderResponse = await axios.post(`${API_BASE_URL}/tradeorder`, {
           order_id,
           order_type:type,
           order_position: selectedType.toLowerCase(),
           user_id: user.id,
-          user_wallet: wallet,
-          wallet_coin_id:80,
+          user_wallet: user.user_wallet,
+          wallet_coin_id:selectedWallet.coin_id,
           trade_coin_id:coin,
           amount,
-          wallet_amount:50,
-          profit_amount:20,
-          purchase_price:10,
-          wallet_profit_amount:10,
+          wallet_amount:walletAmount,
+          profit_amount,
+          purchase_price:purchasePrice,
+          wallet_profit_amount,
           delivery_time:selectedTime,
           profit_level:selectedProfit,
           is_profit: user.is_profit,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         });
 
         // Update user balance
-        // const new_balance = balance.data.coin_amount - wallet_amount;
-        // await axios.put(`/api/balance`, {
-        //   user_id: user.id,
-        //   coin_id: wallet_coin_id,
-        //   coin_amount: new_balance,
-        // });
+        const new_balance = userCoinBalance - walletAmount;
+        updateUserBalance(user.id,selectedWallet.coin_id,new_balance);
 
-        setResponseMessage('Trade Order request successfully sent.');
+        console.log('Trade Order request successfully sent.');
         setRedirect(true);
       } catch (error) {
         console.error('Error submitting trade order:', error);
         setResponseMessage('Something is wrong. Try Again!');
       }
-    // }
+    }
   };
 
 
@@ -522,16 +476,11 @@ const Business = ({wallet}) => {
                       type="hidden"
                       name="coin_amount"
                       id="coin_amount"
-                      value={get_ssb_crypto_trade_landing_current_user_usdt_convert_coin(
-                        get_post_meta(selectedWallet.ID, "coin_id", true)
-                      )}
+                      value={userBalance}
                     />
                     <div className="amount fc-353F52 ff_NunitoSemiBold limit-amount">
                       <span className="coin_amount">
-                        {get_ssb_crypto_trade_landing_current_user_usdt_convert_coin(
-                          get_post_meta(selectedWallet.ID, "coin_id", true),
-                          ","
-                        )}
+                        {userBalance}
                       </span>{" "}
                       USDT
                     </div>
@@ -583,7 +532,7 @@ const Business = ({wallet}) => {
                   </div>
                   <div className="range_select_container">
                     <div className="range_info fs-16 ff_NunitoSemiBold">
-                      <span className="fc-5B616E">({selectedProfit})</span>
+                      <span className="fc-5B616E">(*{selectedProfit}%)</span>
                     </div>
                     <img
                       src="/assets/images/icon_arrow_down.svg"
@@ -648,10 +597,7 @@ const Business = ({wallet}) => {
                   <div className="balalce_value fc-353F52">
                     Available:{" "}
                     <span className="coin_amount">
-                      {get_ssb_crypto_trade_landing_current_user_usdt_convert_coin(
-                        get_post_meta(selectedWallet.ID, "coin_id", true),
-                        ","
-                      )}
+                      {userBalance}
                     </span>{" "}
                     USDT
                   </div>
@@ -665,6 +611,7 @@ const Business = ({wallet}) => {
                 </div>
                 <div className="submit_container">
                   <button
+                    onClick={handleSubmit}
                     type="button"
                     className="submit fs-18 ff_NunitoBold"
                     style={
@@ -702,7 +649,7 @@ const Business = ({wallet}) => {
                       />
                     </div>
                     <div className="coin_list">
-                      {repeaterItems.map((item, index) => (
+                      {timerProfits.map((item, index) => (
                         <div className="coin_item" key={index}>
                           <div
                             onClick={()=>handleSelectTimer(item)}
@@ -773,23 +720,7 @@ const Business = ({wallet}) => {
   );
 };
 
-const get_posts = (args) => {
-  // Mock data; replace with actual API call
-  return [
-    {
-      ID: 1,
-      post_type: "ssb-crypto-wallet",
-      coin_id: "1",
-      coin_symbol: "ETH",
-      coin_logo: "/assets/images/coins/eth-logo.png",
-    },
-  ];
-};
 
-const get_ssb_crypto_trade_landing_wallet_user = (userWallet) => {
-  // Mock data; replace with actual API call
-  return { id: 1 };
-};
 
 const get_ssb_crypto_trade_landing_user_wallet_balance = (userId, coinId) => {
   // Mock data; replace with actual API call
@@ -819,7 +750,7 @@ const get_option = (option) => {
     {
       timer_profit: {
         timer: "60S",
-        profit: "*10%",
+        profit: "10%",
         mini_usdt: "10",
       },
     },
