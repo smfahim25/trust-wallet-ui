@@ -12,8 +12,6 @@ import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
-
-const Business = () => {
 const Business = () => {
   // Using react-router hooks to get the URL search params
   const { user } = useUser();
@@ -97,7 +95,7 @@ const Business = () => {
             setMarket(marketData[0]?.meta);
             setPurchasePrice(marketData[0]?.meta.regularMarketPrice);
           }
-          setWallets(walletsData);
+         
 
           
           if (timerProfits) {
@@ -105,7 +103,7 @@ const Business = () => {
             setSelectedProfit(timerProfits[0].timer_profit.profit);
             setSelectedMiniUsdt(timerProfits[0].timer_profit.mini_usdt);
           }
-          setSelectedWallet(walletsData[0]);
+          setSelectedWallet(wallets[0]);
         }
       }
     };
@@ -513,7 +511,7 @@ const Business = () => {
                         className={`type_item ${
                           selectedType === "Buy" ? "up active" : "up"
                         }`}
-                        onClick={() => handleSelectType("Buy")}
+                        onClick={() => setSelectedType("Buy")}
                       >
                         Buy
                       </div>
@@ -521,7 +519,7 @@ const Business = () => {
                         className={`type_item ${
                           selectedType === "Sell" ? "down active" : "down"
                         }`}
-                        onClick={() => handleSelectType("Sell")}
+                        onClick={() => setSelectedType("Sell")}
                       >
                         Sell
                       </div>
@@ -690,36 +688,22 @@ const Business = () => {
                             wallet.ID,
                             "coin_logo"
                           )[0];
-                          const imageUrl = imageId
-                            ? wp_get_attachment_image_src(imageId, "full")[0]
-                            : "";
+                         
 
                           return (
                             <div className="coin_item" key={index}>
                               <div
                                 className="name"
-                                data-coin_id={get_post_meta(
-                                  wallet.ID,
-                                  "coin_id",
-                                  true
-                                )}
-                                data-coin_logo={imageUrl}
-                                data-coin_symbol={get_post_meta(
-                                  wallet.ID,
-                                  "coin_symbol",
-                                  true
-                                )}
+                                data-coin_id={wallet.coin_logo}
+                                data-coin_logo={wallet.coin_symbol}
+                                data-coin_symbol={wallet.coin_symbol}
                                 onClick={() => setSelectedWallet(wallet)}
                               >
                                 <img
-                                  src={imageUrl}
-                                  alt={get_post_meta(
-                                    wallet.ID,
-                                    "coin_symbol",
-                                    true
-                                  )}
+                                  src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
+                                  alt={wallet.coin_symbol}
                                 />
-                                {get_post_meta(wallet.ID, "coin_symbol", true)}
+                                {` ${wallet.coin_symbol}`}
                               </div>
                             </div>
                           );
