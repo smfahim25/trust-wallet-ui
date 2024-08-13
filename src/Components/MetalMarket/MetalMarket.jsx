@@ -19,6 +19,7 @@ const MetalMarket = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching market data:", error);
+        setLoading(false);
       }
     }
 
