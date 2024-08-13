@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Header from "../Header/Header";
 import { Link, useSearchParams } from "react-router-dom";
 import fetchMarketData from "../utils/getMarketData";
@@ -12,8 +12,8 @@ import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
+
 const Business = () => {
-  // Using react-router hooks to get the URL search params
   const { user, setLoading } = useUser();
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
@@ -21,7 +21,7 @@ const Business = () => {
 
   const [market, setMarket] = useState(null);
   const [purchasePrice, setPurchasePrice] = useState(null);
-  const { wallets, loading, error } = useWallets();
+  const { wallets } = useWallets();
   const { convertCoinToUSDT, convertUSDTToCoin } = useCryptoTradeConverter();
 
   const { updateUserBalance, success } = useUpdateUserBalance();
@@ -35,81 +35,72 @@ const Business = () => {
   const [selectedType, setSelectedType] = useState("Buy");
   const [selectedProfit, setSelectedProfit] = useState("");
   const [selectedMiniUsdt, setSelectedMiniUsdt] = useState("");
-  const [selectedWallet, setSelectedWallet] = useState(wallets[0]);
+  const [selectedWallet, setSelectedWallet] = useState([]);
   const [tradeCoinId, setTradeCoinId] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
-
-  const timerProfits = [
-    {
-      timer_profit: {
-        timer: "60S",
-        profit: "10",
-        mini_usdt: "10",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "120S",
-        profit: "35",
-        mini_usdt: "1000",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "12H",
-        profit: "87",
-        mini_usdt: "10000",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "36H",
-        profit: "205",
-        mini_usdt: "50000",
-      },
-    },
-    {
-      timer_profit: {
-        timer: "7D",
-        profit: "305",
-        mini_usdt: "100000",
-      },
-    },
-  ];
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
+
+  const timerProfits = useMemo(
+    () => [
+      {
+        timer_profit: { timer: "60S", profit: "10", mini_usdt: "10" },
+      },
+      {
+        timer_profit: { timer: "120S", profit: "35", mini_usdt: "1000" },
+      },
+      {
+        timer_profit: { timer: "12H", profit: "87", mini_usdt: "10000" },
+      },
+      {
+        timer_profit: { timer: "36H", profit: "205", mini_usdt: "50000" },
+      },
+      {
+        timer_profit: { timer: "7D", profit: "305", mini_usdt: "100000" },
+      },
+    ],
+    []
+  );
+
   useEffect(() => {
-    setLoading(true);
     const loadData = async () => {
+      setLoading(true);
       if (coin && type) {
         const marketData = await fetchMarketData(coin, type);
-
-        if (user?.id && selectedWallet?.coin_id) {
-          setUserBalance(balance ? balance.usd_amount : "0.0000");
-          setUserCoinBalance(balance ? balance.coin_amount : "0.0000");
-        }
 
         if (marketData && wallets.length > 0) {
           if (type === "crypto") {
             setPurchasePrice(marketData[0].price_usd);
             setMarket(marketData[0]);
+            setLoading(false);
           } else {
             setMarket(marketData[0]?.meta);
             setPurchasePrice(marketData[0]?.meta.regularMarketPrice);
+            setLoading(false);
           }
-
-          if (timerProfits) {
-            setSelectedTime(timerProfits[0].timer_profit.timer);
-            setSelectedProfit(timerProfits[0].timer_profit.profit);
-            setSelectedMiniUsdt(timerProfits[0].timer_profit.mini_usdt);
-          }
-          setSelectedWallet(wallets[0]);
         }
         setLoading(false);
       }
     };
 
     loadData();
-  }, [coin, type, wallets, user, balance]);
+  }, [coin, type, wallets.length, setLoading]);
+
+  useEffect(() => {
+    if (user?.id && selectedWallet?.coin_id) {
+      setUserBalance(balance ? balance.usd_amount : "0.0000");
+      setUserCoinBalance(balance ? balance.coin_amount : "0.0000");
+    }
+  }, [balance, selectedWallet, user]);
+
+  useEffect(() => {
+    setSelectedWallet(wallets[0]);
+
+    if (timerProfits) {
+      setSelectedTime(timerProfits[0].timer_profit.timer);
+      setSelectedProfit(timerProfits[0].timer_profit.profit);
+      setSelectedMiniUsdt(timerProfits[0].timer_profit.mini_usdt);
+    }
+  }, [wallets, timerProfits]);
 
   const handleTradeClick = () => {
     setPopupVisible(true);
@@ -597,7 +588,7 @@ const Business = () => {
                 </div>
                 <div className="balance fs-26 ff_NunitoRegular">
                   <div className="balalce_value fc-353F52">
-                    Available:{" "}
+                    Available:
                     <span className="coin_amount">{userBalance}</span> USDT
                   </div>
                 </div>
@@ -693,7 +684,9 @@ const Business = () => {
                                   src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
                                   alt={wallet.coin_symbol}
                                 />
-                                {` ${wallet.coin_symbol}`}
+                                <div
+                                  style={{ marginLeft: "5px" }}
+                                >{` ${wallet.coin_symbol}`}</div>
                               </div>
                             </div>
                           );
