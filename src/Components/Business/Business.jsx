@@ -14,7 +14,7 @@ import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
 const Business = () => {
   // Using react-router hooks to get the URL search params
-  const { user } = useUser();
+  const { user, setLoading } = useUser();
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
   const type = searchParams.get("type");
@@ -23,11 +23,11 @@ const Business = () => {
   const [purchasePrice, setPurchasePrice] = useState(null);
   const { wallets, loading, error } = useWallets();
   const { convertCoinToUSDT, convertUSDTToCoin } = useCryptoTradeConverter();
- 
-  const {updateUserBalance,success} = useUpdateUserBalance();
 
-  const [userBalance, setUserBalance] = useState(0.0000);
-  const [userCoinBalance, setUserCoinBalance] = useState(0.0000);
+  const { updateUserBalance, success } = useUpdateUserBalance();
+
+  const [userBalance, setUserBalance] = useState(0.0);
+  const [userCoinBalance, setUserCoinBalance] = useState(0.0);
   const [timePopupVisible, setTimePopupVisible] = useState(false);
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -37,7 +37,7 @@ const Business = () => {
   const [selectedMiniUsdt, setSelectedMiniUsdt] = useState("");
   const [selectedWallet, setSelectedWallet] = useState(wallets[0]);
   const [tradeCoinId, setTradeCoinId] = useState(coin);
-  const [walletAmount, setWalletAmount] = useState(0.0000000);
+  const [walletAmount, setWalletAmount] = useState(0.0);
 
   const timerProfits = [
     {
@@ -76,28 +76,27 @@ const Business = () => {
       },
     },
   ];
-  const {balance} = useFetchUserBalance(user?.id,selectedWallet?.coin_id);
+  const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
   useEffect(() => {
+    setLoading(true);
     const loadData = async () => {
       if (coin && type) {
         const marketData = await fetchMarketData(coin, type);
 
-        if(user?.id && selectedWallet?.coin_id){
+        if (user?.id && selectedWallet?.coin_id) {
           setUserBalance(balance ? balance.usd_amount : "0.0000");
           setUserCoinBalance(balance ? balance.coin_amount : "0.0000");
         }
 
         if (marketData && wallets.length > 0) {
           if (type === "crypto") {
-            setPurchasePrice(marketData[0].price_usd)
+            setPurchasePrice(marketData[0].price_usd);
             setMarket(marketData[0]);
           } else {
             setMarket(marketData[0]?.meta);
             setPurchasePrice(marketData[0]?.meta.regularMarketPrice);
           }
-         
 
-          
           if (timerProfits) {
             setSelectedTime(timerProfits[0].timer_profit.timer);
             setSelectedProfit(timerProfits[0].timer_profit.profit);
@@ -105,11 +104,12 @@ const Business = () => {
           }
           setSelectedWallet(wallets[0]);
         }
+        setLoading(false);
       }
     };
 
     loadData();
-  }, [coin, type,wallets,user,balance]);
+  }, [coin, type, wallets, user, balance]);
 
   const handleTradeClick = () => {
     setPopupVisible(true);
@@ -141,22 +141,20 @@ const Business = () => {
 
   const [amount, setAmount] = useState(0);
 
-  const [responseMessage, setResponseMessage] = useState('');
+  const [responseMessage, setResponseMessage] = useState("");
   const [redirect, setRedirect] = useState(false);
   // const [responseMessage, setResponseMessage] = useState('');
 
   const handleInputChange = (e) => {
     const { value } = e.target;
     setAmount(value);
-    
   };
-  
+
   const handleConvertToCoin = async () => {
-    
     const result = await convertUSDTToCoin(amount, selectedWallet.coin_id);
     setWalletAmount(result);
-};
-  
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     handleConvertToCoin();
@@ -168,56 +166,57 @@ const Business = () => {
       !coin ||
       !selectedTime
     ) {
-      setResponseMessage('Something is wrong. Try Again!');
-      console.log('Something is wrong. Try Again!');
+      setResponseMessage("Something is wrong. Try Again!");
+      console.log("Something is wrong. Try Again!");
     } else if (amount <= 0) {
-      setResponseMessage('Amount should be a number without 0.');
-      console.log('Amount should be a number without 0.');
+      setResponseMessage("Amount should be a number without 0.");
+      console.log("Amount should be a number without 0.");
     } else if (amount < selectedMiniUsdt) {
       setResponseMessage(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
       console.log(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
     } else if (amount > userBalance) {
-      setResponseMessage('Amount shouldn\'t be greater than your balance');
-      console.log('Amount shouldn\'t be greater than your balance');
+      setResponseMessage("Amount shouldn't be greater than your balance");
+      console.log("Amount shouldn't be greater than your balance");
     } else {
-    
-    try {
+      try {
         const order_id = Math.floor(100000 + Math.random() * 900000);
-        const percent = parseInt(selectedProfit)/ 100;
+        const percent = parseInt(selectedProfit) / 100;
         const profit_amount = amount * percent;
-        const wallet_profit_amount = parseFloat(userCoinBalance)* percent;
+        const wallet_profit_amount = parseFloat(userCoinBalance) * percent;
         // Create the trade order
-        const tradeOrderResponse = await axios.post(`${API_BASE_URL}/tradeorder`, {
-          order_id,
-          order_type:type,
-          order_position: selectedType.toLowerCase(),
-          user_id: user.id,
-          user_wallet: user.user_wallet,
-          wallet_coin_id:selectedWallet.coin_id,
-          trade_coin_id:coin,
-          amount,
-          wallet_amount:walletAmount,
-          profit_amount,
-          purchase_price:purchasePrice,
-          wallet_profit_amount,
-          delivery_time:selectedTime,
-          profit_level:selectedProfit,
-          is_profit: user.is_profit,
-        });
+        const tradeOrderResponse = await axios.post(
+          `${API_BASE_URL}/tradeorder`,
+          {
+            order_id,
+            order_type: type,
+            order_position: selectedType.toLowerCase(),
+            user_id: user.id,
+            user_wallet: user.user_wallet,
+            wallet_coin_id: selectedWallet.coin_id,
+            trade_coin_id: coin,
+            amount,
+            wallet_amount: walletAmount,
+            profit_amount,
+            purchase_price: purchasePrice,
+            wallet_profit_amount,
+            delivery_time: selectedTime,
+            profit_level: selectedProfit,
+            is_profit: user.is_profit,
+          }
+        );
 
         // Update user balance
         const new_balance = userCoinBalance - walletAmount;
-        updateUserBalance(user.id,selectedWallet.coin_id,new_balance);
+        updateUserBalance(user.id, selectedWallet.coin_id, new_balance);
 
-        console.log('Trade Order request successfully sent.');
+        console.log("Trade Order request successfully sent.");
         setRedirect(true);
       } catch (error) {
-        console.error('Error submitting trade order:', error);
-        setResponseMessage('Something is wrong. Try Again!');
+        console.error("Error submitting trade order:", error);
+        setResponseMessage("Something is wrong. Try Again!");
       }
     }
   };
-
 
   if (!market || wallets.length === 0) return null;
 
@@ -230,7 +229,7 @@ const Business = () => {
           <div className="base_info">
             {type === "crypto" ? (
               <img
-              src={`/assets/images/coins/${market?.symbol.toLowerCase()}-logo.png`}
+                src={`/assets/images/coins/${market?.symbol.toLowerCase()}-logo.png`}
                 className="icon"
                 alt={`${market?.symbol} logo`}
               />
@@ -476,10 +475,7 @@ const Business = () => {
                       value={userBalance}
                     />
                     <div className="amount fc-353F52 ff_NunitoSemiBold limit-amount">
-                      <span className="coin_amount">
-                        {userBalance}
-                      </span>{" "}
-                      USDT
+                      <span className="coin_amount">{userBalance}</span> USDT
                     </div>
                   </div>
                 </div>
@@ -558,7 +554,10 @@ const Business = () => {
                           <>
                             <img
                               className="icon_time"
-                              src={`/assets/images/coins/${selectedWallet.coin_symbol.toLowerCase()}-logo.png` || ""}
+                              src={
+                                `/assets/images/coins/${selectedWallet.coin_symbol.toLowerCase()}-logo.png` ||
+                                ""
+                              }
                               alt={selectedWallet.coin_symbol || ""}
                             />
                             <input
@@ -585,7 +584,7 @@ const Business = () => {
                     </div>
                     <div className="amount_input">
                       <input
-                      onChange={handleInputChange}
+                        onChange={handleInputChange}
                         type="number"
                         inputMode="numeric"
                         name="amount"
@@ -599,10 +598,7 @@ const Business = () => {
                 <div className="balance fs-26 ff_NunitoRegular">
                   <div className="balalce_value fc-353F52">
                     Available:{" "}
-                    <span className="coin_amount">
-                      {userBalance}
-                    </span>{" "}
-                    USDT
+                    <span className="coin_amount">{userBalance}</span> USDT
                   </div>
                 </div>
                 <div className="balance fs-26 ff_NunitoRegular">
@@ -637,34 +633,34 @@ const Business = () => {
 
                 {timePopupVisible && (
                   <div id="select_time_popup">
-                  <div className="ssb-overlay" style={{ zIndex: 2021 }}></div>
-                  <div
-                    className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
-                    style={{ zIndex: 2022, height: "auto" }}
-                  >
-                    <div className="range_title">
-                      <img
-                        src="/assets/images/icon_close.svg"
-                        className="icon_close"
-                        alt="Close"
-                        onClick={handlePopupTime}
-                      />
-                    </div>
-                    <div className="coin_list">
-                      {timerProfits.map((item, index) => (
-                        <div className="coin_item" key={index}>
-                          <div
-                            onClick={()=>handleSelectTimer(item)}
-                            className="name"
-                            data-mini_usdt={item.timer_profit.mini_usdt}
-                            data-profit_level={item.timer_profit.profit}
-                          >
-                            {item.timer_profit.timer}
+                    <div className="ssb-overlay" style={{ zIndex: 2021 }}></div>
+                    <div
+                      className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
+                      style={{ zIndex: 2022, height: "auto" }}
+                    >
+                      <div className="range_title">
+                        <img
+                          src="/assets/images/icon_close.svg"
+                          className="icon_close"
+                          alt="Close"
+                          onClick={handlePopupTime}
+                        />
+                      </div>
+                      <div className="coin_list">
+                        {timerProfits.map((item, index) => (
+                          <div className="coin_item" key={index}>
+                            <div
+                              onClick={() => handleSelectTimer(item)}
+                              className="name"
+                              data-mini_usdt={item.timer_profit.mini_usdt}
+                              data-profit_level={item.timer_profit.profit}
+                            >
+                              {item.timer_profit.timer}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
                   </div>
                 )}
 
@@ -715,8 +711,6 @@ const Business = () => {
   );
 };
 
-
-
 const get_post_meta = (postId, metaKey, single) => {
   // Mock data; replace with actual API call
   return {
@@ -725,7 +719,6 @@ const get_post_meta = (postId, metaKey, single) => {
     coin_logo: "/assets/images/coins/btc-logo.png",
   }[metaKey];
 };
-
 
 // Export the component
 export default Business;
