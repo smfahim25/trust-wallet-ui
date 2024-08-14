@@ -1,17 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import imgWallet from "../../Assets/images/img_wallet.png";
 import Header from "../Header/Header";
 import { Link } from "react-router-dom";
 import useWallets from "../../hooks/useWallets";
-import { useUser } from "../../context/UserContext";
-
 
 function Account() {
-  const {wallets, setWallets} = useWallets();
+  const { wallets } = useWallets();
   const [searchTerm, setSearchTerm] = useState("");
-  const {user, setUser} = useUser();
-
-
 
   return (
     <div className="main">
@@ -61,7 +56,7 @@ function Account() {
         {wallets?.length > 0 && (
           <div className="wallet_list">
             {wallets?.map((wallet) => (
-                <Link
+              <Link
                 key={wallet.id}
                 to="/funds"
                 state={{ wallet }}
@@ -71,9 +66,11 @@ function Account() {
                   {wallet.coin_logo ? (
                     <img
                       className="icon"
-                      src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png` || ""}
+                      src={
+                        `/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png` ||
+                        ""
+                      }
                       alt={wallet.coin_symbol || ""}
-                     
                     />
                   ) : (
                     <img src="" alt="No Icon" className="icon" />
@@ -90,16 +87,13 @@ function Account() {
                 </div>
                 <div className="item_value">
                   <div className="value_us fs-32 fc-353F52 ff_InterSemiBold">
-                    US$ {wallet.usd_value || '0.00'}
+                    US$ {wallet.usd_value || "0.00"}
                   </div>
                   <div className="value_num fs-26 fc-5B616E ff_InterMedium">
-                    {wallet.coin_amount || '0.00'} {wallet.coin_symbol}
+                    {wallet.coin_amount || "0.00"} {wallet.coin_symbol}
                   </div>
                 </div>
-
-              
               </Link>
-              
             ))}
           </div>
         )}

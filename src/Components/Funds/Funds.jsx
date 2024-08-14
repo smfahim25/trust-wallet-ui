@@ -7,6 +7,7 @@ import API_BASE_URL from "../../api/getApiURL";
 import useFetchLatestDeposit from "../../hooks/useFetchLatestDeposit";
 import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { FaRegCopy } from "react-icons/fa";
+import { MdOutlineWatchLater } from "react-icons/md";
 
 const Funds = () => {
   const location = useLocation();
@@ -154,7 +155,7 @@ const Funds = () => {
 
   const handleCopyAddress = () => {
     navigator.clipboard
-      .writeText(post.wallet_address)
+      .writeText(wallet?.wallet_address)
       .then(() => {
         console.log("Copied to clipboard!");
       })
@@ -178,11 +179,21 @@ const Funds = () => {
         return;
       }
 
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(
+        2,
+        "0"
+      );
+      const minutes = String(
+        Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      ).padStart(2, "0");
+      const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(
+        2,
+        "0"
+      );
+
       setTimeLeft(`${hours}:${minutes}:${seconds}`);
     };
+
     updateTimer();
     const timerInterval = setInterval(updateTimer, 1000);
     return () => clearInterval(timerInterval);
@@ -209,13 +220,12 @@ const Funds = () => {
           )}
           <div className="tl">
             <span>
-              Available: {balance?.coin_amount} {post.coin_symbol}
+              Available:{" "}
+              {balance?.coin_amount ? balance?.coin_amount : "000000"}{" "}
+              {post.coin_symbol}
             </span>
             <div className="fc-5F6775 fs12 m-t-5">
               <span>Frozen: 0.0000000 {post.coin_symbol}</span>
-            </div>
-            <div className="fc-5F6775 fs12 m-t-5">
-              {timeLeft && <span>Time to accept: {timeLeft}</span>}
             </div>
           </div>
         </div>
@@ -277,24 +287,26 @@ const Funds = () => {
                               <div className="info-box">
                                 <div className="line">
                                   <div className="title">Coin Name</div>
-                                  <div className="label">{post.coin_name}</div>
+                                  <div className="label">
+                                    {wallet?.coin_name}
+                                  </div>
                                 </div>
                                 <div className="line">
                                   <div className="title">Currency</div>
                                   <div className="label">
-                                    {post.coin_symbol}
+                                    {wallet?.coin_symbol}
                                   </div>
                                 </div>
                                 <div className="line">
                                   <div className="title">Network</div>
                                   <div className="label">
-                                    {post.wallet_network}
+                                    {wallet?.wallet_network}
                                   </div>
                                 </div>
                                 <div className="line">
                                   <div className="title">Address</div>
                                   <div className="address-label">
-                                    <span>{post.wallet_address}</span>
+                                    <span>{wallet?.wallet_address}</span>
                                   </div>
                                 </div>
 
@@ -412,7 +424,7 @@ const Funds = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {post.wallet_address.slice(0, 20)}...
+                    {wallet?.wallet_address.slice(0, 20)}...
                     <span
                       style={{ marginLeft: "5px", cursor: "pointer" }}
                       onClick={handleCopyAddress}
@@ -421,6 +433,36 @@ const Funds = () => {
                     </span>
                   </div>
                 </div>
+                {timeLeft && (
+                  <div
+                    className=" m-t-5"
+                    style={{ fontSize: "20px", marginTop: "10px" }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MdOutlineWatchLater
+                        size={50}
+                        style={{ color: "green" }}
+                      />
+                      <div style={{ marginLeft: "5px" }}>
+                        <span>Time to accept</span>
+                        <div
+                          style={{
+                            fontSize: "25px",
+                            color: "green",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          <span>{timeLeft}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="qr_content">
                   {post.wallet_qr.url ? (
                     <img
