@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import axios from "axios";
 import { useUser } from "../../context/UserContext";
 import { useLocation } from "react-router";
 import API_BASE_URL from "../../api/getApiURL";
+import useFetchLatestDeposit from "../../hooks/useFetchLatestDeposit";
 
 const Funds = () => {
   const location = useLocation();
@@ -11,6 +12,7 @@ const Funds = () => {
   const { user } = useUser();
   const [activeTab, setActiveTab] = useState('deposit');
   const [rechargeModal, setRechargeModal] = useState(false);
+  const {data:latestDeposit} = useFetchLatestDeposit(user?.id,wallet?.coin_id);
   const handleSwitchTab = (tab) => {
       setActiveTab(tab);
     };
@@ -135,6 +137,41 @@ const Funds = () => {
       console.error('Error sending data:', error);
     }
   };
+
+  // implementing timer count down
+
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  useEffect(() => {
+    if (!latestDeposit || !latestDeposit.created_at) return;
+
+    const createdAt = new Date(latestDeposit.created_at);
+    const countdownEnd = new Date(createdAt.getTime() + 60 * 60 * 1000); // Add 1 hour to the created_at time
+
+    const updateTimer = () => {
+      const now = new Date();
+      const diff = countdownEnd - now;
+
+      if (diff <= 0) {
+        setTimeLeft('1 hour');
+        clearInterval(timerInterval);
+      } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeLeft(`${hours}:${minutes}:${seconds}`);
+      }
+    };
+
+    // Initialize the countdown
+    updateTimer();
+
+    // Update the countdown every second
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Clean up the interval when the component is unmounted or when latestDeposit changes
+    return () => clearInterval(timerInterval);
+  }, [latestDeposit]);
   
 
   return (
@@ -167,6 +204,11 @@ const Funds = () => {
             <div className="fc-5F6775 fs12 m-t-5">
               <span>
                 Frozen: 0.0000000 {post.coin_symbol}
+              </span>
+            </div>
+            <div className="fc-5F6775 fs12 m-t-5">
+              <span>
+                Time to accept: {timeLeft}
               </span>
             </div>
           </div>
