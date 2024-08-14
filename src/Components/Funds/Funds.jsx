@@ -59,10 +59,10 @@ const Funds = () => {
   const withdrawLimit = 10; // USD
   const withdrawalFee = 0.001; // 0.1%
 
-  const handleSend = () => {
-    // Implement send functionality
-    alert("Funds Sent");
-  };
+  // const handleSend = () => {
+  //   // Implement send functionality
+  //   alert("Funds Sent");
+  // };
 
   const handleAmountChange = (e) => {
     setAmount(e.target.value);
