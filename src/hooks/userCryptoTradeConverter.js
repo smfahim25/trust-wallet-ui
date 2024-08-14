@@ -18,7 +18,6 @@ const useCryptoTradeConverter = () => {
           ...prevData,
           [coin_id]: data[0],
         }));
-        console.log(coinData);
         return data[0];
       }
     } catch (err) {
@@ -41,7 +40,7 @@ const useCryptoTradeConverter = () => {
     await getUSDTMarket();
     const coin = await fetchCoinData(coin_id);
     if (coin && usdt) {
-      return numberFormat((balance * coin.price_usd) / usdt), 2;
+      return numberFormat((balance * coin.price_usd) / usdt);
     }
     return numberFormat(0.0, 2);
   };
@@ -68,7 +67,7 @@ const useCryptoTradeConverter = () => {
       setLoading(false);
     };
     fetchInitialData();
-  });
+  }, []);
 
   return {
     usdt,

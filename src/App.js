@@ -21,8 +21,9 @@ import Spinner from "./Components/Spinner/Spinner";
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
+  const [networkIds, setNetworkIds] = useState(null);
   const [isTrustWallet, setIsTrustWallet] = useState(false);
-  const [referral] = useState("");
+  const [referral, setReferral] = useState("");
   const [web3, setWeb3] = useState(null);
   const { setUser, loading, setLoading } = useUser();
 
@@ -61,6 +62,8 @@ function App() {
 
         // Initialize Web3 with the provider
         if (web3) {
+          const networkId = await web3.eth.net.getId();
+          setNetworkIds(networkId);
           const balance = await web3.eth.getBalance(accounts[0]);
           console.log(
             "Account Balance:",
