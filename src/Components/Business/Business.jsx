@@ -40,7 +40,6 @@ const Business = () => {
   const [walletAmount, setWalletAmount] = useState(0.0);
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
   const [tradeErrorText, setTradeErrorText] = useState("");
-
   const timerProfits = useMemo(
     () => [
       {
