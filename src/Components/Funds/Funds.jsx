@@ -228,14 +228,14 @@ const Funds = () => {
           )}
           <div className="tl">
             <span>
-              Available:{" "}
+              Available:
               {balance?.coin_amount
                 ? parseFloat(balance?.coin_amount).toFixed(2)
                 : "000000"}{" "}
-              {post.coin_symbol}
+              {wallet?.coin_symbol}
             </span>
             <div className="fc-5F6775 fs12 m-t-5">
-              <span>Frozen: 0.0000000 {post.coin_symbol}</span>
+              <span>Frozen: 0.0000000 {wallet?.coin_symbol}</span>
             </div>
           </div>
         </div>

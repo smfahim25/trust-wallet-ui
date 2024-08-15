@@ -13,6 +13,7 @@ import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
 import { toast } from "react-toastify";
+import useCurrencyConverter from "../../hooks/useCurrencyConverter";
 
 const Business = () => {
   const { user, setLoading } = useUser();
@@ -23,9 +24,9 @@ const Business = () => {
   const [market, setMarket] = useState(null);
   const [purchasePrice, setPurchasePrice] = useState(null);
   const { wallets } = useWallets();
-  const { convertCoinToUSDT, convertUSDTToCoin } = useCryptoTradeConverter();
+  const { convertUSDTToCoin } = useCryptoTradeConverter();
 
-  const { updateUserBalance, success } = useUpdateUserBalance();
+  const { updateUserBalance } = useUpdateUserBalance();
 
   const [userBalance, setUserBalance] = useState(0.0);
   const [userCoinBalance, setUserCoinBalance] = useState(0.0);
@@ -37,10 +38,14 @@ const Business = () => {
   const [selectedProfit, setSelectedProfit] = useState("");
   const [selectedMiniUsdt, setSelectedMiniUsdt] = useState("");
   const [selectedWallet, setSelectedWallet] = useState([]);
-  const [tradeCoinId, setTradeCoinId] = useState(coin);
+  const [tradeCoinId /*setTradeCoinId*/] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
-
+  const { data: convertedValue } = useCurrencyConverter(
+    selectedWallet?.coin_name?.toLowerCase(),
+    "tether",
+    parseFloat(balance?.coin_amount)
+  );
   const timerProfits = useMemo(
     () => [
       {
@@ -87,11 +92,23 @@ const Business = () => {
   }, [coin, type, wallets.length, setLoading]);
 
   useEffect(() => {
-    if (user?.id && selectedWallet?.coin_id) {
-      setUserBalance(balance ? balance.usd_amount : "0.0000");
-      setUserCoinBalance(balance ? balance.coin_amount : "0.0000");
+    if (user?.id && selectedWallet?.coin_id && convertedValue) {
+      setUserBalance(
+        balance
+          ? convertedValue.converted_amount.toFixed(2)
+          : balance?.coin_amount
+          ? balance?.coin_amount
+          : "0.0000"
+      );
+      setUserCoinBalance(
+        balance
+          ? convertedValue.converted_amount.toFixed(2)
+          : balance?.coin_amount
+          ? balance?.coin_amount
+          : "0.0000"
+      );
     }
-  }, [balance, selectedWallet, user]);
+  }, [balance, selectedWallet, user, convertedValue]);
 
   useEffect(() => {
     setSelectedWallet(wallets[0]);
@@ -133,7 +150,7 @@ const Business = () => {
   };
 
   const [amount, setAmount] = useState(0);
-  const [redirect, setRedirect] = useState(false);
+  const [/*redirect,*/ setRedirect] = useState(false);
 
   const handleInputChange = (e) => {
     const { value } = e.target;
@@ -434,7 +451,7 @@ const Business = () => {
                           : market?.symbol.split("=")[0].trim()}
                       </div>
                       <div>
-                        <span className="mr-6">Market Order: </span>
+                        <span>Market Order: </span>
                         <span className="fc-13B26F ff_NunitoSemiBold order_position">
                           {selectedType}
                         </span>
@@ -466,7 +483,7 @@ const Business = () => {
                     />
                     <div className="amount fc-353F52 ff_NunitoSemiBold limit-amount">
                       <span className="coin_amount">
-                        {parseFloat(userCoinBalance).toFixed(3)}
+                        {parseFloat(userCoinBalance).toFixed(2)}
                       </span>
                       USDT
                     </div>
