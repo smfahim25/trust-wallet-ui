@@ -6,11 +6,17 @@ import Header from "../Header/Header";
 import { useUser } from "../../context/UserContext";
 import API_BASE_URL from "../../api/getApiURL";
 
-const Countdown = ({ createdTime, duration }) => {
+const Countdown = ({
+  createdTime,
+  duration,
+  setStatus,
+  id,
+  setRunningOrders,
+  runningOrders,
+}) => {
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
-    // Function to calculate and format the countdown
     let deliveryTime;
     if (duration === "60S") {
       deliveryTime = 60 * 1000;
@@ -29,7 +35,10 @@ const Countdown = ({ createdTime, duration }) => {
       const now = new Date();
       const diff = endTime - now;
       if (diff <= 0) {
-        setTimeLeft("Trade time completed");
+        setTimeLeft("00:00:00");
+        setStatus("finished");
+        const filteredItems = runningOrders.filter((item) => item.id !== id);
+        setRunningOrders(filteredItems);
         return;
       }
 
@@ -53,9 +62,9 @@ const Countdown = ({ createdTime, duration }) => {
       } else if (hours > 0) {
         timeString = `${hours}h ${minutes}m ${seconds}s`;
       } else if (minutes > 0) {
-        timeString = `${minutes}m ${seconds}s`;
+        timeString = `${hours}h ${minutes}m ${seconds}s`;
       } else {
-        timeString = `${seconds}s`;
+        timeString = `${hours}h ${minutes}m ${seconds}s`;
       }
 
       setTimeLeft(timeString);
@@ -69,7 +78,7 @@ const Countdown = ({ createdTime, duration }) => {
 
     // Cleanup interval on component unmount
     return () => clearInterval(timerInterval);
-  }, [createdTime, duration]);
+  }, [createdTime, duration, setStatus, id, runningOrders, setRunningOrders]);
 
   return <div>{timeLeft}</div>;
 };
@@ -78,12 +87,18 @@ const ProfitStatistics = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [showPopup, setShowPopup] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [runningOrders, setRunningOrders] = useState([]);
-  const [finishOrders, setFinishOrders] = useState([]);
+  const [status, setStatus] = useState("running");
   const { setLoading, user } = useUser();
 
   const switchTab = (tab) => {
     setActiveTab(tab);
+    if (tab === "finished") {
+      setStatus("finished");
+    } else {
+      setStatus("running");
+    }
   };
 
   const openPopup = (order) => {
@@ -97,7 +112,7 @@ const ProfitStatistics = () => {
 
   const getFormattedDeliveryTime = (createdAt) => {
     const date = new Date(createdAt);
-    return date.toISOString().split("T").join(" ").slice(0, 19); // Format as 'YYYY-MM-DD HH:mm:ss'
+    return date.toISOString().split("T").join(" ").slice(0, 19);
   };
 
   useEffect(() => {
@@ -106,11 +121,16 @@ const ProfitStatistics = () => {
       async function fetchMarketData() {
         try {
           const response = await fetch(
-            `${API_BASE_URL}/tradeorder/user/${user?.id}`
+            `${API_BASE_URL}/tradeorder/user/${user?.id}?status=${status}`
           );
           const data = await response.json();
-          setRunningOrders(data);
-          setFinishOrders(data);
+          if (response.status !== 404) {
+            if (status === "finished") {
+              setOrders(data);
+            } else {
+              setRunningOrders(data);
+            }
+          }
           setLoading(false);
         } catch (error) {
           console.error("Error fetching market data:", error);
@@ -119,7 +139,8 @@ const ProfitStatistics = () => {
       }
       fetchMarketData();
     }
-  }, [setLoading, user]);
+  }, [setLoading, user, status]);
+  console.log(orders);
   console.log(runningOrders);
   return (
     <div
@@ -152,7 +173,7 @@ const ProfitStatistics = () => {
           <div className="main_content">
             <div>
               {activeTab === "active" ? (
-                runningOrders.length === 0 ? (
+                runningOrders?.length === 0 ? (
                   <div
                     className="no_data_content ff_NunitoSemiBold"
                     style={{ minHeight: "calc(-260px + 100vh)" }}
@@ -176,18 +197,13 @@ const ProfitStatistics = () => {
                           ? getMetalCoinSymbol(order.trade_coin_id)
                           : "";
 
-                      const symbol =
-                        order.order_type === "crypto"
-                          ? order.trade_coin_id
-                          : order.trade_coin_id;
-
                       return (
                         <div className="profit-content" key={order.id}>
                           <div className="profit-details">
-                            <div className="profit-coin-details">
+                            <div className="profit-coin-details flex">
                               <img
                                 className="coin-symbol"
-                                src={`./assets/images/coins/${symbol.toLowerCase()}-logo.png`}
+                                src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
                                 alt={order.coin_name}
                               />
                               <span className="coin-name ff_NunitoSemiBold">
@@ -198,13 +214,19 @@ const ProfitStatistics = () => {
                               </span>
                             </div>
                             <div className="profit-details-amount">
-                              <span className="profit-text">Running</span>
-                              <span className="countdown">
-                                <Countdown
-                                  createdTime={order.created_at}
-                                  duration={order.delivery_time}
-                                />
-                              </span>
+                              <div className="flex gap-5">
+                                <span className="text-[15px]">Running</span>
+                                <span className="text-[15px]">
+                                  <Countdown
+                                    createdTime={order.created_at}
+                                    duration={order.delivery_time}
+                                    setStatus={setStatus}
+                                    setRunningOrders={setRunningOrders}
+                                    id={order?.id}
+                                    runningOrders={runningOrders}
+                                  />
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -212,7 +234,7 @@ const ProfitStatistics = () => {
                     })}
                   </div>
                 )
-              ) : finishOrders.length === 0 ? (
+              ) : orders?.length === 0 ? (
                 <div
                   className="no_data_content ff_NunitoSemiBold"
                   style={{ minHeight: "calc(-260px + 100vh)" }}
@@ -222,7 +244,7 @@ const ProfitStatistics = () => {
                 </div>
               ) : (
                 <div className="profit-history">
-                  {finishOrders?.map((order) => {
+                  {orders?.map((order) => {
                     const tradeCoin =
                       order.order_type === "crypto"
                         ? order.trade_coin_id
@@ -232,39 +254,28 @@ const ProfitStatistics = () => {
                         ? getMetalCoinSymbol(order.trade_coin_id)
                         : "";
 
-                    const symbol =
-                      order.order_type === "crypto"
-                        ? order.trade_coin_id
-                        : order.trade_coin_id;
-
                     return (
                       <div
                         className="profit-content profit-content-pop"
                         key={order.id}
-                        data-logo={`./assets/images/coins/${symbol.toLowerCase()}-logo.png`}
-                        data-trade={`${tradeCoin}/${order.coin_symbol}`}
-                        data-entry={order.created_at}
-                        data-amount={order.amount.toFixed(2)}
-                        data-direction={order.order_position}
-                        data-purchase_price={order.purchase_price.toFixed(2)}
-                        data-contract={order.delivery_time}
-                        data-profit_amount={order.profit_amount.toFixed(2)}
-                        data-is_profit={order.is_profit}
-                        data-delivery_price={order.delivery_price.toFixed(2)}
-                        data-status="Finished"
-                        data-delivery_time={getFormattedDeliveryTime(
-                          order.created_at,
-                          order.delivery_time
-                        )}
                         onClick={() => openPopup(order)}
                       >
                         <div className="profit-details">
                           <div className="profit-coin-details">
-                            <img
-                              className="coin-symbol"
-                              src={`./assets/images/coins/${symbol.toLowerCase()}-logo.png`}
-                              alt={order.coin_name}
-                            />
+                            {order?.order_type === "metal" ||
+                            order?.order_type === "forex" ? (
+                              <img
+                                className="coin-symbol"
+                                src={`./assets/images/coins/${order?.trade_coin_id.toLowerCase()}-logo.png`}
+                                alt={order.coin_name}
+                              />
+                            ) : (
+                              <img
+                                className="coin-symbol"
+                                src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
+                                alt={order.coin_name}
+                              />
+                            )}
                             <span className="coin-name ff_NunitoSemiBold">
                               {tradeCoin}/{order.coin_symbol}
                             </span>
@@ -282,7 +293,7 @@ const ProfitStatistics = () => {
                                 color: order.is_profit ? "green" : "red",
                               }}
                             >
-                              US$ {order.profit_amount.toFixed(2)}
+                              US$ {order?.profit_amount}
                             </span>
                           </div>
                         </div>
@@ -320,7 +331,7 @@ const ProfitStatistics = () => {
                 <div className="history_info">
                   <div className="history-coin-details">
                     <img
-                      src={`./assets/images/coins/${selectedOrder.trade_coin_id.toLowerCase()}-logo.png`}
+                      src={`./assets/images/coins/${selectedOrder.coin_symbol.toLowerCase()}-logo.png`}
                       alt={selectedOrder.coin_name}
                       className="coin_logo"
                       id="coin_logo"
@@ -335,7 +346,7 @@ const ProfitStatistics = () => {
                   <div className="history-content">
                     <div className="history-label">Purchase Amount</div>
                     <div className="history-value" id="amount">
-                      {selectedOrder.amount.toFixed(2)}
+                      {selectedOrder.amount}
                     </div>
                   </div>
                   <div className="history-content">
@@ -347,27 +358,31 @@ const ProfitStatistics = () => {
                   <div className="history-content">
                     <div className="history-label">Purchase price</div>
                     <div className="history-value" id="purchase_price">
-                      {selectedOrder.purchase_price.toFixed(2)}
+                      {selectedOrder.purchase_price}
                     </div>
                   </div>
                   <div className="history-content">
                     <div className="history-label">Contract</div>
                     <div className="history-value" id="contract">
-                      {selectedOrder.delivery_time} seconds
+                      {selectedOrder.delivery_time}
                     </div>
                   </div>
-                  <div className="history-content">
+                  <div
+                    className={`history-content p-2 rounded-md ${
+                      selectedOrder.is_profit ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  >
                     <div className="history-label" id="profit_status">
                       {selectedOrder.is_profit ? "Profit" : "Loss"}
                     </div>
                     <div className="history-value" id="profit_amount">
-                      {selectedOrder.profit_amount.toFixed(2)}
+                      {selectedOrder.profit_amount}
                     </div>
                   </div>
                   <div className="history-content">
                     <div className="history-label">Delivery Price</div>
                     <div className="history-value" id="delivery_price">
-                      {selectedOrder.delivery_price.toFixed(2)}
+                      {selectedOrder.delivery_price}
                     </div>
                   </div>
                   <div className="history-content">

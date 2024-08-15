@@ -1,35 +1,73 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import imgNoData from "../../Assets/images/img_nodata.png";
+import { useUser } from "../../context/UserContext";
+import API_BASE_URL from "../../api/getApiURL";
+import iconMenuArrow from "../../Assets/images/icon_menu_arrow.svg";
+import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 
 const Deposit = ({ openTransactionHistory }) => {
   const [deposits, setDeposits] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { setLoading, user } = useUser();
+
+  const itemsPerPage = 3;
+
+  const getFormattedDeliveryTime = (createdAt) => {
+    const date = new Date(createdAt);
+    return date.toISOString().split("T").join(" ").slice(0, 19);
+  };
 
   useEffect(() => {
-    // Mock data for deposits
-    const mockDeposits = [
-      {
-        id: 1,
-        sender: 'Alice',
-        receiver: 'Bob',
-        amount: 100,
-        transactionHash: 'abc123',
-        status: 'Completed',
-      },
-      {
-        id: 2,
-        sender: 'Charlie',
-        receiver: 'Dave',
-        amount: 200,
-        transactionHash: 'def456',
-        status: 'Pending',
-      },
-    ];
+    setLoading(true);
+    if (user?.id) {
+      async function fetchMarketData() {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/tradeorder/user/${user?.id}`
+          );
+          const data = await response.json();
+          if (response.status !== 404) {
+            setDeposits(data);
+          }
+          setLoading(false);
+        } catch (error) {
+          console.error("Error fetching market data:", error);
+          setLoading(false);
+        }
+      }
+      fetchMarketData();
+    }
+  }, [setLoading, user]);
 
-    setDeposits(mockDeposits);
-  }, []);
+  // Filter deposits based on search term (coin symbol)
+  const filteredDeposits = deposits.filter((order) =>
+    order.coin_symbol.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredDeposits.length / itemsPerPage);
+  const currentDeposits = filteredDeposits.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Handlers for pagination and search
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
 
   return (
-    <div id="transaction-deposit">
+    <div id="profit-active_order">
       <div className="main_container">
         <div className="main_content">
           <div className="title title-transaction">
@@ -38,53 +76,80 @@ const Deposit = ({ openTransactionHistory }) => {
               <span>Deposit</span>
             </div>
           </div>
+          <div className="flex justify-center">
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={handleSearch}
+              className="border-2 px-4 py-2 rounded-md"
+            />
+          </div>
           <div>
-            {deposits.length <= 0 ? (
+            {currentDeposits.length <= 0 ? (
               <div
                 className="no_data_content ff_NunitoSemiBold"
-                style={{ minHeight: 'calc(-260px + 100vh)' }}
+                style={{ minHeight: "calc(-260px + 100vh)" }}
               >
-                <img
-                  src={imgNoData}
-                  alt="No Data"
-                  className="img_no_data"
-                />
+                <img src={imgNoData} alt="No Data" className="img_no_data" />
                 <div>No Data</div>
               </div>
             ) : (
-              <div className="table-tab-container">
-                <div className="table-tab-content">
-                  <table className="transaction-history deposit-table">
-                    <thead>
-                      <tr>
-                        <th>Sender</th>
-                        <th>Receiver</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Details</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {deposits.map((deposit) => (
-                        <tr key={deposit.id}>
-                          <td>{deposit.sender}</td>
-                          <td>{deposit.receiver}</td>
-                          <td>{deposit.amount}</td>
-                          <td>{deposit.status}</td>
-                          <td>
-                            <button
-                              onClick={() => openTransactionHistory(deposit)}
-                            >
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              <div className="profit-history">
+                {currentDeposits.map((order) => {
+                  return (
+                    <div
+                      className="profit-content profit-content-pop"
+                      key={order.id}
+                      onClick={() => openTransactionHistory(order)}
+                    >
+                      <div className="profit-details">
+                        <div className="profit-coin-details">
+                          <img
+                            className="coin-symbol"
+                            src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
+                            alt={order.coin_name}
+                          />
+                          <span className="coin-name ff_NunitoSemiBold">
+                            {order.coin_symbol} Wallet
+                          </span>
+                          <span className="profit-date ff_NunitoRegular">
+                            {getFormattedDeliveryTime(order.created_at)}
+                          </span>
+                        </div>
+                        <div className="profit-details-amount">
+                          <div className="flex gap-5">
+                            <span className="text-[15px]">Running</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="profit-icon">
+                        <img src={iconMenuArrow} alt="Details" />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
+          </div>
+          <div className="flex justify-center items-center mt-10 gap-5">
+            <span
+              className="bg-white text-black "
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+            >
+              <SlArrowLeft size={15} />
+            </span>
+            <span className="mb-1">
+              Page {currentPage} of {totalPages}
+            </span>
+            <span
+              className="bg-white text-black"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+            >
+              <SlArrowRight size={15} />
+            </span>
           </div>
         </div>
       </div>
