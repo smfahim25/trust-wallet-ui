@@ -8,6 +8,7 @@ import useFetchLatestDeposit from "../../hooks/useFetchLatestDeposit";
 import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { FaRegCopy } from "react-icons/fa";
 import { MdOutlineWatchLater } from "react-icons/md";
+import { toast } from "react-toastify";
 
 const Funds = () => {
   const location = useLocation();
@@ -86,7 +87,7 @@ const Funds = () => {
     e.preventDefault();
     setLoading(true);
     if (!amount || !screenshot) {
-      alert("Please provide both amount and screenshot");
+      toast.error("Please provide both amount and screenshot");
       setLoading(false);
       return;
     }
@@ -124,7 +125,7 @@ const Funds = () => {
     setLoading(true);
     // Validate inputs
     if (!withdrawAmount || !withdrawAddress) {
-      alert("Please provide both amount and address");
+      toast.error("Please provide both amount and address");
       return;
     }
 
@@ -157,7 +158,7 @@ const Funds = () => {
     navigator.clipboard
       .writeText(wallet?.wallet_address)
       .then(() => {
-        console.log("Copied to clipboard!");
+        toast.success("Copied to clipboard!");
       })
       .catch((err) => {
         console.error("Failed to copy: ", err);
