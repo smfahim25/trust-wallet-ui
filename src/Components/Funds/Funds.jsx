@@ -163,7 +163,6 @@ const Funds = () => {
         console.error("Failed to copy: ", err);
       });
   };
-
   useEffect(() => {
     if (!latestDeposit || !latestDeposit.created_at) return;
 

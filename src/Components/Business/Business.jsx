@@ -12,6 +12,7 @@ import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
+import { toast } from "react-toastify";
 
 const Business = () => {
   const { user, setLoading } = useUser();
@@ -40,6 +41,7 @@ const Business = () => {
   const [walletAmount, setWalletAmount] = useState(0.0);
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
   const [tradeErrorText, setTradeErrorText] = useState("");
+
   const timerProfits = useMemo(
     () => [
       {
@@ -127,6 +129,7 @@ const Business = () => {
 
   const handleSelectCoin = (item) => {
     setSelectedWallet(item);
+
     handlePopupCoin();
   };
 
@@ -155,13 +158,15 @@ const Business = () => {
       !selectedTime
     ) {
       setTradeErrorText("Something is wrong. Try Again!");
-      console.log("Something is wrong. Try Again!");
+      toast.error("Something is wrong. Try Again!");
     } else if (amount <= 0) {
       setTradeErrorText("Amount is required!!! Please place amount");
     } else if (amount < selectedMiniUsdt) {
-      setTradeErrorText(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
-    } else if (amount > userBalance) {
-      setTradeErrorText("Balance is not available");
+      toast.error(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
+    } else if (amount > parseFloat(userBalance)) {
+      console.log(amount);
+      console.log(userBalance);
+      toast.error("Balance is not available");
     } else {
       try {
         const order_id = Math.floor(100000 + Math.random() * 900000);
@@ -194,7 +199,9 @@ const Business = () => {
         const new_balance = userCoinBalance - walletAmount;
         updateUserBalance(user.id, selectedWallet.coin_id, new_balance);
 
-        console.log("Trade Order request successfully sent.");
+        toast.success("Trade Order request successfully sent.");
+        setAmount(0);
+        setPopupVisible(false);
         setRedirect(true);
       } catch (error) {
         console.error("Error submitting trade order:", error);
@@ -460,7 +467,10 @@ const Business = () => {
                       value={userBalance}
                     />
                     <div className="amount fc-353F52 ff_NunitoSemiBold limit-amount">
-                      <span className="coin_amount">{userBalance}</span> USDT
+                      <span className="coin_amount">
+                        {parseFloat(userCoinBalance).toFixed(3)}
+                      </span>
+                      USDT
                     </div>
                   </div>
                 </div>
@@ -583,7 +593,10 @@ const Business = () => {
                 <div className="balance fs-26 ff_NunitoRegular">
                   <div className="balalce_value fc-353F52">
                     Available:
-                    <span className="coin_amount">{userBalance}</span> USDT
+                    <span className="coin_amount">
+                      {parseFloat(userCoinBalance).toFixed(3)}
+                    </span>
+                    USDT
                   </div>
                 </div>
                 <div className="balance fs-26 ff_NunitoRegular">

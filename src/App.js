@@ -17,6 +17,8 @@ import { Route, Routes } from "react-router";
 import { createMetaCtUser } from "./Components/utils/createMetaCtUser";
 import { useUser } from "./context/UserContext";
 import Spinner from "./Components/Spinner/Spinner";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -121,6 +123,7 @@ function App() {
           <Route path="/contact-us" element={<Contact />} />
         </Routes>
       </div>
+      <ToastContainer autoClose={2000} />
     </div>
   );
 }

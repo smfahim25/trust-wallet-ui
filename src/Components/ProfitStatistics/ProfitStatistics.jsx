@@ -6,6 +6,74 @@ import Header from "../Header/Header";
 import { useUser } from "../../context/UserContext";
 import API_BASE_URL from "../../api/getApiURL";
 
+const Countdown = ({ createdTime, duration }) => {
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    // Function to calculate and format the countdown
+    let deliveryTime;
+    if (duration === "60S") {
+      deliveryTime = 60 * 1000;
+    } else if (duration === "120S") {
+      deliveryTime = 120 * 1000;
+    } else if (duration === "12H") {
+      deliveryTime = 12 * 60 * 60 * 1000;
+    } else if (duration === "36H") {
+      deliveryTime = 36 * 60 * 60 * 1000;
+    } else if (duration === "7D") {
+      deliveryTime = 7 * 24 * 60 * 60 * 1000;
+    }
+    const createdAt = new Date(createdTime);
+    const updateTimer = () => {
+      const endTime = new Date(createdAt.getTime() + deliveryTime);
+      const now = new Date();
+      const diff = endTime - now;
+      if (diff <= 0) {
+        setTimeLeft("Trade time completed");
+        return;
+      }
+
+      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(
+        2,
+        "0"
+      );
+      const minutes = String(
+        Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      ).padStart(2, "0");
+      const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(
+        2,
+        "0"
+      );
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+      let timeString = "";
+
+      if (days > 0) {
+        timeString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      } else if (hours > 0) {
+        timeString = `${hours}h ${minutes}m ${seconds}s`;
+      } else if (minutes > 0) {
+        timeString = `${minutes}m ${seconds}s`;
+      } else {
+        timeString = `${seconds}s`;
+      }
+
+      setTimeLeft(timeString);
+    };
+
+    // Initial call to set the countdown immediately
+    updateTimer();
+
+    // Set interval to update countdown every second
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(timerInterval);
+  }, [createdTime, duration]);
+
+  return <div>{timeLeft}</div>;
+};
+
 const ProfitStatistics = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [showPopup, setShowPopup] = useState(false);
@@ -27,33 +95,32 @@ const ProfitStatistics = () => {
     setShowPopup(false);
   };
 
-  const getFormattedDeliveryTime = (createdAt, deliveryTimeInSeconds) => {
+  const getFormattedDeliveryTime = (createdAt) => {
     const date = new Date(createdAt);
-    date.setSeconds(date.getSeconds() + deliveryTimeInSeconds);
     return date.toISOString().split("T").join(" ").slice(0, 19); // Format as 'YYYY-MM-DD HH:mm:ss'
   };
+
   useEffect(() => {
     setLoading(true);
-    async function fetchMarketData() {
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/tradeorder/user/${user?.id}`
-        );
-        const data = await response.json();
-        if (response.status !== 404) {
+    if (user?.id) {
+      async function fetchMarketData() {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/tradeorder/user/${user?.id}`
+          );
+          const data = await response.json();
           setRunningOrders(data);
           setFinishOrders(data);
+          setLoading(false);
+        } catch (error) {
+          console.error("Error fetching market data:", error);
+          setLoading(false);
         }
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching market data:", error);
-        setLoading(false);
       }
+      fetchMarketData();
     }
-
-    fetchMarketData();
   }, [setLoading, user]);
-
+  console.log(runningOrders);
   return (
     <div
       className="profit"
@@ -127,20 +194,16 @@ const ProfitStatistics = () => {
                                 {tradeCoin}/{order.coin_symbol}
                               </span>
                               <span className="profit-date ff_NunitoRegular">
-                                {order.created_at}
+                                {getFormattedDeliveryTime(order.created_at)}
                               </span>
                             </div>
                             <div className="profit-details-amount">
                               <span className="profit-text">Running</span>
-                              <span
-                                className="countdown"
-                                data-time={order.created_at}
-                                data-delivery_time={getFormattedDeliveryTime(
-                                  order.created_at,
-                                  order.delivery_time
-                                )}
-                              >
-                                00:00:00
+                              <span className="countdown">
+                                <Countdown
+                                  createdTime={order.created_at}
+                                  duration={order.delivery_time}
+                                />
                               </span>
                             </div>
                           </div>
