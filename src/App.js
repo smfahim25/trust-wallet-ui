@@ -24,18 +24,15 @@ import AdminDashboard from "./Components/AdminComponents/AdminDashboard/AdminDas
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
-  const [networkIds, setNetworkIds] = useState(null);
+  const [setNetworkIds] = useState(null);
   const [isTrustWallet, setIsTrustWallet] = useState(false);
-  const [referral, setReferral] = useState("");
+  const [referral] = useState("");
   const [web3, setWeb3] = useState(null);
   const { setUser, loading, setLoading } = useUser();
 
   useEffect(() => {
-    // Detect if the user is accessing via a wallet provider (including Trust Wallet)
     if (window.ethereum) {
       const ethereumProvider = window.ethereum;
-
-      // Check for Trust Wallet specific properties or methods
       const isTrustWallet =
         ethereumProvider.isTrust ||
         (ethereumProvider &&
@@ -50,7 +47,6 @@ function App() {
       }
     } else {
       console.log("No Ethereum provider detected.");
-      console.log(account);
     }
   }, []);
 
@@ -63,7 +59,6 @@ function App() {
         setAccount(accounts[0]);
         setIsConnected(true);
 
-        // Initialize Web3 with the provider
         if (web3) {
           const networkId = await web3.eth.net.getId();
           setNetworkIds(networkId);
@@ -98,11 +93,7 @@ function App() {
     }
   }, [isConnected, isTrustWallet, account, referral, setUser, setLoading]);
 
-  return !isConnected && !isTrustWallet ? (
-    <div className="">
-      <GuestHome />
-    </div>
-  ) : (
+  return (
     <div>
       {loading && (
         <div id="global-loader">
@@ -111,27 +102,31 @@ function App() {
       )}
       <div className="app">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<Profile walletId={account} />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/transaction" element={<Transaction />} />
-          <Route path="/profit-stat" element={<ProfitStatistics />} />
-          <Route path="/notification" element={<Notification />} />
-          <Route path="/funds" element={<Funds />} />
-          <Route path="/business" element={<Business wallet={account} />} />
-          <Route path="/referral-list" element={<ReferralList />} />
-          <Route path="/referral-history" element={<ReferralBonusHistory />} />
-          <Route path="/contact-us" element={<Contact />} />
-          
+          {isConnected && isTrustWallet ? (
+            <>
+              <Route path="/" element={<Home />} />
+              <Route path="/profile" element={<Profile walletId={account} />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/transaction" element={<Transaction />} />
+              <Route path="/profit-stat" element={<ProfitStatistics />} />
+              <Route path="/notification" element={<Notification />} />
+              <Route path="/funds" element={<Funds />} />
+              <Route path="/business" element={<Business wallet={account} />} />
+              <Route path="/referral-list" element={<ReferralList />} />
+              <Route
+                path="/referral-history"
+                element={<ReferralBonusHistory />}
+              />
+              <Route path="/contact-us" element={<Contact />} />
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<GuestHome />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+            </>
+          )}
         </Routes>
       </div>
-      <div>
-      <Routes>
-      <Route path="/admin" element={<AdminDashboard />} />
-      </Routes>
-
-      </div>
-      
       <ToastContainer autoClose={2000} />
     </div>
   );

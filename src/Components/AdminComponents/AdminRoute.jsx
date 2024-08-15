@@ -1,7 +1,6 @@
 import { Navigate } from "react-router-dom";
 
 function isAdminAuthenticated() {
-  
   return true;
 }
 
