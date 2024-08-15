@@ -31,6 +31,10 @@ function App() {
   const { setUser, loading, setLoading } = useUser();
 
   useEffect(() => {
+    if (!window.location.hash) {
+      window.location.replace(`${window.location.href}#/`);
+    }
+
     if (window.ethereum) {
       const ethereumProvider = window.ethereum;
       const isTrustWallet =
