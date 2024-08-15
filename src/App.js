@@ -19,6 +19,7 @@ import { useUser } from "./context/UserContext";
 import Spinner from "./Components/Spinner/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import AdminDashboard from "./Components/AdminComponents/AdminDashboard/AdminDashboard";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -121,8 +122,16 @@ function App() {
           <Route path="/referral-list" element={<ReferralList />} />
           <Route path="/referral-history" element={<ReferralBonusHistory />} />
           <Route path="/contact-us" element={<Contact />} />
+          
         </Routes>
       </div>
+      <div>
+      <Routes>
+      <Route path="/admin" element={<AdminDashboard />} />
+      </Routes>
+
+      </div>
+      
       <ToastContainer autoClose={2000} />
     </div>
   );
