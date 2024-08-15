@@ -25,7 +25,7 @@ const Transaction = () => {
 
   return (
     <div
-      className="transaction"
+      className="profit"
       style={{ backgroundColor: "white", height: "100vh" }}
     >
       <Header pageTitle="Transaction" />

@@ -200,7 +200,7 @@ const ProfitStatistics = () => {
                       return (
                         <div className="profit-content" key={order.id}>
                           <div className="profit-details">
-                            <div className="profit-coin-details">
+                            <div className="profit-coin-details flex">
                               <img
                                 className="coin-symbol"
                                 src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
