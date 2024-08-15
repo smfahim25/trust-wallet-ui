@@ -9,6 +9,7 @@ import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { FaRegCopy } from "react-icons/fa";
 import { MdOutlineWatchLater } from "react-icons/md";
 import { toast } from "react-toastify";
+import useCurrencyConverter from "../../hooks/useCurrencyConverter";
 
 const Funds = () => {
   const location = useLocation();
@@ -28,7 +29,11 @@ const Funds = () => {
     refetch,
   } = useFetchLatestDeposit(user?.id, wallet?.coin_id);
   const { balance } = useFetchUserBalance(user?.id, wallet?.coin_id);
-
+  const { data: convertedValue } = useCurrencyConverter(
+    wallet?.coin_name.toLowerCase(),
+    "tether",
+    parseFloat(balance?.coin_amount)
+  );
   const handleSwitchTab = (tab) => {
     setActiveTab(tab);
   };
@@ -206,14 +211,17 @@ const Funds = () => {
       <div className="amount">
         <div className="money_symbol ff_InterSemiBold"></div>
         <div className="us_num ff_InterSemiBold">
-          US$ {balance ? parseFloat(balance?.coin_amount).toFixed(3) : "000000"}
+          US$
+          {convertedValue
+            ? convertedValue?.converted_amount.toFixed(2)
+            : parseFloat(balance?.coin_amount).toFixed(2)}
         </div>
         <div className="coin_num flex align-center">
-          {post.coin_logo.url ? (
+          {wallet?.coin_symbol ? (
             <img
               className="coin_icon"
-              src={post.coin_logo.url}
-              alt={post.coin_logo.alt}
+              src={`assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
+              alt={wallet?.coin_name}
             />
           ) : (
             <img src="" alt="" className="coin_icon" />
@@ -221,7 +229,9 @@ const Funds = () => {
           <div className="tl">
             <span>
               Available:{" "}
-              {balance?.coin_amount ? balance?.coin_amount : "000000"}{" "}
+              {balance?.coin_amount
+                ? parseFloat(balance?.coin_amount).toFixed(2)
+                : "000000"}{" "}
               {post.coin_symbol}
             </span>
             <div className="fc-5F6775 fs12 m-t-5">
@@ -505,7 +515,7 @@ const Funds = () => {
                 </div>
               </div>
               <div className="coin_type">
-                <div className="coin_item active">{post.coin_symbol}</div>
+                <div className="coin_item active">{wallet?.coin_symbol}</div>
               </div>
               <div className="input_content ff_NunitoSemiBold">
                 <div className="address">
@@ -524,11 +534,11 @@ const Funds = () => {
                   />
                 </div>
                 <div className="address">
-                  {post.coin_logo.url ? (
+                  {wallet?.coin_logo ? (
                     <img
                       className="coin_icon receiver_amount_input"
-                      src={post.coin_logo.url}
-                      alt={post.coin_logo.alt}
+                      src={`assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
+                      alt={wallet?.coin_name}
                     />
                   ) : (
                     <img src="" alt="" className="coin_icon" />
@@ -543,7 +553,7 @@ const Funds = () => {
                     className="send-am-input"
                   />
                   <span className="coin_symbol receiver_amount_input">
-                    {post.coin_symbol} <span className="all"> | Max </span>
+                    {wallet?.coin_symbol} <span className="all"> | Max </span>
                   </span>
                 </div>
                 <div className="input_warning">
@@ -558,7 +568,7 @@ const Funds = () => {
                     {(withdrawLimit / parseFloat(balance?.coin_amount)).toFixed(
                       8
                     )}{" "}
-                    {post.coin_symbol} <span> (US$ {withdrawLimit}) </span>
+                    {wallet?.coin_symbol} <span> (US$ {withdrawLimit}) </span>
                   </span>
                 </div>
               </div>

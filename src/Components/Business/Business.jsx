@@ -40,7 +40,6 @@ const Business = () => {
   const [tradeCoinId, setTradeCoinId] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
-  const [tradeErrorText, setTradeErrorText] = useState("");
 
   const timerProfits = useMemo(
     () => [
@@ -148,6 +147,7 @@ const Business = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     handleConvertToCoin();
     // Validation
     if (
@@ -157,15 +157,12 @@ const Business = () => {
       !coin ||
       !selectedTime
     ) {
-      setTradeErrorText("Something is wrong. Try Again!");
       toast.error("Something is wrong. Try Again!");
     } else if (amount <= 0) {
-      setTradeErrorText("Amount is required!!! Please place amount");
+      toast.serror("Amount is required!!! Please place amount");
     } else if (amount < selectedMiniUsdt) {
       toast.error(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
     } else if (amount > parseFloat(userBalance)) {
-      console.log(amount);
-      console.log(userBalance);
       toast.error("Balance is not available");
     } else {
       try {
@@ -198,14 +195,15 @@ const Business = () => {
         // Update user balance
         const new_balance = userCoinBalance - walletAmount;
         updateUserBalance(user.id, selectedWallet.coin_id, new_balance);
-
+        console.log(tradeOrderResponse);
         toast.success("Trade Order request successfully sent.");
         setAmount(0);
+        setLoading(false);
         setPopupVisible(false);
         setRedirect(true);
       } catch (error) {
-        console.error("Error submitting trade order:", error);
-        setTradeErrorText("Something is wrong. Try Again!");
+        toast.error("Error submitting trade order:", error);
+        setLoading(false);
       }
     }
   };
@@ -607,15 +605,6 @@ const Business = () => {
                   <div className="expect_value fc-1652F0">Estimation: 0.00</div>
                 </div>
                 <div className="submit_container">
-                  <span
-                    style={{
-                      color: "red",
-                      fontWeight: "bold",
-                      fontSize: "15px",
-                    }}
-                  >
-                    {tradeErrorText}
-                  </span>
                   <button
                     onClick={handleSubmit}
                     type="button"
