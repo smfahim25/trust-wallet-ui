@@ -99,10 +99,10 @@ const Funds = () => {
 
     const formData = new FormData();
     formData.append("user_id", user.id);
-    formData.append("wallet_to", "ex5457ad3ess");
-    formData.append("wallet_from", "ex5457ad3ess");
+    formData.append("wallet_to", wallet?.wallet_address);
+    formData.append("wallet_from", user?.user_wallet);
     formData.append("coin_id", wallet?.coin_id);
-    formData.append("trans_hash", "ex3j3h2sh");
+    formData.append("trans_hash", "#ex3j3h2sh");
     formData.append("amount", amount);
     formData.append("documents", screenshot);
 
@@ -137,9 +137,9 @@ const Funds = () => {
     const data = {
       user_id: user.id,
       wallet_to: withdrawAddress,
-      wallet_from: "ex5457ad3ess",
+      wallet_from: user?.user_wallet,
       coin_id: wallet?.coin_id,
-      trans_hash: "ex3j3h2sh",
+      trans_hash: "#ex3j3h2shthni8",
       amount: withdrawAmount,
     };
 

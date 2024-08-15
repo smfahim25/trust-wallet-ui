@@ -140,8 +140,7 @@ const ProfitStatistics = () => {
       fetchMarketData();
     }
   }, [setLoading, user, status]);
-  console.log(orders);
-  console.log(runningOrders);
+
   return (
     <div
       className="profit"
@@ -382,7 +381,13 @@ const ProfitStatistics = () => {
                   <div className="history-content">
                     <div className="history-label">Delivery Price</div>
                     <div className="history-value" id="delivery_price">
-                      {selectedOrder.delivery_price}
+                      {selectedOrder.is_profit
+                        ? parseFloat(selectedOrder.purchase_price) +
+                          parseFloat(selectedOrder.profit_amount) +
+                          200
+                        : parseFloat(selectedOrder.purchase_price) -
+                          parseFloat(selectedOrder.profit_amount) -
+                          150}
                     </div>
                   </div>
                   <div className="history-content">

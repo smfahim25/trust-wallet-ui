@@ -11,7 +11,7 @@ const Deposit = ({ openTransactionHistory }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const { setLoading, user } = useUser();
 
-  const itemsPerPage = 3;
+  const itemsPerPage = 10;
 
   const getFormattedDeliveryTime = (createdAt) => {
     const date = new Date(createdAt);
@@ -24,7 +24,7 @@ const Deposit = ({ openTransactionHistory }) => {
       async function fetchMarketData() {
         try {
           const response = await fetch(
-            `${API_BASE_URL}/tradeorder/user/${user?.id}`
+            `${API_BASE_URL}/deposits/user/${user?.id}`
           );
           const data = await response.json();
           if (response.status !== 404) {
@@ -42,7 +42,7 @@ const Deposit = ({ openTransactionHistory }) => {
 
   // Filter deposits based on search term (coin symbol)
   const filteredDeposits = deposits.filter((order) =>
-    order.coin_symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    order?.coin_symbol?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Calculate pagination
@@ -107,7 +107,7 @@ const Deposit = ({ openTransactionHistory }) => {
                         <div className="profit-coin-details">
                           <img
                             className="coin-symbol"
-                            src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
+                            src={`/assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
                             alt={order.coin_name}
                           />
                           <span className="coin-name ff_NunitoSemiBold">
@@ -118,8 +118,11 @@ const Deposit = ({ openTransactionHistory }) => {
                           </span>
                         </div>
                         <div className="profit-details-amount">
-                          <div className="flex gap-5">
-                            <span className="text-[15px]">Running</span>
+                          <div className="flex gap-5 items-center">
+                            <span className="text-[15px]">
+                              Amount: {parseFloat(order?.amount).toFixed(2)}
+                            </span>
+                            <span className="text-[15px]">{order?.status}</span>
                           </div>
                         </div>
                       </div>
@@ -132,25 +135,27 @@ const Deposit = ({ openTransactionHistory }) => {
               </div>
             )}
           </div>
-          <div className="flex justify-center items-center mt-10 gap-5">
-            <span
-              className="bg-white text-black "
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-            >
-              <SlArrowLeft size={15} />
-            </span>
-            <span className="mb-1">
-              Page {currentPage} of {totalPages}
-            </span>
-            <span
-              className="bg-white text-black"
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-            >
-              <SlArrowRight size={15} />
-            </span>
-          </div>
+          {currentDeposits.length > 0 && (
+            <div className="flex justify-center items-center mt-10 gap-5">
+              <span
+                className="bg-white text-black "
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                <SlArrowLeft size={15} />
+              </span>
+              <span className="mb-1">
+                Page {currentPage} of {totalPages}
+              </span>
+              <span
+                className="bg-white text-black"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                <SlArrowRight size={15} />
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

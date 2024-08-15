@@ -3,9 +3,11 @@ import imgWallet from "../../Assets/images/img_wallet.png";
 import Header from "../Header/Header";
 import { Link } from "react-router-dom";
 import useWallets from "../../hooks/useWallets";
+import { useUser } from "../../context/UserContext";
 
 function Account() {
-  const { wallets } = useWallets();
+  const { user } = useUser();
+  const { wallets } = useWallets(user?.id);
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
@@ -66,10 +68,7 @@ function Account() {
                   {wallet.coin_logo ? (
                     <img
                       className="icon"
-                      src={
-                        `/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png` ||
-                        ""
-                      }
+                      src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
                       alt={wallet.coin_symbol || ""}
                     />
                   ) : (
@@ -87,10 +86,12 @@ function Account() {
                 </div>
                 <div className="item_value">
                   <div className="value_us fs-32 fc-353F52 ff_InterSemiBold">
-                    US$ {wallet.usd_value || "0.00"}
+                    {parseFloat(wallet?.coin_amount).toFixed(3)}{" "}
+                    {wallet.coin_symbol}
                   </div>
                   <div className="value_num fs-26 fc-5B616E ff_InterMedium">
-                    {wallet.coin_amount || "0.00"} {wallet.coin_symbol}
+                    {parseFloat(wallet?.coin_amount).toFixed(2) || "0.00"}{" "}
+                    {wallet.coin_symbol}
                   </div>
                 </div>
               </Link>

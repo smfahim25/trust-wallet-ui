@@ -24,7 +24,7 @@ const Withdraw = ({ openTransactionHistory }) => {
       async function fetchMarketData() {
         try {
           const response = await fetch(
-            `${API_BASE_URL}/tradeorder/user/${user?.id}`
+            `${API_BASE_URL}/withdraws/user/${user?.id}`
           );
           const data = await response.json();
           if (response.status !== 404) {
@@ -132,25 +132,27 @@ const Withdraw = ({ openTransactionHistory }) => {
               </div>
             )}
           </div>
-          <div className="flex justify-center items-center mt-10 gap-5">
-            <span
-              className="bg-white text-black "
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-            >
-              <SlArrowLeft size={15} />
-            </span>
-            <span className="mb-1">
-              Page {currentPage} of {totalPages}
-            </span>
-            <span
-              className="bg-white text-black"
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-            >
-              <SlArrowRight size={15} />
-            </span>
-          </div>
+          {currentWithdraws.length > 0 && (
+            <div className="flex justify-center items-center mt-10 gap-5">
+              <span
+                className="bg-white text-black "
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                <SlArrowLeft size={15} />
+              </span>
+              <span className="mb-1">
+                Page {currentPage} of {totalPages}
+              </span>
+              <span
+                className="bg-white text-black"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                <SlArrowRight size={15} />
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

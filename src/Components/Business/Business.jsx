@@ -23,10 +23,10 @@ const Business = () => {
 
   const [market, setMarket] = useState(null);
   const [purchasePrice, setPurchasePrice] = useState(null);
-  const { wallets } = useWallets();
+  const { wallets } = useWallets(user?.id);
   const { convertUSDTToCoin } = useCryptoTradeConverter();
 
-  const { updateUserBalance } = useUpdateUserBalance();
+  const { updateUserBalance, success } = useUpdateUserBalance();
 
   const [userBalance, setUserBalance] = useState(0.0);
   const [userCoinBalance, setUserCoinBalance] = useState(0.0);
@@ -68,6 +68,9 @@ const Business = () => {
   );
 
   useEffect(() => {
+    if (success) {
+      window.location.reload();
+    }
     const loadData = async () => {
       setLoading(true);
       if (coin && type) {
@@ -89,24 +92,16 @@ const Business = () => {
     };
 
     loadData();
-  }, [coin, type, wallets.length, setLoading]);
+  }, [coin, type, wallets.length, setLoading, success]);
 
   useEffect(() => {
-    if (user?.id && selectedWallet?.coin_id && convertedValue) {
+    if (user?.id && selectedWallet?.coin_id) {
       setUserBalance(
-        balance
+        convertedValue
           ? convertedValue.converted_amount.toFixed(2)
           : balance?.coin_amount
-          ? balance?.coin_amount
-          : "0.0000"
       );
-      setUserCoinBalance(
-        balance
-          ? convertedValue.converted_amount.toFixed(2)
-          : balance?.coin_amount
-          ? balance?.coin_amount
-          : "0.0000"
-      );
+      setUserCoinBalance(convertedValue ? balance?.coin_amount : "0.0000");
     }
   }, [balance, selectedWallet, user, convertedValue]);
 
@@ -150,7 +145,6 @@ const Business = () => {
   };
 
   const [amount, setAmount] = useState(0);
-  const [/*redirect,*/ setRedirect] = useState(false);
 
   const handleInputChange = (e) => {
     const { value } = e.target;
@@ -217,9 +211,8 @@ const Business = () => {
         setAmount(0);
         setLoading(false);
         setPopupVisible(false);
-        setRedirect(true);
       } catch (error) {
-        toast.error("Error submitting trade order:", error);
+        console.error("Error submitting trade order:", error);
         setLoading(false);
       }
     }
@@ -483,7 +476,7 @@ const Business = () => {
                     />
                     <div className="amount fc-353F52 ff_NunitoSemiBold limit-amount">
                       <span className="coin_amount">
-                        {parseFloat(userCoinBalance).toFixed(2)}
+                        {parseFloat(userBalance).toFixed(2)}
                       </span>
                       USDT
                     </div>
@@ -609,7 +602,7 @@ const Business = () => {
                   <div className="balalce_value fc-353F52">
                     Available:
                     <span className="coin_amount">
-                      {parseFloat(userCoinBalance).toFixed(3)}
+                      {parseFloat(userBalance).toFixed(2)}
                     </span>
                     USDT
                   </div>
