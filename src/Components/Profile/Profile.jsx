@@ -1,72 +1,120 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
+import { useUser } from "../../context/UserContext";
+import axios from "axios";
+import API_BASE_URL from "../../api/getApiURL";
+import { toast } from "react-toastify";
 
 const Profile = (props) => {
+  const { user, setLoading } = useUser();
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+
+  useEffect(() => {
+    setEmail(user?.email);
+    setName(user?.name);
+  }, [user]);
+  const handleName = (e) => {
+    const { value } = e.target;
+    setName(value);
+  };
+  const handleEmail = (e) => {
+    const { value } = e.target;
+    setEmail(value);
+  };
+  const handleSubmit = async () => {
+    setLoading(true);
+    if (user?.id) {
+      setLoading(true);
+      try {
+        const res = await axios.put(`${API_BASE_URL}/users/${user?.id}`, {
+          name: name,
+          email: email,
+        });
+        toast.success(res?.data?.message);
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+        setLoading(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
   return (
-    <div class="main">
-      <div class="profile">
+    <div className="main">
+      <div className="profile">
         <Header pageTitle={"Profile"} />
         <div id="profile-edit">
-          <div class="main_container">
-            <div class="main_content">
-              <div class="title title-profile">
-                <div class="left">
-                  <span class="left_icon"></span>
+          <div className="main_container">
+            <div className="main_content">
+              <div className="title title-profile">
+                <div className="left">
+                  <span className="left_icon"></span>
                   <span>Edit Profile</span>
                 </div>
               </div>
 
-              <div class="input_content ff_NunitoSemiBold">
-                <div class="address">
+              <div className="input_content ff_NunitoSemiBold">
+                <div className="address">
                   <label>UID</label>
                   <input
                     type="text"
                     disabled
-                    value="5465"
-                    class="address_input"
+                    readOnly
+                    value={user?.uuid || ""}
+                    className="address_input"
                   />
                 </div>
-                <div class="address">
+                <div className="address">
                   <label>Full Name</label>
                   <input
                     type="text"
                     id="name"
-                    value="Name Example"
+                    value={name}
+                    onChange={handleName}
                     placeholder="Full Name"
-                    class="address_input"
+                    className="address_input"
                   />
                 </div>
-                <div class="address">
+                <div className="address">
                   <label>Email Address</label>
                   <input
                     type="email"
                     id="email"
-                    value="email@example.com"
+                    value={email}
+                    onChange={handleEmail}
                     placeholder="Email Address"
-                    class="address_input"
+                    className="address_input"
                   />
                 </div>
-                <div class="address">
+                <div className="address">
                   <label>Referral UID</label>
                   <input
                     type="text"
                     disabled
-                    value="548751654"
-                    class="address_input"
+                    readOnly
+                    value={user?.referral_uuid || ""}
+                    className="address_input"
                   />
                 </div>
-                <div class="address">
+                <div className="address">
                   <label>Wallet Address</label>
                   <input
                     type="text"
                     disabled
-                    value={props?.walletId}
-                    class="address_input"
+                    readOnly
+                    value={props?.walletId || ""}
+                    className="address_input"
                   />
                 </div>
               </div>
-              <div class="flex justify-center">
-                <button type="button" class="send_action fs-16 ff_NunitoBold">
+              <div className="flex justify-center">
+                <button
+                  onClick={handleSubmit}
+                  type="button"
+                  className="send_action fs-16 ff_NunitoBold"
+                >
                   Send now
                 </button>
               </div>

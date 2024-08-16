@@ -48,7 +48,7 @@ const useCryptoTradeConverter = () => {
   // Function to convert a USDT amount to another coin
   const convertUSDTToCoin = async (amount, coin_id) => {
     await getUSDTMarket();
-
+    console.log(amount);
     const coin = await fetchCoinData(coin_id);
     const defaultCoinData = numberFormat(0.0, 7);
     if (coin && usdt) {

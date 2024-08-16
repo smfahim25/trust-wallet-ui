@@ -20,6 +20,7 @@ import Spinner from "./Components/Spinner/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import AdminDashboard from "./Components/AdminComponents/AdminDashboard/AdminDashboard";
+import Converter from "./Components/Converter/Converter";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -117,6 +118,7 @@ function App() {
               <Route path="/funds" element={<Funds />} />
               <Route path="/business" element={<Business wallet={account} />} />
               <Route path="/referral-list" element={<ReferralList />} />
+              <Route path="/converter" element={<Converter />} />
               <Route
                 path="/referral-history"
                 element={<ReferralBonusHistory />}
@@ -131,7 +133,7 @@ function App() {
           )}
         </Routes>
       </div>
-      <ToastContainer autoClose={2000} />
+      <ToastContainer autoClose={2000} position="bottom-center" />
     </div>
   );
 }

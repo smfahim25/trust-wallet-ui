@@ -13,14 +13,12 @@ import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
 import { toast } from "react-toastify";
-import useCurrencyConverter from "../../hooks/useCurrencyConverter";
 
 const Business = () => {
   const { user, setLoading } = useUser();
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
   const type = searchParams.get("type");
-
   const [market, setMarket] = useState(null);
   const [purchasePrice, setPurchasePrice] = useState(null);
   const { wallets } = useWallets(user?.id);
@@ -41,11 +39,7 @@ const Business = () => {
   const [tradeCoinId /*setTradeCoinId*/] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
-  const { data: convertedValue } = useCurrencyConverter(
-    selectedWallet?.coin_name?.toLowerCase(),
-    "tether",
-    parseFloat(balance?.coin_amount)
-  );
+
   const timerProfits = useMemo(
     () => [
       {
@@ -68,9 +62,6 @@ const Business = () => {
   );
 
   useEffect(() => {
-    if (success) {
-      window.location.reload();
-    }
     const loadData = async () => {
       setLoading(true);
       if (coin && type) {
@@ -90,20 +81,18 @@ const Business = () => {
         setLoading(false);
       }
     };
-
+    if (success) {
+      window.location.reload();
+    }
     loadData();
   }, [coin, type, wallets.length, setLoading, success]);
 
   useEffect(() => {
     if (user?.id && selectedWallet?.coin_id) {
-      setUserBalance(
-        convertedValue
-          ? convertedValue.converted_amount.toFixed(2)
-          : balance?.coin_amount
-      );
-      setUserCoinBalance(convertedValue ? balance?.coin_amount : "0.0000");
+      setUserBalance(balance ? balance?.coin_amount : "0.0000");
+      setUserCoinBalance(balance ? balance?.coin_amount : "0.0000");
     }
-  }, [balance, selectedWallet, user, convertedValue]);
+  }, [balance, selectedWallet, user]);
 
   useEffect(() => {
     setSelectedWallet(wallets[0]);
@@ -153,12 +142,15 @@ const Business = () => {
 
   const handleConvertToCoin = async () => {
     const result = await convertUSDTToCoin(amount, selectedWallet.coin_id);
-    setWalletAmount(result);
+    if (selectedWallet?.coin_name === "Tether") {
+      setWalletAmount(amount);
+    } else {
+      setWalletAmount(result);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     handleConvertToCoin();
     // Validation
     if (
@@ -170,13 +162,14 @@ const Business = () => {
     ) {
       toast.error("Something is wrong. Try Again!");
     } else if (amount <= 0) {
-      toast.serror("Amount is required!!! Please place amount");
+      toast.error("Amount is required!!! Please place amount");
     } else if (amount < selectedMiniUsdt) {
       toast.error(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
     } else if (amount > parseFloat(userBalance)) {
       toast.error("Balance is not available");
     } else {
       try {
+        setLoading(true);
         const order_id = Math.floor(100000 + Math.random() * 900000);
         const percent = parseInt(selectedProfit) / 100;
         const profit_amount = amount * percent;
@@ -204,7 +197,7 @@ const Business = () => {
         );
 
         // Update user balance
-        const new_balance = userCoinBalance - walletAmount;
+        const new_balance = userCoinBalance - amount;
         updateUserBalance(user.id, selectedWallet.coin_id, new_balance);
         console.log(tradeOrderResponse);
         toast.success("Trade Order request successfully sent.");
@@ -592,9 +585,15 @@ const Business = () => {
                         inputMode="numeric"
                         name="amount"
                         id="amount"
+                        value={amount}
                         placeholder="Amount"
                       />
-                      <span className="all">Max</span>
+                      <span
+                        className="all"
+                        onClick={() => setAmount(parseInt(userBalance))}
+                      >
+                        Max
+                      </span>
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
+import { SiConvertio } from "react-icons/si";
 
 // Mock data
 const appName = "TrustPro";
@@ -81,6 +82,10 @@ const SideNav = (props) => {
                     className="m-r-10"
                   />
                   <span className="over-line-1">Account</span>
+                </Link>
+                <Link className="items flex align-center" to="/converter">
+                  <SiConvertio size={20} className="m-r-10 text-[#1552f0]" />
+                  <span className="over-line-1">Converter</span>
                 </Link>
                 <Link className="items flex align-center" to="/transaction">
                   <img
