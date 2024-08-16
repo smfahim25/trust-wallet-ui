@@ -21,6 +21,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import AdminDashboard from "./Components/AdminComponents/AdminDashboard/AdminDashboard";
 import Converter from "./Components/Converter/Converter";
+import Layout from "./Components/AdminComponents/Layout";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -128,7 +129,7 @@ function App() {
           ) : (
             <>
               <Route path="/" element={<GuestHome />} />
-              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/cradmin/*" element={<Layout />} />
             </>
           )}
         </Routes>

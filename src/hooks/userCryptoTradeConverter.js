@@ -3,7 +3,7 @@ import numberFormat from "../Components/utils/numberFormat";
 
 const useCryptoTradeConverter = () => {
   const [usdt, setUsdt] = useState(1); // Default USDT price
-  const [coinData, setCoinData] = useState({});
+  // const [coinData, setCoinData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -14,10 +14,10 @@ const useCryptoTradeConverter = () => {
       const response = await fetch(apiUrl);
       const data = await response.json();
       if (data && data.length > 0) {
-        setCoinData((prevData) => ({
-          ...prevData,
-          [coin_id]: data[0],
-        }));
+        // setCoinData((prevData) => ({
+        //   ...prevData,
+        //   [coin_id]: data[0],
+        // }));
         return data[0];
       }
     } catch (err) {
@@ -67,6 +67,7 @@ const useCryptoTradeConverter = () => {
       setLoading(false);
     };
     fetchInitialData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

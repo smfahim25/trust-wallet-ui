@@ -1,5 +1,11 @@
 import React from 'react';
 import './GuestHome.css';
+import backGroundImg from '../../Assets/images/background.png';
+
+import logo from '../../Assets/images/logo.png';
+import introImg from '../../Assets/images/front_image.png';
+import google_play from '../../Assets/images/google_play.png';
+import appleLogo from '../../Assets/images/apple_store.png';
 
 const GuestHome = () => {
     return (
@@ -7,14 +13,14 @@ const GuestHome = () => {
             <div
                 className="main"
                 style={{
-                    backgroundImage: "url('https://meta24trade.pro/wp-content/themes/cryptolanding/assets/images/background.png')",
+                    backgroundImage: `url(${backGroundImg})`,
                     backgroundPosition: "top",
                     backgroundRepeat: "no-repeat"
                 }}
                 >
         <div className="img-top">
-            <a href="https://meta24trade.pro/" className="custom-logo-link" rel="home" aria-current="page">
-                <img width="56" height="56" src="https://meta24trade.pro/wp-content/uploads/2024/07/logo.png" className="custom-logo" alt="TrustPro" decoding="async"/>
+            <a href="/" className="custom-logo-link" rel="home" aria-current="page">
+                <img width="56" height="56" src={logo} className="custom-logo" alt="TrustPro" decoding="async"/>
             </a> 
             <div className="theme-title">
                 <span>TrustPro</span>
@@ -42,15 +48,15 @@ const GuestHome = () => {
         </div>
         
         <div className="intro_img">
-            <img className="img_phone" src="https://meta24trade.pro/wp-content/themes/cryptolanding/assets/images/front_image.png" alt=""/>
+            <img className="img_phone" src={introImg} alt=""/>
         </div>
 
         <div className="download_actions">
             <a href="https://play.google.com/store/apps/details?id=com.wallet.crypto.trustapp&amp;hl=en" target="_blank" rel='noreferrer'>
-                <img src="https://meta24trade.pro/wp-content/themes/cryptolanding/assets/images/google_play.png" alt=""/>
+                <img src={google_play} alt=""/>
             </a>
             <a href="https://apps.apple.com/us/app/trust-crypto-bitcoin-wallet/" target="_blank" rel='noreferrer'>
-                <img src="https://meta24trade.pro/wp-content/themes/cryptolanding/assets/images/apple_store.png" alt=""/>
+                <img src={appleLogo} alt=""/>
             </a>
         </div>
     </div>
