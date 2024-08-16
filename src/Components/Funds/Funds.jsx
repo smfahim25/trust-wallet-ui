@@ -10,6 +10,7 @@ import { FaRegCopy } from "react-icons/fa";
 import { MdOutlineWatchLater } from "react-icons/md";
 import { toast } from "react-toastify";
 import useCurrencyConverter from "../../hooks/useCurrencyConverter";
+import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 
 const Funds = () => {
   const location = useLocation();
@@ -23,6 +24,7 @@ const Funds = () => {
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [screenshot, setScreenshot] = useState(null);
   const [preview, setPreview] = useState(null);
+  const { updateUserBalance, success } = useUpdateUserBalance();
   const {
     data: latestDeposit,
     loading,
@@ -43,7 +45,10 @@ const Funds = () => {
 
   useEffect(() => {
     setLoading(loading);
-  }, [loading, setLoading]);
+    if (success) {
+      window.location.reload();
+    }
+  }, [loading, setLoading, success]);
 
   const post = {
     ID: 123,
@@ -133,7 +138,6 @@ const Funds = () => {
       toast.error("Please provide both amount and address");
       return;
     }
-
     const data = {
       user_id: user.id,
       wallet_to: withdrawAddress,
@@ -154,6 +158,8 @@ const Funds = () => {
       setWithdrawAmount("");
       setWithdrawAddress("");
       refetch();
+      const new_balance = balance?.coin_amount - parseInt(withdrawAmount);
+      updateUserBalance(user?.id, wallet?.coin_id, new_balance);
     } catch (error) {
       console.error("Error sending data:", error);
     }
