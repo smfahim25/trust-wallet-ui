@@ -7,7 +7,7 @@ const useCryptoTradeConverter = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Function to fetch coin data by ID
+  // Function to fetch coin data 
   const fetchCoinData = async (coin_id) => {
     const apiUrl = `https://api.coinlore.net/api/ticker/?id=${coin_id}`;
     try {
