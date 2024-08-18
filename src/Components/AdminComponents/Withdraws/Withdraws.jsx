@@ -42,7 +42,7 @@ const Withdraws = () => {
                 <tr className="bg-gray-200">
                     <th className="py-2 px-4 border-b">#</th>
                     <th className="py-2 px-4 border-b">UUID</th>
-                    <th className="py-2 px-4 border-b">Name</th>
+                    <th className="py-2 px-4 border-b">Wallet</th>
                     
                     <th className="py-2 px-4 border-b">Amount</th>
                     {/* <th className="py-2 px-4 border-b">Documets</th> */}
@@ -55,7 +55,7 @@ const Withdraws = () => {
                     <tr key={withdraw.id}>
                         <td className="py-2 px-4 border-b">{index + 1}</td>
                         <td className="py-2 px-4 border-b">{withdraw?.user_id}</td>
-                        <td className="py-2 px-4 border-b">{withdraw?.name}</td>
+                        <td className="py-2 px-4 border-b">{withdraw?.coin_id}</td>
                         <td className="py-2 px-4 border-b">{withdraw?.amount}</td>
                         
                         <td className="py-2 px-4 border-b">{withdraw.status}</td>

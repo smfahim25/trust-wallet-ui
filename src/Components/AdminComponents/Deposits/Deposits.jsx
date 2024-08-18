@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import API_BASE_URL from '../../../api/getApiURL';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import DeleteModal from '../DeleteModal/DeleteModal';
 
 const Deposits = () => {
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDepositId, setSelectedTradeId] = useState(null);
+
 
   useEffect(() => {
     const fetchDepositInfo = async () => {
@@ -28,9 +34,34 @@ const Deposits = () => {
     
   }, []);
 
-    const handleDelete = ()=>{
-        console.log("deleting ");
+  const handleDelete = async (depositID) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/deposits/${depositID}`);
+        console.log("Delete response: ", response);
+        setDeposits((prevDeposits) => prevDeposits.filter(deposit => deposit.id !== depositID));
+        toast.success("Delete Successful");
+    } catch (error) {
+        console.error("There was an error deleting the deposit: ", error);
+        toast.error("Delete Failed");
     }
+};
+
+const openModal = (tradeId) => {
+  setSelectedTradeId(tradeId);
+  setIsModalOpen(true);
+};
+
+const closeModal = () => {
+  setIsModalOpen(false);
+  setSelectedTradeId(null);
+};
+
+const confirmDelete = () => {
+  if (selectedDepositId) {
+      handleDelete(selectedDepositId);
+  }
+  closeModal();
+};
     const handleEdit = ()=>{
         console.log("deleting ");
     }
@@ -41,7 +72,7 @@ const Deposits = () => {
                 <tr className="bg-gray-200">
                     <th className="py-2 px-4 border-b">#</th>
                     <th className="py-2 px-4 border-b">UUID</th>
-                    <th className="py-2 px-4 border-b">Name</th>
+                    <th className="py-2 px-4 border-b">Wallet</th>
                     
                     <th className="py-2 px-4 border-b">Amount</th>
                     <th className="py-2 px-4 border-b">Documets</th>
@@ -54,7 +85,7 @@ const Deposits = () => {
                     <tr key={deposit.id}>
                         <td className="py-2 px-4 border-b">{index + 1}</td>
                         <td className="py-2 px-4 border-b">{deposit?.user_id}</td>
-                        <td className="py-2 px-4 border-b">{deposit?.name}</td>
+                        <td className="py-2 px-4 border-b">{deposit?.coin_id}</td>
                         <td className="py-2 px-4 border-b">{deposit?.amount}</td>
                         <td className="py-2 px-4 border-b">
                         <div className="bg-green-400 w-[40px] h-[40px] rounded-full overflow-hidden">
@@ -79,7 +110,7 @@ const Deposits = () => {
                             <button onClick={()=>handleEdit(deposit)} className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2">
                                 Edit
                             </button>
-                            <button onClick={()=>handleDelete(deposit.id)} className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded">
+                            <button onClick={()=>openModal(deposit.id)} className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded">
                                 Delete
                             </button>
                         </td>
@@ -103,6 +134,14 @@ const Deposits = () => {
             <p className="flex-1 text-center text-gray-400 text-gray-400">Tempora ipsa quod magnam non, dolores nemo optio. Praesentium soluta maiores non itaque aliquam sint.</p>
             <button type="button" className="px-8 py-3 font-semibold rounded-full bg-violet-400 bg-violet-400 text-gray-900 text-gray-900">Start recycling</button>
         </div> */}
+
+            <DeleteModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onConfirm={confirmDelete}
+                title="Deposit"
+                description="This action cannot be undone."
+            />
 
         {/* <Pagination page={page} totalPages={totalPages} setPage={setPage} /> */}
     </div>
