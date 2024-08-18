@@ -38,9 +38,7 @@ const AddNewWallet = () => {
       }
     };
 
-   
-      fetchCoinsData();
-    
+    fetchCoinsData();
   }, []);
 
   const handleChange = (e) => {
@@ -52,30 +50,27 @@ const AddNewWallet = () => {
     const file = e.target.files[0];
     setQrCode(file);
   };
- 
+
   const handleCoinChange = (e) => {
     const { value } = e.target;
-    const selectedCoinData = coinsData.find(coin => coin.id === value);
+    const selectedCoinData = coinsData.find((coin) => coin.id === value);
     setSelectedCoin(selectedCoinData);
-    setFormData(prevFormData => ({
+    setFormData((prevFormData) => ({
       ...prevFormData,
-    coin_id: selectedCoinData.id,
-    coin_name: selectedCoinData?.name || '',
-    coin_logo: "",
-    wallet_network: selectedCoinData.nameid,
-    coin_symbol: selectedCoinData.symbol,
-    wallet_address: "",
+      coin_id: selectedCoinData.id,
+      coin_name: selectedCoinData?.name || "",
+      coin_logo: "",
+      wallet_network: selectedCoinData.nameid,
+      coin_symbol: selectedCoinData.symbol,
+      wallet_address: "",
     }));
-    
   };
 
-  
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormData(prevFormData => ({
+    setFormData((prevFormData) => ({
       ...prevFormData,
-    documents: qrCode,
+      documents: qrCode,
     }));
     console.log(formData);
     try {
@@ -99,14 +94,19 @@ const AddNewWallet = () => {
       <div class="card-body">
         <h2 className="mx-5 py-3 text-lg font-semibold">Add a new wallet</h2>
         <div className="container mx-auto p-4">
-          <form onSubmit={handleSubmit} className="max-w-md mx-auto grid col-2">
-
-          <div className="mb-4">
-            <label htmlFor="selectedCoin" className="block mb-2 text-sm font-medium text-gray-700">
-              Select Wallet
-            </label>
+          <form
+            onSubmit={handleSubmit}
+            className=" grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-5"
+          >
+            <div className="mb-4">
+              <label
+                htmlFor="selectedCoin"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Select Wallet
+              </label>
               <select
-              id="selectedCoin"
+                id="selectedCoin"
                 name="selectedCoin"
                 value={selectedCoin?.name}
                 onChange={handleCoinChange}
@@ -115,16 +115,20 @@ const AddNewWallet = () => {
                 <option value="" disabled hidden selected>
                   Select Coin
                 </option>
-                {coinsData?.map((coin)=>(
-                  <option key={coin.id} value={coin.id}>{coin?.name}</option>
+                {coinsData?.map((coin) => (
+                  <option key={coin.id} value={coin.id}>
+                    {coin?.name}
+                  </option>
                 ))}
               </select>
             </div>
-
             <div className="mb-4">
-            <label htmlFor="coin_name" className="block mb-2 text-sm font-medium text-gray-700">
-              Coin Name
-            </label>
+              <label
+                htmlFor="coin_name"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Coin Name
+              </label>
               <input
                 id="coin_name"
                 type="text"
@@ -136,21 +140,26 @@ const AddNewWallet = () => {
               />
             </div>
             <div className="mb-4">
-            <label htmlFor="coin_logo" className="block mb-2 text-sm font-medium text-gray-700">
-              Coin Logo
-            </label>
-            <input
+              <label
+                htmlFor="coin_logo"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Coin Logo
+              </label>
+              <input
                 type="file"
                 name="coin_logo"
                 onChange={handleChange}
                 className="w-full p-2 border rounded"
-            />
-            
+              />
             </div>
             <div className="mb-4">
-            <label htmlFor="wallet_network" className="block mb-2 text-sm font-medium text-gray-700">
-              Walet Network
-            </label>
+              <label
+                htmlFor="wallet_network"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Walet Network
+              </label>
               <input
                 type="text"
                 name="wallet_network"
@@ -161,9 +170,12 @@ const AddNewWallet = () => {
               />
             </div>
             <div className="mb-4">
-            <label htmlFor="wallet_address" className="block mb-2 text-sm font-medium text-gray-700">
-              Wallet Address
-            </label>
+              <label
+                htmlFor="wallet_address"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Wallet Address
+              </label>
               <input
                 type="text"
                 name="wallet_address"
@@ -174,9 +186,12 @@ const AddNewWallet = () => {
               />
             </div>
             <div className="mb-4">
-            <label htmlFor="coin_symbol" className="block mb-2 text-sm font-medium text-gray-700">
-              Coin Symbol
-            </label>
+              <label
+                htmlFor="coin_symbol"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Coin Symbol
+              </label>
               <input
                 type="text"
                 name="coin_symbol"
@@ -188,26 +203,29 @@ const AddNewWallet = () => {
             </div>
 
             <div className="mb-4">
-            <label htmlFor="wallet_qr" className="block mb-2 text-sm font-medium text-gray-700">
-              Waller QR
-            </label>
-            <input
+              <label
+                htmlFor="wallet_qr"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Waller QR
+              </label>
+              <input
                 type="file"
                 name="documents"
                 onChange={handleFileChange}
                 accept="image/*"
                 className="w-full p-2 border rounded"
-            />
+              />
             </div>
-
-            
-
-            <button
-              type="submit"
-              className="mb-2 bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded"
-            >
-              Save
-            </button>
+            <div></div>
+            <div className="flex justify-center items-center mt-5">
+              <button
+                type="submit"
+                className="mb-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-10 rounded"
+              >
+                Save
+              </button>
+            </div>
           </form>
         </div>
       </div>
