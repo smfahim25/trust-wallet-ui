@@ -107,7 +107,7 @@ const openDetailsModal = (trade) => {
                         <td className="py-2 px-4 border-b">{deposit?.coin_id}</td>
                         <td className="py-2 px-4 border-b">{deposit?.amount}</td>
                         <td className="py-2 px-4 border-b">
-                        <div className="bg-green-400 w-[40px] h-[40px] rounded-full overflow-hidden">
+                        <div className="bg-white w-[40px] h-[40px] border border-2 overflow-hidden">
                         <img
                             src={`${API_BASE_URL}/${deposit?.documents}`}
                             className="w-full h-full object-cover"
@@ -139,6 +139,7 @@ const openDetailsModal = (trade) => {
                 description="This action cannot be undone."
             />
             <DepositModal
+                title="Deposit"
                 isOpen={isDetailsModalOpen}
                 onClose={closeDetailsModal}
                 details={depositDetail}

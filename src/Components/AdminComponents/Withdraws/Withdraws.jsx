@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import API_BASE_URL from '../../../api/getApiURL';
+import DepositModal from '../Deposits/DepositModal';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import DeleteModal from '../DeleteModal/DeleteModal';
 
 const Withdraws = () => {
     const [withdraws, setWithdraws] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDepositId, setSelectedTradeId] = useState(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [depositDetail, setDepositDetail] = useState(null);
+    const [refreshDeposit, setRefreshDeposit] = useState(false);
 
     useEffect(() => {
         const fetchWithdrawInfo = async () => {
@@ -25,15 +34,53 @@ const Withdraws = () => {
     
        
           fetchWithdrawInfo();
+          if(refreshDeposit){
+            fetchWithdrawInfo();
+          }
         
-      }, []);
+      }, [refreshDeposit]);
     
-        const handleDelete = ()=>{
-            console.log("deleting ");
+      const handleDelete = async (withdrawID) => {
+        try {
+            const response = await axios.delete(`${API_BASE_URL}/withdraws/${withdrawID}`);
+            console.log("Delete response: ", response);
+            setWithdraws((prevWithdraws) => prevWithdraws.filter(deposit => deposit.id !== withdrawID));
+            toast.success("Delete Successful");
+        } catch (error) {
+            console.error("There was an error deleting the withdraws: ", error);
+            toast.error("Delete Failed");
         }
-        const handleEdit = ()=>{
-            console.log("deleting ");
-        }
+    };
+    
+    const openModal = (tradeId) => {
+      setSelectedTradeId(tradeId);
+      setIsModalOpen(true);
+    };
+    
+    const closeModal = () => {
+      setIsModalOpen(false);
+      setSelectedTradeId(null);
+    };
+    
+    const confirmDelete = () => {
+      if (selectedDepositId) {
+          handleDelete(selectedDepositId);
+      }
+      closeModal();
+    };
+    const openDetailsModal = (trade) => {
+        setDepositDetail(trade);
+        setIsDetailsModalOpen(true);
+      };
+      
+      const closeDetailsModal = () => {
+        setIsDetailsModalOpen(false);
+        setDepositDetail(null);
+      };
+    
+      const handleUpdateSuccess = () => {
+        setRefreshDeposit(!refreshDeposit);
+      };
 
     return (
         <div className="overflow-x-auto">
@@ -66,10 +113,10 @@ const Withdraws = () => {
                         {/* <td className="py-2 px-4 border-b">{withdraw.quantity}</td>
                         <td className="py-2 px-4 border-b">{withdraw.price}</td> */}
                         <td className="py-2 px-4 border-b">
-                            <button onClick={()=>handleEdit(withdraw)} className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2">
+                            <button onClick={()=>openDetailsModal(withdraw)} className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2">
                                 Edit
                             </button>
-                            <button onClick={()=>handleDelete(withdraw.id)} className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded">
+                            <button onClick={()=>openModal(withdraw.id)} className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded">
                                 Delete
                             </button>
                         </td>
@@ -77,6 +124,22 @@ const Withdraws = () => {
                 ))}
             </tbody>
         </table>
+
+            <DeleteModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onConfirm={confirmDelete}
+                title="Withdraw"
+                description="This action cannot be undone."
+            />
+
+            <DepositModal
+            title="Withdraw"
+                isOpen={isDetailsModalOpen}
+                onClose={closeDetailsModal}
+                details={depositDetail}
+                onUpdateSuccess={handleUpdateSuccess}
+            />  
 
         {/* <Pagination page={page} totalPages={totalPages} setPage={setPage} /> */}
     </div>
