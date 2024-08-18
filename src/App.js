@@ -22,6 +22,8 @@ import { ToastContainer } from "react-toastify";
 import AdminDashboard from "./Components/AdminComponents/AdminDashboard/AdminDashboard";
 import Converter from "./Components/Converter/Converter";
 import Layout from "./Components/AdminComponents/Layout";
+import AdminLogin from "./Components/AdminComponents/AdminLogin/AdminLogin";
+import AdminRoute from "./Components/AdminComponents/AdminRoute";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -129,7 +131,8 @@ function App() {
           ) : (
             <>
               <Route path="/" element={<GuestHome />} />
-              <Route path="/cradmin/*" element={<Layout />} />
+              <Route path="/admin-login" element={<AdminLogin />}></Route>
+              <Route path="/cradmin/*" element={<AdminRoute><Layout /></AdminRoute>} />
             </>
           )}
         </Routes>

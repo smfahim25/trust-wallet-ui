@@ -107,9 +107,7 @@ const DepositModal = ({ isOpen, onClose, details,onUpdateSuccess,title }) => {
           </div>
         </div>
         <div className='mb-4'>
-          {title === "Deposit" && details?.documents && (
-            <img src={`${API_BASE_URL}/${details.documents}`} alt="doc" />
-          )}
+         
         </div>
 
         <button onClick={handleUpdate} className="absolute bottom-2 right-2 bg-gray-900 hover:bg-gray-700">

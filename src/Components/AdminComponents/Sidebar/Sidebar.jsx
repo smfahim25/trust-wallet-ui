@@ -1,16 +1,15 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useUser } from "../../../context/UserContext";
 
 const Sidebar = () => {
+  const { adminUser,logout } = useUser();
+  const navigate = useNavigate();
   const location = useLocation();
-  const user = {
-    name: "Example",
-    email: "Example email",
-    role: "admin",
-  };
 
   const handleSignOut = () => {
-    console.log("Logging out");
+    logout();
+    navigate("/admin-login");
   };
   return (
     <div className="p-3 space-y-2 bg-gray-100 text-gray-900">
@@ -21,17 +20,17 @@ const Sidebar = () => {
           className="w-12 h-12 rounded-full bg-gray-500"
         />
         <div>
-          <h2 className="text-lg font-semibold">{user.name}</h2>
+          <h2 className="text-lg font-semibold">{adminUser?.name}</h2>
           <span className="flex items-center space-x-1">
             <span className="text-xs hover:underline text-gray-400">
-              {user.email}
+              {adminUser?.email}
             </span>
           </span>
         </div>
       </div>
       <div className="divide-y divide-gray-700">
         <ul className="pt-2 pb-4 space-y-1 text-sm">
-          {user?.role === "admin" ? (
+          {adminUser?.role === "admin" || adminUser?.role === "superadmin"  ? (
             <li
               className={`${
                 location.pathname === "/cradmin"
@@ -54,7 +53,7 @@ const Sidebar = () => {
               </Link>
             </li>
           ) : null}
-          {user?.role === "admin" ? (
+          {adminUser?.role === "superadmin" ? (
             <li
               className={`${
                 location.pathname === "/cradmin/wallets"
@@ -78,7 +77,7 @@ const Sidebar = () => {
             </li>
           ) : null}
 
-          {user?.role === "admin" ? (
+          {adminUser?.role === "admin" || adminUser?.role === "superadmin"  ? (
             <li
               className={`${
                 location.pathname === "/cradmin/trading"
@@ -102,7 +101,7 @@ const Sidebar = () => {
             </li>
           ) : null}
 
-          {user?.role === "admin" ? (
+          {adminUser?.role === "admin" || adminUser?.role === "superadmin"  ? (
             <li
               className={`${
                 location.pathname === "/cradmin/deposits"
@@ -127,7 +126,7 @@ const Sidebar = () => {
             </li>
           ) : null}
 
-          {user?.role === "admin" ? (
+          {adminUser?.role === "admin" || adminUser?.role === "superadmin"  ? (
             <li
               className={`${
                 location.pathname === "/cradmin/withdraws"
@@ -153,7 +152,7 @@ const Sidebar = () => {
             </li>
           ) : null}
 
-          {user?.role === "admin" ? (
+          {adminUser?.role === "admin" || adminUser?.role === "superadmin"  ? (
             <li
               className={`${
                 location.pathname === "/cradmin/users"

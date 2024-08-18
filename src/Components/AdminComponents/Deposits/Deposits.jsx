@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import DeleteModal from "../DeleteModal/DeleteModal";
 import DepositModal from "./DepositModal";
+import ImageViewer from "./ImageViewer";
 
 const Deposits = () => {
   const [deposits, setDeposits] = useState([]);
@@ -12,6 +13,7 @@ const Deposits = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDepositId, setSelectedTradeId] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isImgView, setIsImgView] = useState(false);
   const [depositDetail, setDepositDetail] = useState(null);
   const [refreshDeposit, setRefreshDeposit] = useState(false);
 
@@ -79,6 +81,15 @@ const Deposits = () => {
     setIsDetailsModalOpen(false);
     setDepositDetail(null);
   };
+  const openImageViewer = (deposit) => {
+    setIsImgView(true);
+    setDepositDetail(deposit);
+  };
+
+  const closeImgViewer = () => {
+    setIsImgView(false);
+    setDepositDetail(null);
+  };
 
   const handleUpdateSuccess = () => {
     setRefreshDeposit(!refreshDeposit);
@@ -106,7 +117,7 @@ const Deposits = () => {
               <td className="py-2 px-4 border-b">{deposit?.user_id}</td>
               <td className="py-2 px-4 border-b">{deposit?.coin_id}</td>
               <td className="py-2 px-4 border-b">{deposit?.amount}</td>
-              <td className="py-2 px-4 border-b">
+              <td onClick={()=>openImageViewer(deposit)} className="py-2 px-4 border-b">
                 <div className="bg-white w-[40px] h-[40px] border border-2 overflow-hidden">
                   <img
                     src={`${API_BASE_URL}/${deposit?.documents}`}
@@ -147,6 +158,12 @@ const Deposits = () => {
         onClose={closeDetailsModal}
         details={depositDetail}
         onUpdateSuccess={handleUpdateSuccess}
+      />
+
+      <ImageViewer
+        isOpen={isImgView}
+        onClose={closeImgViewer}
+        details={depositDetail}
       />
 
       {/* <Pagination page={page} totalPages={totalPages} setPage={setPage} /> */}
