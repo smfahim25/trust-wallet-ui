@@ -15,6 +15,7 @@ import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 const Funds = () => {
   const location = useLocation();
   const wallet = location.state?.wallet;
+  const coinAmount = location.state?.coinAmount;
   const { user, setLoading } = useUser();
   const [activeTab, setActiveTab] = useState("deposit");
   const [timeLeft, setTimeLeft] = useState(null);
@@ -31,11 +32,6 @@ const Funds = () => {
     refetch,
   } = useFetchLatestDeposit(user?.id, wallet?.coin_id);
   const { balance } = useFetchUserBalance(user?.id, wallet?.coin_id);
-  const { data: convertedValue } = useCurrencyConverter(
-    wallet?.coin_name.toLowerCase(),
-    "tether",
-    parseFloat(balance?.coin_amount)
-  );
   const handleSwitchTab = (tab) => {
     setActiveTab(tab);
   };
@@ -158,7 +154,7 @@ const Funds = () => {
       setWithdrawAmount("");
       setWithdrawAddress("");
       refetch();
-      const new_balance = balance?.coin_amount - parseInt(withdrawAmount);
+      const new_balance = wallet?.coin_amount - parseInt(withdrawAmount);
       updateUserBalance(user?.id, wallet?.coin_id, new_balance);
     } catch (error) {
       console.error("Error sending data:", error);
@@ -218,9 +214,7 @@ const Funds = () => {
         <div className="money_symbol ff_InterSemiBold"></div>
         <div className="us_num ff_InterSemiBold">
           US$
-          {convertedValue
-            ? convertedValue?.converted_amount.toFixed(2)
-            : parseFloat(balance?.coin_amount).toFixed(2)}
+          {parseFloat(balance?.coin_amount).toFixed(2)}
         </div>
         <div className="coin_num flex align-center">
           {wallet?.coin_symbol ? (
@@ -235,9 +229,7 @@ const Funds = () => {
           <div className="tl">
             <span>
               Available:
-              {balance?.coin_amount
-                ? parseFloat(balance?.coin_amount).toFixed(2)
-                : "000000"}{" "}
+              {coinAmount}{" "}
               {wallet?.coin_symbol}
             </span>
             <div className="fc-5F6775 fs12 m-t-5">

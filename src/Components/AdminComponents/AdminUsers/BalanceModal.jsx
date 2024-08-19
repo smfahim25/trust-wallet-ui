@@ -1,8 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import useWallets from '../../../hooks/useWallets';
+import useCryptoTradeConverter from '../../../hooks/userCryptoTradeConverter';
 
 const BalanceModal = ({ isOpen, onClose, details }) => {
     const { wallets } = useWallets(details?.id);
+
+    const [coinValues, setCoinValues] = useState({});
+    const { convertUSDTToCoin, loading } = useCryptoTradeConverter();
+  
+    useEffect(() => {
+      const fetchConvertedValues = async () => {
+        if (wallets?.length > 0) {
+          const newCoinValues = {};
+  
+          for (const wallet of wallets) {
+            try {
+              const convertedCoin = await convertUSDTToCoin(wallet?.coin_amount, wallet.coin_id);
+              newCoinValues[wallet.coin_id] = convertedCoin;
+            } catch (error) {
+              console.error("Error converting coin:", error);
+              newCoinValues[wallet.coin_id] = null; // Handle conversion error
+            }
+          }
+  
+          setCoinValues(newCoinValues);
+        }
+      };
+  
+      fetchConvertedValues();
+    }, [wallets]);
 
 
   if (!isOpen) return null;
@@ -48,7 +74,14 @@ const BalanceModal = ({ isOpen, onClose, details }) => {
               {wallet?.coin_name}
               </td>
               <td className="py-2 px-4 border-b">{wallet?.coin_symbol}</td>
-              <td className="py-2 px-4 border-b">{wallet?.coin_amount}</td>
+              <td className="py-2 px-4 border-b">
+                {loading
+                    ? "Loading..."
+                    : coinValues[wallet.coin_id] !== undefined
+                    ? coinValues[wallet.coin_id]
+                    : "N/A"}{" "}
+                    {wallet.coin_symbol}
+              </td>
             </tr>
           ))}
         </tbody>
