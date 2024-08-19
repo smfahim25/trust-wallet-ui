@@ -19,7 +19,7 @@ const Layout = () => {
           <Sidebar />
           <div className="flex-1 bg-[#f8f8f8] pt-10 pl-4">
             <Routes>
-              <Route path="/" element={<AdminDashboard />}></Route>
+              <Route path="/" element={<Trading />}></Route>
               <Route path="/users" element={<AdminUsers />}></Route>
               <Route path="/wallets" element={<Wallets />}></Route>
               <Route path="/new-wallet" element={<AddNewWallet />}></Route>

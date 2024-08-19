@@ -177,14 +177,14 @@ const Sidebar = () => {
           ) : null}
         </ul>
         <ul className="pt-4 pb-2 space-y-1 text-sm">
-          <li
+          {/* <li
             className={`${
               location.pathname === "/cradmin/settings"
                 ? "bg-gray-800 text-gray-50"
                 : ""
             }`}
           >
-            {/* <Link to="/cradmin/settings" */}
+            
             <Link
               to="/cradmin/settings"
               className="flex items-center p-2 space-x-3 rounded-md"
@@ -199,7 +199,7 @@ const Sidebar = () => {
               </svg>
               <span>Settings</span>
             </Link>
-          </li>
+          </li> */}
           <li>
             <div
               onClick={handleSignOut}
