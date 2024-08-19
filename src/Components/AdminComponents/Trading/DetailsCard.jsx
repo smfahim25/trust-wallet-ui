@@ -28,7 +28,7 @@ const DetailsCard = ({ isOpen, onClose, details }) => {
                 </div>
                 <div>
                     <p className="flex-1 text-start text-gray-500">Wallet Coin</p>
-                    <h2 className="text-lg font-semibold leading-tight tracking-wide">{details?.wallet_coin_id}</h2>
+                    <h2 className="text-lg font-semibold leading-tight tracking-wide">{details?.wallet_coin_name}</h2>
                 </div>
                 <div>
                     <p className="flex-1 text-start text-gray-500">Amount</p>

@@ -4,10 +4,11 @@ import DepositModal from "../Deposits/DepositModal";
 import axios from "axios";
 import { toast } from "react-toastify";
 import DeleteModal from "../DeleteModal/DeleteModal";
+import { useUser } from "../../../context/UserContext";
 
 const Withdraws = () => {
   const [withdraws, setWithdraws] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { setLoading } = useUser();
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDepositId, setSelectedTradeId] = useState(null);
@@ -103,16 +104,11 @@ const Withdraws = () => {
           {withdraws?.map((withdraw, index) => (
             <tr key={withdraw.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
-              <td className="py-2 px-4 border-b">{withdraw?.user_id}</td>
-              <td className="py-2 px-4 border-b">{withdraw?.coin_id}</td>
+              <td className="py-2 px-4 border-b">{withdraw?.user_uuid}</td>
+              <td className="py-2 px-4 border-b">{withdraw?.coin_name}</td>
               <td className="py-2 px-4 border-b">{withdraw?.amount}</td>
 
               <td className="py-2 px-4 border-b">{withdraw.status}</td>
-
-              {/* <td className="py-2 px-4 border-b">{withdraw.brand}</td> */}
-
-              {/* <td className="py-2 px-4 border-b">{withdraw.quantity}</td>
-                        <td className="py-2 px-4 border-b">{withdraw.price}</td> */}
               <td className="py-2 px-4 border-b">
                 <button
                   onClick={() => openDetailsModal(withdraw)}

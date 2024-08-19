@@ -3,10 +3,11 @@ import API_BASE_URL from "../../../api/getApiURL";
 import axios from "axios";
 import { toast } from "react-toastify";
 import BalanceModal from "./BalanceModal";
+import { useUser } from "../../../context/UserContext";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { setLoading } = useUser();
   const [error, setError] = useState(null);
   const [isProfit, setIsProfit] = useState("Lose");
   const [updateSuccess, setIsUpdateSuccess] = useState(false);

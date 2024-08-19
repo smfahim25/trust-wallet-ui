@@ -4,10 +4,12 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import DeleteModal from "../DeleteModal/DeleteModal";
 import DetailsCard from "./DetailsCard";
+import { useUser } from "../../../context/UserContext";
+import getMetalCoinName from "../../utils/getMetalCoinName";
 
 const Trading = () => {
   const [trades, setTrades] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { setLoading } = useUser();
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -95,10 +97,10 @@ const Trading = () => {
           {trades?.map((trade, index) => (
             <tr key={trade.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
-              <td className="py-2 px-4 border-b">{trade?.user_id}</td>
+              <td className="py-2 px-4 border-b">{trade?.user_uuid}</td>
               <td className="py-2 px-4 border-b">{trade?.order_id}</td>
 
-              <td className="py-2 px-4 border-b">{trade?.trade_coin_id}</td>
+              <td className="py-2 px-4 border-b">{getMetalCoinName(trade?.trade_coin_id)}</td>
               <td className="py-2 px-4 border-b">{trade?.status}</td>
               <td className="py-2 px-4 border-b">
                 {new Date(trade?.created_at)

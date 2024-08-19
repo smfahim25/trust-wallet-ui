@@ -5,10 +5,11 @@ import { toast } from "react-toastify";
 import DeleteModal from "../DeleteModal/DeleteModal";
 import DepositModal from "./DepositModal";
 import ImageViewer from "./ImageViewer";
+import { useUser } from "../../../context/UserContext";
 
 const Deposits = () => {
   const [deposits, setDeposits] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { setLoading } = useUser();
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDepositId, setSelectedTradeId] = useState(null);
@@ -114,8 +115,8 @@ const Deposits = () => {
           {deposits?.map((deposit, index) => (
             <tr key={deposit.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
-              <td className="py-2 px-4 border-b">{deposit?.user_id}</td>
-              <td className="py-2 px-4 border-b">{deposit?.coin_id}</td>
+              <td className="py-2 px-4 border-b">{deposit?.user_uuid}</td>
+              <td className="py-2 px-4 border-b">{deposit?.coin_name}</td>
               <td className="py-2 px-4 border-b">{deposit?.amount}</td>
               <td onClick={()=>openImageViewer(deposit)} className="py-2 px-4 border-b">
                 <div className="bg-white w-[40px] h-[40px] border border-2 overflow-hidden">

@@ -4,10 +4,11 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import DeleteModal from "../DeleteModal/DeleteModal";
+import { useUser } from "../../../context/UserContext";
 
 const Wallets = () => {
   const [wallets, setWallets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { setLoading } = useUser();
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedWalletId, setSelectedWalletId] = useState(null);

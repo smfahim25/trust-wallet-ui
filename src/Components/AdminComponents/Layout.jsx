@@ -9,6 +9,7 @@ import Withdraws from "./Withdraws/Withdraws";
 import Trading from "./Trading/Trading";
 import AddNewWallet from "./Wallets/AddNewWallet";
 import EditWallet from "./Wallets/EditWallet";
+import Settings from "./Settings/Settings";
 
 const Layout = () => {
   return (
@@ -16,7 +17,7 @@ const Layout = () => {
       <div className="">
         <div className="flex h-[97vh]">
           <Sidebar />
-          <div className="flex-1 bg-[#f8f8f8] pt-10">
+          <div className="flex-1 bg-[#f8f8f8] pt-10 pl-4">
             <Routes>
               <Route path="/" element={<AdminDashboard />}></Route>
               <Route path="/users" element={<AdminUsers />}></Route>
@@ -26,6 +27,7 @@ const Layout = () => {
               <Route path="/deposits" element={<Deposits />}></Route>
               <Route path="/withdraws" element={<Withdraws />}></Route>
               <Route path="/trading" element={<Trading />}></Route>
+              <Route path="/settings" element={<Settings />}></Route>
             </Routes>
           </div>
         </div>
