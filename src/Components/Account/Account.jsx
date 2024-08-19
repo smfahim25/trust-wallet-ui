@@ -114,7 +114,7 @@ function Account() {
                   {
                    coinValues[wallet.coin_id] !== undefined
                     ? coinValues[wallet.coin_id]
-                    : "N/A"}{" "}
+                    : "0.00"}{" "}
                     {wallet.coin_symbol}
                   </div>
                   <div className="value_num fs-26 fc-5B616E ff_InterMedium">
