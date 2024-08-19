@@ -17,9 +17,14 @@ const ImageViewer = ({ isOpen, onClose, details,title }) => {
 
         <h2 className="text-2xl font-semibold leading-tight tracking-wide">Deposit Document</h2>
         
-        <div className='mb-4'>
+        <div className='mb-4 h-full'>
          
-            <img src={`${API_BASE_URL}/${details.documents}`} alt="doc" />
+        <img 
+          src={`${API_BASE_URL}/${details.documents}`} 
+          alt="doc" 
+          style={{ maxHeight: '70vh', width: 'auto' }} 
+        />
+
         
         </div>
 
