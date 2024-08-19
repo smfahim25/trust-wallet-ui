@@ -95,7 +95,7 @@ const Business = () => {
   }, [balance, selectedWallet, user]);
 
   useEffect(() => {
-    setSelectedWallet(wallets[0]);
+    setSelectedWallet(wallets[3]);
 
     if (timerProfits) {
       setSelectedTime(timerProfits[0].timer_profit.timer);
@@ -543,7 +543,7 @@ const Business = () => {
                   <div className="coin_select_container">
                     <div
                       className="coin_select_content"
-                      onClick={handlePopupCoin}
+                      // onClick={handlePopupCoin}
                     >
                       <div className="value">
                         {selectedWallet && (
