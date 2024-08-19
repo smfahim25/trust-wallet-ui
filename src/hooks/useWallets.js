@@ -28,7 +28,7 @@ const useWallets = (id) => {
     }
   }, [id]);
 
-  return { wallets, loading, error };
+  return { wallets, loading, error,setWallets };
 };
 
 export default useWallets;
