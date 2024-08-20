@@ -10,10 +10,11 @@ const Converter = () => {
   const { user } = useUser();
   const { wallets, setWallets } = useWallets(user?.id);
   const [selectedWallet, setSelectedWallet] = useState(null);
-  const { convertUSDTToCoin } = useCryptoTradeConverter();
+  const { convertUSDTToCoin,convertCoinToUSDT } = useCryptoTradeConverter();
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
   const { updateUserBalance } = useUpdateUserBalance();
   const [coinValues, setCoinValues] = useState({});
+  const [convertAmount, setConvertAmount] = useState("");
 
   const defaultCoin = {
     coin_name: "Bitcoin",
@@ -32,15 +33,22 @@ const Converter = () => {
     handlePopupCoin();
   };
 
+  const handleMaxChange = (e) =>{
+    if (e.target.name === "amount") {
+      setConvertAmount(e.target.value);
+    }
+  }
+
   const handleSubmit = async () => {
     const walletAmount = parseFloat(selectedWallet.coin_amount);
-    const new_balance = 0;
-    const newUSDT = parseFloat(wallets[3]?.coin_amount) + walletAmount;
-    await updateUserBalance(user.id, selectedWallet.coin_id, new_balance);
-    if (walletAmount > 0) {
+   
+    const convertedWallletAmount = await convertCoinToUSDT(convertAmount, selectedWallet.coin_id);
+    const new_balance = walletAmount-parseFloat(convertedWallletAmount);
+    const newUSDT = parseFloat(wallets[3]?.coin_amount) + parseFloat(convertedWallletAmount);
+    console.log(convertedWallletAmount);
+    if (convertedWallletAmount) {
       await updateUserBalance(user.id, selectedWallet.coin_id, new_balance);
       await updateUserBalance(user.id, 518, newUSDT);
-
       // Update the specific wallet directly in the state
       const updatedWallets = wallets.map((wallet) => {
         if (wallet.coin_id === selectedWallet.coin_id) {
@@ -91,7 +99,7 @@ const Converter = () => {
     };
 
     fetchConvertedValues();
-  }, [wallets, user, convertUSDTToCoin]);
+  }, [wallets, user]);
 
   return (
     <div>
@@ -133,16 +141,17 @@ const Converter = () => {
                 </div>
               </div>
 
-              <div className="time_select">
-                <div className="select_title fs-16 fc-353F52 ff_NunitoSemiBold">
-                  From coin
-                </div>
-                <div
-                  className="time_select_container"
-                  style={{ display: "block" }}
-                >
+              <div className="coin_select">
+                  <div className="flex">
+                    <div className="select_title fs-16 fc-353F52 ff_NunitoSemiBold flex1">
+                      From coin
+                    </div>
+                  </div>
+                  <div className="coin_select_container">
+                
+
                   <div
-                    className="time_select_content cursor-pointer"
+                    className="coin_select_content cursor-pointer"
                     onClick={handlePopupCoin}
                   >
                     <div className="value">
@@ -166,8 +175,27 @@ const Converter = () => {
                       alt="Arrow"
                     />
                   </div>
+
+                    <div className="amount_input">
+                      <input
+                        onChange={handleMaxChange}
+                        type="number"
+                        inputMode="numeric"
+                        name="amount"
+                        id="amount"
+                        value={convertAmount}
+                        placeholder="Amount"
+                      />
+                      <span
+                        className="all"
+                        onClick={() => setConvertAmount(coinValues[selectedWallet?.coin_id]) }
+                      >
+                        Max
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+                 
               <div className="time_select">
                 <div className="select_title fs-16 fc-353F52 ff_NunitoSemiBold">
                   To coin

@@ -1,4 +1,4 @@
-const numberFormat = (number, decimals = 0, decPoint = '.', thousandsSep = ',') => {
+const numberFormat = (number, decimals = 0, decPoint = '.') => {
     // Convert the input to a number if it's not already
     const num = parseFloat(number);
 
@@ -6,10 +6,17 @@ const numberFormat = (number, decimals = 0, decPoint = '.', thousandsSep = ',') 
         return '';
     }
 
+    // Ensure the number is formatted to the specified decimal places
     const fixedNumber = num.toFixed(decimals);
-    const parts = fixedNumber.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSep);
-    return parts.join(decPoint);
+
+    // If there are no decimals required, return the integer part only
+    if (decimals === 0) {
+        return fixedNumber.split('.')[0];
+    }
+
+    // Join the integer part with the decimal part
+    return fixedNumber;
 };
 
 export default numberFormat;
+
