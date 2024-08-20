@@ -38,7 +38,7 @@ const Business = () => {
   const [selectedWallet, setSelectedWallet] = useState([]);
   const [tradeCoinId /*setTradeCoinId*/] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
-  const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
+  const { balance } = useFetchUserBalance(user?.id, wallets[3]?.coin_id);
 
   const timerProfits = useMemo(
     () => [
@@ -546,28 +546,28 @@ const Business = () => {
                       // onClick={handlePopupCoin}
                     >
                       <div className="value">
-                        {selectedWallet && (
+                        {wallets && (
                           <>
                             <img
                               className="icon_time"
                               src={
-                                `/assets/images/coins/${selectedWallet.coin_symbol.toLowerCase()}-logo.png` ||
+                                `/assets/images/coins/${wallets[3]?.coin_symbol.toLowerCase()}-logo.png` ||
                                 ""
                               }
-                              alt={selectedWallet.coin_symbol || ""}
+                              alt={wallets[3]?.coin_symbol || ""}
                             />
                             <input
                               type="hidden"
                               id="wallet_coin_id"
                               name="wallet_coin_id"
                               value={get_post_meta(
-                                selectedWallet.ID,
+                                wallets[3]?.ID,
                                 "coin_id",
                                 true
                               )}
                             />
                             <span className="fc-131F30 ff_NunitoBold">
-                              {selectedWallet.coin_symbol}
+                              {wallets[3]?.coin_symbol}
                             </span>
                             <img
                               src="/assets/images/icon_arrow_down.svg"

@@ -45,7 +45,7 @@ const Pagination = (props) => {
 
     const handlePageClick = (pageNumber) => {
         setPage(pageNumber);
-        navigate(`/account/my-order?page=${pageNumber}`);
+        navigate(`?page=${pageNumber}`);
     };
     return (
         <div className="flex justify-end mt-4">
