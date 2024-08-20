@@ -36,7 +36,7 @@ function Account() {
     };
 
     fetchConvertedValues();
-  }, [wallets, convertUSDTToCoin]);
+  }, [wallets]);
 
   return (
     <div className="main">

@@ -149,12 +149,9 @@ const Funds = () => {
         console.error("Failed to copy: ", err);
       });
   };
-  // console.log(latestDeposit);
+
   useEffect(() => {
-    if (
-      (!latestDeposit || !latestDeposit?.created_at) &&
-      latestDeposit?.status === "approved"
-    ) {
+    if (!latestDeposit || !latestDeposit?.created_at) {
       return;
     }
     let timerInterval;
@@ -163,7 +160,7 @@ const Funds = () => {
 
     const updateTimer = () => {
       if (latestDeposit?.status === "approved") {
-        clearInterval(timerInterval); // Stop the timer if the status is approved
+        clearInterval(timerInterval);
         setTimeLeft("");
         return;
       }
