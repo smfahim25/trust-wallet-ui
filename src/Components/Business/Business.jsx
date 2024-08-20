@@ -38,7 +38,7 @@ const Business = () => {
   const [selectedWallet, setSelectedWallet] = useState([]);
   const [tradeCoinId /*setTradeCoinId*/] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
-  const { balance } = useFetchUserBalance(user?.id, wallets[3]?.coin_id);
+  const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
 
   const timerProfits = useMemo(
     () => [
@@ -88,20 +88,19 @@ const Business = () => {
   }, [coin, type, wallets.length, setLoading, success]);
 
   useEffect(() => {
-    if (user?.id && selectedWallet?.coin_id) {
-      setUserBalance(balance ? balance?.coin_amount : "0.0000");
-      setUserCoinBalance(balance ? balance?.coin_amount : "0.0000");
-    }
-  }, [balance, selectedWallet, user]);
-
-  useEffect(() => {
     const filterselectedWallet = wallets.find(
       (wallet) => wallet.coin_id === "518"
     );
     if (filterselectedWallet) {
       setSelectedWallet(filterselectedWallet);
     }
+    if (user?.id && selectedWallet?.coin_id) {
+      setUserBalance(balance ? balance?.coin_amount : "0.0000");
+      setUserCoinBalance(balance ? balance?.coin_amount : "0.0000");
+    }
+  }, [balance, selectedWallet, user, wallets]);
 
+  useEffect(() => {
     if (timerProfits) {
       setSelectedTime(timerProfits[0].timer_profit.timer);
       setSelectedProfit(timerProfits[0].timer_profit.profit);

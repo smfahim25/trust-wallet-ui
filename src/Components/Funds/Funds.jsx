@@ -91,8 +91,8 @@ const Funds = () => {
   const handleRechargeSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    if (!amount || !screenshot) {
-      toast.error("Please provide both amount and screenshot");
+    if (!amount) {
+      toast.error("Please provide  amount");
       setLoading(false);
       return;
     }
