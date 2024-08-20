@@ -53,12 +53,12 @@ const Sidebar = () => {
       iconPath: <PiHandWithdrawFill size={20} />,
       roles: ["admin", "superadmin"],
     },
-    {
-      to: "/cradmin/settings",
-      label: "Settings",
-      iconPath: <IoSettingsSharp size={20} />,
-      roles: ["admin", "superadmin"],
-    },
+    // {
+    //   to: "/cradmin/settings",
+    //   label: "Settings",
+    //   iconPath: <IoSettingsSharp size={20} />,
+    //   roles: ["admin", "superadmin"],
+    // },
   ];
 
   return (
