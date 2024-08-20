@@ -10,6 +10,7 @@ import { FaRegCopy } from "react-icons/fa";
 import { MdOutlineWatchLater } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
+import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 
 const Funds = () => {
   const location = useLocation();
@@ -24,6 +25,7 @@ const Funds = () => {
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [screenshot, setScreenshot] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [availableBalance, setAvailableBalance] = useState("");
   const { updateUserBalance, success } = useUpdateUserBalance();
   const {
     data: latestDeposit,
@@ -31,6 +33,25 @@ const Funds = () => {
     refetch,
   } = useFetchLatestDeposit(user?.id, wallet?.coin_id);
   const { balance } = useFetchUserBalance(user?.id, wallet?.coin_id);
+  const { convertUSDTToCoin } = useCryptoTradeConverter();
+  useEffect(() => {
+    const getConvertedAmount = async () => {
+      let convertB;
+      try {
+        convertB = await convertUSDTToCoin(
+          balance?.coin_amount,
+          wallet.coin_id
+        );
+      } catch (error) {
+        console.error("Error converting USDT to coin:", error);
+      }
+      setAvailableBalance(convertB);
+    };
+
+    getConvertedAmount();
+  }, [balance?.coin_amount, wallet.coin_id, convertUSDTToCoin]);
+
+  // console.log(avilable);
   const handleSwitchTab = (tab) => {
     setActiveTab(tab);
   };
@@ -131,8 +152,9 @@ const Funds = () => {
       setLoading(false);
       setWithdrawAmount("");
       setWithdrawAddress("");
-      refetch();
-      const new_balance = wallet?.coin_amount - parseInt(withdrawAmount);
+      const new_balance =
+        parseInt(balance?.coin_amount) - parseInt(withdrawAmount);
+      console.log(new_balance);
       updateUserBalance(user?.id, wallet?.coin_id, new_balance);
     } catch (error) {
       console.error("Error sending data:", error);
@@ -216,7 +238,7 @@ const Funds = () => {
           <div className="tl">
             <span>
               Available:
-              {coinAmount} {wallet?.coin_symbol}
+              {availableBalance} {wallet?.coin_symbol}
             </span>
             <div className="fc-5F6775 fs12 m-t-5">
               <span>Frozen: 0.0000000 {wallet?.coin_symbol}</span>
@@ -518,15 +540,12 @@ const Funds = () => {
                   />
                 </div>
                 <div className="address">
-                  {wallet?.coin_logo ? (
-                    <img
-                      className="coin_icon receiver_amount_input"
-                      src={`assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
-                      alt={wallet?.coin_name}
-                    />
-                  ) : (
-                    <img src="" alt="" className="coin_icon" />
-                  )}
+                  <img
+                    className="coin_icon receiver_amount_input"
+                    src={`assets/images/coins/${wallet?.coin_symbol?.toLowerCase()}-logo.png`}
+                    alt={wallet?.coin_name}
+                  />
+
                   <input
                     onChange={handleWithdrawChange}
                     name="withdrawAmount"
@@ -537,7 +556,11 @@ const Funds = () => {
                     className="send-am-input"
                   />
                   <span className="coin_symbol receiver_amount_input">
-                    {wallet?.coin_symbol} <span className="all"> | Max </span>
+                    {wallet?.coin_symbol}{" "}
+                    <span className="all" onClick={() => setWithdrawAmount()}>
+                      {" "}
+                      | Max{" "}
+                    </span>
                   </span>
                 </div>
                 <div className="input_warning">
