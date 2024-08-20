@@ -5,16 +5,20 @@ import { toast } from "react-toastify";
 import BalanceModal from "./BalanceModal";
 import { useUser } from "../../../context/UserContext";
 import Pagination from "../../Pagination/Pagination";
+import MoreActionModal from "./MoreActionModal";
+import CreateUserModal from "./CreateUserModal";
 
 const AdminUsers = () => {
+  const { adminUser} = useUser();
   const [users, setUsers] = useState([]);
   const { setLoading } = useUser();
   const [error, setError] = useState(null);
-  const [isProfit, setIsProfit] = useState("Lose");
   const [updateSuccess, setIsUpdateSuccess] = useState(false);
-  const [referal, setReferal] = useState(null);
+  const [refreshDeposit, setRefreshDeposit] = useState(false);
 
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
+  const [isMore, setIsMore] = useState(false);
+  const [isNewUserOpen, setIsNewUserOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
 
 
@@ -36,10 +40,10 @@ const AdminUsers = () => {
     };
 
     fetchUserInfo();
-    if(updateSuccess){
+    if(updateSuccess || refreshDeposit){
       fetchUserInfo();
     }
-  }, [updateSuccess]);
+  }, [updateSuccess,refreshDeposit]);
 
 
   const handleRefUpdate = async (user) => {
@@ -82,6 +86,30 @@ const AdminUsers = () => {
     setIsBalanceModalOpen(false);
     setUserDetails(null);
   };
+  const openMore = (user) => {
+    setUserDetails(user);
+    setIsMore(true);
+  };
+
+  const closeMore = () => {
+    setIsMore(false);
+    setUserDetails(null);
+  };
+
+  const openNewUser = () => {
+   
+    setIsNewUserOpen(true);
+  };
+
+  const closeNewUser = () => {
+    setIsNewUserOpen(false);
+   
+  };
+
+  const handleUpdateSuccess = () => {
+    setRefreshDeposit(!refreshDeposit);
+  };
+
   const handleDelete = () => {
     console.log("deleting ");
   };
@@ -122,13 +150,23 @@ const AdminUsers = () => {
 
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
+      <div className="flex justify-between">
       <input
                 type="text"
                 placeholder="Search by UUID"
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className="mb-4 p-2 border border-gray-300 rounded"
-            />
+      />
+      {adminUser?.role ==='superadmin' && (
+                    <button onClick={openNewUser} className="bg-blue-500 hover:bg-blue-600 text-white px-2 rounded mr-4 mb-2">
+                    Add User
+                  </button>
+                  )}
+     
+
+      </div>
+      
       <table className="min-w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
@@ -193,6 +231,16 @@ const AdminUsers = () => {
                   >
                     {user.is_profit === 1 ? "Lose" : "Profit"}
                   </button>
+                  {adminUser?.role ==='superadmin' && (
+                    <button
+                    onClick={() => openMore(user)}
+                    className={`text-xs text-white py-1 px-2 rounded bg-gray-800 hover:bg-gray-600
+                    `}
+                  >
+                    More
+                  </button>
+                  )}
+                  
 
                 </div>
               </td>
@@ -208,6 +256,19 @@ const AdminUsers = () => {
         details={userDetails}
         // onUpdateSuccess={handleUpdateSuccess}
       />
+       <MoreActionModal
+        isOpen={isMore}
+        onClose={closeMore}
+        details={userDetails}
+        onUpdateSuccess={handleUpdateSuccess}
+      />
+
+      <CreateUserModal
+        isOpen={isNewUserOpen}
+        onClose={closeNewUser}
+        onUpdateSuccess={handleUpdateSuccess}
+      />
+
 
       <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>
