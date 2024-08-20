@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import DeleteModal from "../DeleteModal/DeleteModal";
 import { useUser } from "../../../context/UserContext";
+import Pagination from "../../Pagination/Pagination";
 
 const Withdraws = () => {
   const [withdraws, setWithdraws] = useState([]);
@@ -85,8 +86,42 @@ const Withdraws = () => {
     setRefreshDeposit(!refreshDeposit);
   };
 
+  // filtering and pagination 
+  const [filteredWithdraws, setFilteredWithdraws] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const tradesPerPage = 5; 
+
+  useEffect(() => {
+      const filtered = withdraws.filter(trade => 
+          trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredWithdraws(filtered);
+      setPage(1); // Reset to first page on search
+  }, [searchTerm, withdraws]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredWithdraws.length / tradesPerPage);
+
+  // Get current page's data
+  const indexOfLastTrade = page * tradesPerPage;
+  const indexOfFirstTrade = indexOfLastTrade - tradesPerPage;
+  const currentWithdraws = filteredWithdraws.slice(indexOfFirstTrade, indexOfLastTrade);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+      setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
+      <input
+                type="text"
+                placeholder="Search by UUID"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="mb-4 p-2 border border-gray-300 rounded"
+            />
       <table className="min-w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
@@ -101,7 +136,7 @@ const Withdraws = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {withdraws?.map((withdraw, index) => (
+          {currentWithdraws?.map((withdraw, index) => (
             <tr key={withdraw.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{withdraw?.user_uuid}</td>
@@ -144,7 +179,7 @@ const Withdraws = () => {
         onUpdateSuccess={handleUpdateSuccess}
       />
 
-      {/* <Pagination page={page} totalPages={totalPages} setPage={setPage} /> */}
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>
   );
 };

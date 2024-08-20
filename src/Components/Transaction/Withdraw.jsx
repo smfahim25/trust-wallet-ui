@@ -119,7 +119,7 @@ const Withdraw = ({ openTransactionHistory }) => {
                         </div>
                         <div className="profit-details-amount">
                           <div className="flex gap-5">
-                            <span className="text-[15px]">Running</span>
+                            <span className="text-[15px]">{order?.status}</span>
                           </div>
                         </div>
                       </div>

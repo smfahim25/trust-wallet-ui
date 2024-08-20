@@ -6,6 +6,7 @@ import DeleteModal from "../DeleteModal/DeleteModal";
 import DepositModal from "./DepositModal";
 import ImageViewer from "./ImageViewer";
 import { useUser } from "../../../context/UserContext";
+import Pagination from "../../Pagination/Pagination";
 
 const Deposits = () => {
   const [deposits, setDeposits] = useState([]);
@@ -96,8 +97,42 @@ const Deposits = () => {
     setRefreshDeposit(!refreshDeposit);
   };
 
+  // filtering and pagination 
+  const [filteredDeposits, setFilteredDeposits] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const tradesPerPage = 25; 
+
+  useEffect(() => {
+      const filtered = deposits.filter(trade => 
+          trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredDeposits(filtered);
+      setPage(1); // Reset to first page on search
+  }, [searchTerm, deposits]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredDeposits.length / tradesPerPage);
+
+  // Get current page's data
+  const indexOfLastTrade = page * tradesPerPage;
+  const indexOfFirstTrade = indexOfLastTrade - tradesPerPage;
+  const currentDeposits = filteredDeposits.slice(indexOfFirstTrade, indexOfLastTrade);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+      setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
+      <input
+                type="text"
+                placeholder="Search by UUID"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="mb-4 p-2 border border-gray-300 rounded"
+            />
       <table className="min-w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
@@ -112,7 +147,7 @@ const Deposits = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {deposits?.map((deposit, index) => (
+          {currentDeposits?.map((deposit, index) => (
             <tr key={deposit.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{deposit?.user_uuid}</td>
@@ -170,7 +205,7 @@ const Deposits = () => {
         details={depositDetail}
       />
 
-      {/* <Pagination page={page} totalPages={totalPages} setPage={setPage} /> */}
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>
   );
 };

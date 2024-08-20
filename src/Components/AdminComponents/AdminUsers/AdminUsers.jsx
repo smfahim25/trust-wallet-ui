@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import BalanceModal from "./BalanceModal";
 import { useUser } from "../../../context/UserContext";
+import Pagination from "../../Pagination/Pagination";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -92,8 +93,42 @@ const AdminUsers = () => {
     ));
   };
 
+  // filtering and pagination 
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const tradesPerPage = 25; 
+
+  useEffect(() => {
+      const filtered = users.filter(trade => 
+          trade.uuid.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+      setPage(1); // Reset to first page on search
+  }, [searchTerm, users]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredUsers.length / tradesPerPage);
+
+  // Get current page's data
+  const indexOfLastTrade = page * tradesPerPage;
+  const indexOfFirstTrade = indexOfLastTrade - tradesPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstTrade, indexOfLastTrade);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+      setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
+      <input
+                type="text"
+                placeholder="Search by UUID"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="mb-4 p-2 border border-gray-300 rounded"
+            />
       <table className="min-w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
@@ -113,7 +148,7 @@ const AdminUsers = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {users?.map((user, index) => (
+          {currentUsers?.map((user, index) => (
             <tr key={user.id}>
               {/* <td className="py-2 px-4 border-b">{index + 1}</td> */}
               <td className="py-2 px-4 border-b">{user.uuid}</td>
@@ -174,7 +209,7 @@ const AdminUsers = () => {
         // onUpdateSuccess={handleUpdateSuccess}
       />
 
-      {/* <Pagination page={page} totalPages={totalPages} setPage={setPage} /> */}
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>
   );
 };

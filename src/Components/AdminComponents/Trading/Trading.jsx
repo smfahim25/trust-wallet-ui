@@ -6,6 +6,7 @@ import DeleteModal from "../DeleteModal/DeleteModal";
 import DetailsCard from "./DetailsCard";
 import { useUser } from "../../../context/UserContext";
 import getMetalCoinName from "../../utils/getMetalCoinName";
+import Pagination from "../../Pagination/Pagination";
 
 const Trading = () => {
   const [trades, setTrades] = useState([]);
@@ -16,6 +17,8 @@ const Trading = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [tradeDetail, setTradeDetail] = useState(null);
   const [selectedTradeId, setSelectedTradeId] = useState(null);
+
+  
 
   useEffect(() => {
     const fetchTradeOrders = async () => {
@@ -36,6 +39,33 @@ const Trading = () => {
 
     fetchTradeOrders();
   }, []);
+
+// filtering and pagination 
+  const [filteredTrades, setFilteredTrades] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const tradesPerPage = 20; 
+
+  useEffect(() => {
+      const filtered = trades.filter(trade => 
+          trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredTrades(filtered);
+      setPage(1); // Reset to first page on search
+  }, [searchTerm, trades]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredTrades.length / tradesPerPage);
+
+  // Get current page's data
+  const indexOfLastTrade = page * tradesPerPage;
+  const indexOfFirstTrade = indexOfLastTrade - tradesPerPage;
+  const currentTrades = filteredTrades.slice(indexOfFirstTrade, indexOfLastTrade);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+      setSearchTerm(e.target.value);
+  };
 
   const handleDelete = async (tradeId) => {
     try {
@@ -81,6 +111,13 @@ const Trading = () => {
   };
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
+      <input
+                type="text"
+                placeholder="Search by UUID"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="mb-4 p-2 border border-gray-300 rounded"
+            />
       <table className="min-w-full border border-gray-300  ">
         <thead>
           <tr className="bg-gray-200">
@@ -94,7 +131,7 @@ const Trading = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {trades?.map((trade, index) => (
+          {currentTrades?.map((trade, index) => (
             <tr key={trade.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{trade?.user_uuid}</td>
@@ -140,7 +177,7 @@ const Trading = () => {
         details={tradeDetail}
       />
 
-      {/* <Pagination page={page} totalPages={totalPages} setPage={setPage} /> */}
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>
   );
 };

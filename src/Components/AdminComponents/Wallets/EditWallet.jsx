@@ -119,7 +119,7 @@ const EditWallet = () => {
                 onChange={handleCoinChange}
                 required
                 disabled
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               >
                 <option value="" disabled hidden selected>
                   Select Coin
@@ -147,7 +147,7 @@ const EditWallet = () => {
                 value={formData.coin_name}
                 onChange={handleChange}
                 placeholder="Coin Name"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               />
             </div>
             <div className="mb-4">
@@ -161,7 +161,7 @@ const EditWallet = () => {
                 type="file"
                 name="coin_logo"
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               />
             </div>
             <div className="mb-4">
@@ -178,7 +178,7 @@ const EditWallet = () => {
                 onChange={handleChange}
                 required
                 placeholder="Wallet Network"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               />
             </div>
             <div className="mb-4">
@@ -195,7 +195,7 @@ const EditWallet = () => {
                 value={formData.wallet_address}
                 onChange={handleChange}
                 placeholder="Wallet address"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               />
             </div>
             <div className="mb-4">
@@ -212,7 +212,7 @@ const EditWallet = () => {
                 value={formData.coin_symbol}
                 onChange={handleChange}
                 placeholder="Coin Symbol"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               />
             </div>
 
@@ -229,7 +229,7 @@ const EditWallet = () => {
                 required
                 onChange={handleFileChange}
                 accept="image/*"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               />
             </div>
 
@@ -245,7 +245,7 @@ const EditWallet = () => {
                 name="status"
                 value={formData?.status}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               >
                 <option value="" disabled hidden selected>
                   Select Status
@@ -256,7 +256,7 @@ const EditWallet = () => {
               </select>
             </div>
             <div></div>
-            <div className="flex justify-center items-center mt-5">
+            <div className="flex justify-end items-center mt-5">
               <button
                 type="submit"
                 className="mb-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-10 rounded"
