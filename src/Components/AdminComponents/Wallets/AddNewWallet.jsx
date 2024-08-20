@@ -49,6 +49,10 @@ const AddNewWallet = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setQrCode(file);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      documents: file,
+    }));
   };
 
   const handleCoinChange = (e) => {
@@ -68,11 +72,6 @@ const AddNewWallet = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      documents: qrCode,
-    }));
-    console.log(formData);
     try {
       // Send a POST request to your API with formData
       const response = await axios.post(`${API_BASE_URL}/wallets`, formData, {
@@ -110,6 +109,7 @@ const AddNewWallet = () => {
                 name="selectedCoin"
                 value={selectedCoin?.name}
                 onChange={handleCoinChange}
+                required
                 className="w-full p-2 border rounded"
               >
                 <option value="" disabled hidden selected>
@@ -133,6 +133,7 @@ const AddNewWallet = () => {
                 id="coin_name"
                 type="text"
                 name="coin_name"
+                required
                 value={formData.coin_name}
                 onChange={handleChange}
                 placeholder="Coin Name"
@@ -163,6 +164,7 @@ const AddNewWallet = () => {
               <input
                 type="text"
                 name="wallet_network"
+                required
                 value={formData.wallet_network}
                 onChange={handleChange}
                 placeholder="Wallet Network"
@@ -179,6 +181,7 @@ const AddNewWallet = () => {
               <input
                 type="text"
                 name="wallet_address"
+                required
                 value={formData.wallet_address}
                 onChange={handleChange}
                 placeholder="Wallet address"
@@ -195,6 +198,7 @@ const AddNewWallet = () => {
               <input
                 type="text"
                 name="coin_symbol"
+                required
                 value={formData.coin_symbol}
                 onChange={handleChange}
                 placeholder="Coin Symbol"
@@ -212,6 +216,7 @@ const AddNewWallet = () => {
               <input
                 type="file"
                 name="documents"
+                required
                 onChange={handleFileChange}
                 accept="image/*"
                 className="w-full p-2 border rounded"

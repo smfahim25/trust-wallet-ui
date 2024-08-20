@@ -10,7 +10,7 @@ import { useUser } from "../../../context/UserContext";
 const Deposits = () => {
   const [deposits, setDeposits] = useState([]);
   const { setLoading } = useUser();
-  const [error, setError] = useState(null);
+  const [/*error,*/ setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDepositId, setSelectedTradeId] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -39,7 +39,7 @@ const Deposits = () => {
     if (refreshDeposit) {
       fetchDepositInfo();
     }
-  }, [refreshDeposit]);
+  }, [refreshDeposit, setLoading, setError]);
 
   const handleDelete = async (depositID) => {
     try {
@@ -118,8 +118,11 @@ const Deposits = () => {
               <td className="py-2 px-4 border-b">{deposit?.user_uuid}</td>
               <td className="py-2 px-4 border-b">{deposit?.coin_name}</td>
               <td className="py-2 px-4 border-b">{deposit?.amount}</td>
-              <td onClick={()=>openImageViewer(deposit)} className="py-2 px-4 border-b">
-                <div className="bg-white w-[40px] h-[40px] border border-2 overflow-hidden">
+              <td
+                onClick={() => openImageViewer(deposit)}
+                className="py-2 px-4 border-b"
+              >
+                <div className="bg-white w-[40px] h-[40px] border-2 overflow-hidden">
                   <img
                     src={`${API_BASE_URL}/${deposit?.documents}`}
                     className="w-full h-full object-cover"

@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import API_BASE_URL from '../../../api/getApiURL';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import API_BASE_URL from "../../../api/getApiURL";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { IoCloseCircleSharp } from "react-icons/io5";
 
-const DepositModal = ({ isOpen, onClose, details,onUpdateSuccess,title }) => {
-  const [amount, setAmount] = useState(details?.amount || '');
-  const [status, setStatus] = useState(details?.status || '');
+const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
+  const [amount, setAmount] = useState(details?.amount || "");
+  const [status, setStatus] = useState(details?.status || "");
 
   useEffect(() => {
     // When details change, update the state
-    setAmount(details?.amount || '');
-    setStatus(details?.status || '');
+    setAmount(details?.amount || "");
+    setStatus(details?.status || "");
   }, [details]);
 
   const handleChange = (e) => {
@@ -29,34 +30,35 @@ const DepositModal = ({ isOpen, onClose, details,onUpdateSuccess,title }) => {
     };
 
     console.log(updatedData);
-    if(title==='Deposit'){
+    if (title === "Deposit") {
       try {
-        const response = await axios.put(`${API_BASE_URL}/deposits/${details.id}`, updatedData);
+        const response = await axios.put(
+          `${API_BASE_URL}/deposits/${details.id}`,
+          updatedData
+        );
         toast.success("Deposit updated successfully");
         console.log("Data successfully submitted:", response);
         onClose();
         onUpdateSuccess();
-  
       } catch (error) {
         console.error("Error submitting data:", error);
         toast.error("Failed to update deposit.");
       }
-
-    }else{
+    } else {
       try {
-        const response = await axios.put(`${API_BASE_URL}/withdraws/${details.id}`, updatedData);
+        const response = await axios.put(
+          `${API_BASE_URL}/withdraws/${details.id}`,
+          updatedData
+        );
         toast.success("Withdraw updated successfully");
         console.log("Data successfully submitted:", response);
         onClose();
         onUpdateSuccess();
-  
       } catch (error) {
         console.error("Error submitting data:", error);
         toast.error("Failed to update Withdraw.");
       }
-
     }
-    
   };
 
   if (!isOpen) return null;
@@ -64,16 +66,27 @@ const DepositModal = ({ isOpen, onClose, details,onUpdateSuccess,title }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="relative flex flex-col items-center max-w-lg gap-4 p-6 rounded-md shadow-md sm:py-8 sm:px-12 bg-white text-black">
-        <button onClick={onClose} className="absolute top-2 right-2 bg-gray-900 hover:bg-gray-700">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" className="flex-shrink-0 w-6 h-6">
-            <polygon points="427.314 107.313 404.686 84.687 256 233.373 107.314 84.687 84.686 107.313 233.373 256 84.686 404.687 107.314 427.313 256 278.627 404.686 427.313 427.314 404.687 278.627 256 427.314 107.313"></polygon>
-          </svg>
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2"
+          style={{
+            padding: "0",
+            color: "black",
+            backgroundColor: "transparent",
+          }}
+        >
+          <IoCloseCircleSharp size={40} />
         </button>
 
-        <h2 className="text-2xl font-semibold leading-tight tracking-wide">Update {title}</h2>
+        <h2 className="text-2xl font-semibold leading-tight tracking-wide">
+          Update {title}
+        </h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="amount" className="block mb-2 text-sm font-medium text-gray-700">
+            <label
+              htmlFor="amount"
+              className="block mb-2 text-sm font-medium text-gray-700"
+            >
               {title} Amount
             </label>
             <input
@@ -87,7 +100,10 @@ const DepositModal = ({ isOpen, onClose, details,onUpdateSuccess,title }) => {
             />
           </div>
           <div>
-            <label htmlFor="status" className="block mb-2 text-sm font-medium text-gray-700">
+            <label
+              htmlFor="status"
+              className="block mb-2 text-sm font-medium text-gray-700"
+            >
               Status
             </label>
             <select
@@ -106,11 +122,12 @@ const DepositModal = ({ isOpen, onClose, details,onUpdateSuccess,title }) => {
             </select>
           </div>
         </div>
-        <div className='mb-4'>
-         
-        </div>
+        <div className="mb-4"></div>
 
-        <button onClick={handleUpdate} className="absolute bottom-2 right-2 bg-gray-900 hover:bg-gray-700">
+        <button
+          onClick={handleUpdate}
+          className="absolute bottom-2 right-2 bg-lime-500 hover:bg-lime-500 "
+        >
           Update
         </button>
       </div>
