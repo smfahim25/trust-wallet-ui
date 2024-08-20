@@ -110,7 +110,7 @@ const AddNewWallet = () => {
                 value={selectedCoin?.name}
                 onChange={handleCoinChange}
                 required
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded  bg-gray-100"
               >
                 <option value="" disabled hidden selected>
                   Select Coin
@@ -137,7 +137,7 @@ const AddNewWallet = () => {
                 value={formData.coin_name}
                 onChange={handleChange}
                 placeholder="Coin Name"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-gray-100"
               />
             </div>
             <div className="mb-4">
@@ -151,7 +151,7 @@ const AddNewWallet = () => {
                 type="file"
                 name="coin_logo"
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded  bg-gray-100"
               />
             </div>
             <div className="mb-4">
@@ -168,7 +168,7 @@ const AddNewWallet = () => {
                 value={formData.wallet_network}
                 onChange={handleChange}
                 placeholder="Wallet Network"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded  bg-gray-100"
               />
             </div>
             <div className="mb-4">
@@ -185,7 +185,7 @@ const AddNewWallet = () => {
                 value={formData.wallet_address}
                 onChange={handleChange}
                 placeholder="Wallet address"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded  bg-gray-100"
               />
             </div>
             <div className="mb-4">
@@ -202,7 +202,7 @@ const AddNewWallet = () => {
                 value={formData.coin_symbol}
                 onChange={handleChange}
                 placeholder="Coin Symbol"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded  bg-gray-100"
               />
             </div>
 
@@ -219,11 +219,11 @@ const AddNewWallet = () => {
                 required
                 onChange={handleFileChange}
                 accept="image/*"
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded  bg-gray-100"
               />
             </div>
             <div></div>
-            <div className="flex justify-center items-center mt-5">
+            <div className="flex justify-start items-center mt-5">
               <button
                 type="submit"
                 className="mb-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-10 rounded"
