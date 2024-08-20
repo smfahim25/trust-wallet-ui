@@ -31,7 +31,7 @@ const Wallets = () => {
     };
 
     fetchWalletInfo();
-  }, []);
+  }, [setLoading]);
 
   const handleDelete = async (walletID) => {
     try {

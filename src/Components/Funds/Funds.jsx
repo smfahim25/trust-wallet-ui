@@ -9,7 +9,6 @@ import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { FaRegCopy } from "react-icons/fa";
 import { MdOutlineWatchLater } from "react-icons/md";
 import { toast } from "react-toastify";
-import useCurrencyConverter from "../../hooks/useCurrencyConverter";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 
 const Funds = () => {
@@ -46,30 +45,9 @@ const Funds = () => {
     }
   }, [loading, setLoading, success]);
 
-  const post = {
-    ID: 123,
-    coin_symbol: "BTC",
-    coin_name: "Bitcoin",
-    wallet_network: "BTC Network",
-    wallet_address: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-    coin_logo: {
-      url: "assets/images/coins/btc-logo.png",
-      alt: "Bitcoin Logo",
-    },
-    wallet_qr: {
-      url: "/path/to/qr_code.png",
-      alt: "QR Code",
-    },
-  };
-
   const depositLimit = 50; // USD
   const withdrawLimit = 10; // USD
   const withdrawalFee = 0.001; // 0.1%
-
-  // const handleSend = () => {
-  //   // Implement send functionality
-  //   alert("Funds Sent");
-  // };
 
   const handleAmountChange = (e) => {
     setAmount(e.target.value);
@@ -171,13 +149,25 @@ const Funds = () => {
         console.error("Failed to copy: ", err);
       });
   };
+  // console.log(latestDeposit);
   useEffect(() => {
-    if (!latestDeposit || !latestDeposit.created_at) return;
-
-    const createdAt = new Date(latestDeposit.created_at);
+    if (
+      (!latestDeposit || !latestDeposit?.created_at) &&
+      latestDeposit?.status === "approved"
+    ) {
+      return;
+    }
+    let timerInterval;
+    const createdAt = new Date(latestDeposit?.created_at);
     const countdownEnd = new Date(createdAt.getTime() + 60 * 60 * 1000); // Add 1 hour to the created_at time
 
     const updateTimer = () => {
+      if (latestDeposit?.status === "approved") {
+        clearInterval(timerInterval); // Stop the timer if the status is approved
+        setTimeLeft("");
+        return;
+      }
+
       const now = new Date();
       const diff = countdownEnd - now;
 
@@ -202,7 +192,7 @@ const Funds = () => {
     };
 
     updateTimer();
-    const timerInterval = setInterval(updateTimer, 1000);
+    timerInterval = setInterval(updateTimer, 1000);
     return () => clearInterval(timerInterval);
   }, [latestDeposit]);
 
@@ -229,8 +219,7 @@ const Funds = () => {
           <div className="tl">
             <span>
               Available:
-              {coinAmount}{" "}
-              {wallet?.coin_symbol}
+              {coinAmount} {wallet?.coin_symbol}
             </span>
             <div className="fc-5F6775 fs12 m-t-5">
               <span>Frozen: 0.0000000 {wallet?.coin_symbol}</span>
@@ -472,11 +461,11 @@ const Funds = () => {
                   </div>
                 )}
                 <div className="qr_content">
-                  {post.wallet_qr.url ? (
+                  {wallet.wallet_qr ? (
                     <img
                       className="qr_code"
-                      src="./assets/images/qr-code.png"
-                      alt={post.wallet_qr.alt}
+                      src={`${API_BASE_URL}/${wallet.wallet_qr}`}
+                      alt={wallet?.coin_name}
                     />
                   ) : (
                     <img src="" alt="" className="qr_code" />

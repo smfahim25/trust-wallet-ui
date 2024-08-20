@@ -20,7 +20,10 @@ function Account() {
 
         for (const wallet of wallets) {
           try {
-            const convertedCoin = await convertUSDTToCoin(wallet?.coin_amount, wallet.coin_id);
+            const convertedCoin = await convertUSDTToCoin(
+              wallet?.coin_amount,
+              wallet.coin_id
+            );
             newCoinValues[wallet.coin_id] = convertedCoin;
           } catch (error) {
             console.error("Error converting coin:", error);
@@ -33,7 +36,7 @@ function Account() {
     };
 
     fetchConvertedValues();
-  }, [wallets]);
+  }, [wallets, convertUSDTToCoin]);
 
   return (
     <div className="main">
@@ -86,19 +89,15 @@ function Account() {
               <Link
                 key={wallet.id}
                 to="/funds"
-                state={{ wallet,coinAmount:coinValues[wallet.coin_id] }}
+                state={{ wallet, coinAmount: coinValues[wallet.coin_id] }}
                 className="wallet_item"
               >
                 <div className="item_info">
-                  {wallet.coin_logo ? (
-                    <img
-                      className="icon"
-                      src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
-                      alt={wallet.coin_symbol || ""}
-                    />
-                  ) : (
-                    <img src="" alt="No Icon" className="icon" />
-                  )}
+                  <img
+                    className="icon"
+                    src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
+                    alt={wallet.coin_symbol || ""}
+                  />
 
                   <div className="info">
                     <div className="fs-32 fc-353F52 ff_NunitoBold">
@@ -111,15 +110,13 @@ function Account() {
                 </div>
                 <div className="item_value">
                   <div className="value_us fs-32 fc-353F52 ff_InterSemiBold">
-                  {
-                   coinValues[wallet.coin_id] !== undefined
-                    ? coinValues[wallet.coin_id]
-                    : "0.00"}{" "}
+                    {coinValues[wallet.coin_id] !== undefined
+                      ? coinValues[wallet.coin_id]
+                      : "0.00"}{" "}
                     {wallet.coin_symbol}
                   </div>
                   <div className="value_num fs-26 fc-5B616E ff_InterMedium">
-                    {parseFloat(wallet?.coin_amount).toFixed(2) || "0.00"}{" "}
-                    USDT
+                    {parseFloat(wallet?.coin_amount).toFixed(2) || "0.00"} USDT
                   </div>
                 </div>
               </Link>

@@ -115,8 +115,10 @@ const EditWallet = () => {
               <select
                 id="selectedCoin"
                 name="selectedCoin"
-                value={selectedCoin?.name}
+                value={formData?.coin_name}
                 onChange={handleCoinChange}
+                required
+                disabled
                 className="w-full p-2 border rounded"
               >
                 <option value="" disabled hidden selected>
@@ -141,6 +143,7 @@ const EditWallet = () => {
                 id="coin_name"
                 type="text"
                 name="coin_name"
+                required
                 value={formData.coin_name}
                 onChange={handleChange}
                 placeholder="Coin Name"
@@ -173,6 +176,7 @@ const EditWallet = () => {
                 name="wallet_network"
                 value={formData.wallet_network}
                 onChange={handleChange}
+                required
                 placeholder="Wallet Network"
                 className="w-full p-2 border rounded"
               />
@@ -187,6 +191,7 @@ const EditWallet = () => {
               <input
                 type="text"
                 name="wallet_address"
+                required
                 value={formData.wallet_address}
                 onChange={handleChange}
                 placeholder="Wallet address"
@@ -203,6 +208,7 @@ const EditWallet = () => {
               <input
                 type="text"
                 name="coin_symbol"
+                required
                 value={formData.coin_symbol}
                 onChange={handleChange}
                 placeholder="Coin Symbol"
@@ -220,6 +226,7 @@ const EditWallet = () => {
               <input
                 type="file"
                 name="documents"
+                required
                 onChange={handleFileChange}
                 accept="image/*"
                 className="w-full p-2 border rounded"
