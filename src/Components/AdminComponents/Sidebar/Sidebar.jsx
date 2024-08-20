@@ -5,6 +5,7 @@ import { FaSignOutAlt, FaUsers, FaWallet } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { GrTransaction } from "react-icons/gr";
 import { IoSettingsSharp } from "react-icons/io5";
+import { PiHandDepositFill, PiHandWithdrawFill } from "react-icons/pi";
 
 const Sidebar = () => {
   const { adminUser, logout } = useUser();
@@ -41,9 +42,15 @@ const Sidebar = () => {
       roles: ["superadmin"],
     },
     {
-      to: "/cradmin/transactions",
-      label: "Transactions",
-      iconPath: <GrTransaction size={20} />,
+      to: "/cradmin/deposits",
+      label: "Deposits",
+      iconPath: <PiHandDepositFill size={20} />,
+      roles: ["admin", "superadmin"],
+    },
+    {
+      to: "/cradmin/withdraws",
+      label: "Withdraws",
+      iconPath: <PiHandWithdrawFill size={20} />,
       roles: ["admin", "superadmin"],
     },
     {
