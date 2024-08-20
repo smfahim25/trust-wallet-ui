@@ -131,6 +131,11 @@ const Funds = () => {
     // Validate inputs
     if (!withdrawAmount || !withdrawAddress) {
       toast.error("Please provide both amount and address");
+      setLoading(false);
+      return;
+    } else if (parseFloat(withdrawAmount) > parseFloat(balance?.coin_amount)) {
+      toast.error("Withdraw amount can greater than main balance");
+      setLoading(false);
       return;
     }
     const data = {
@@ -157,6 +162,7 @@ const Funds = () => {
       console.log(new_balance);
       updateUserBalance(user?.id, wallet?.coin_id, new_balance);
     } catch (error) {
+      setLoading(false);
       console.error("Error sending data:", error);
     }
   };
@@ -278,12 +284,14 @@ const Funds = () => {
                 </div>
                 <div className="right">
                   <div className="recharge-modal">
-                    <span
-                      onClick={handleSwitchRechargeModal}
-                      className="recharge-btn"
-                    >
-                      Recharge
-                    </span>
+                    {!timeLeft && (
+                      <span
+                        onClick={handleSwitchRechargeModal}
+                        className="recharge-btn"
+                      >
+                        Recharge
+                      </span>
+                    )}
                     {rechargeModal && (
                       <form id="recharge-form" onSubmit={handleRechargeSubmit}>
                         <div className="ssb-overlay"></div>
@@ -550,6 +558,7 @@ const Funds = () => {
                     onChange={handleWithdrawChange}
                     name="withdrawAmount"
                     type="number"
+                    value={withdrawAmount}
                     inputMode="numeric"
                     id="receiver_amount"
                     placeholder="0.00"
@@ -557,9 +566,12 @@ const Funds = () => {
                   />
                   <span className="coin_symbol receiver_amount_input">
                     {wallet?.coin_symbol}{" "}
-                    <span className="all" onClick={() => setWithdrawAmount()}>
+                    <span
+                      className="all"
+                      onClick={() => setWithdrawAmount(balance?.coin_amount)}
+                    >
                       {" "}
-                      | Max{" "}
+                      | Max
                     </span>
                   </span>
                 </div>

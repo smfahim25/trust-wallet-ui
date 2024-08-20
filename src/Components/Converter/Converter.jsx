@@ -10,12 +10,19 @@ const Converter = () => {
   const { user } = useUser();
   const { wallets, setWallets } = useWallets(user?.id);
   const [selectedWallet, setSelectedWallet] = useState(null);
-  const { convertUSDTToCoin,convertCoinToUSDT } = useCryptoTradeConverter();
+  const { convertUSDTToCoin } = useCryptoTradeConverter();
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
   const { updateUserBalance } = useUpdateUserBalance();
   const [coinValues, setCoinValues] = useState({});
   const [convertAmount, setConvertAmount] = useState("");
+  const [filterWallet, setFilterWallet] = useState([]);
 
+  useEffect(() => {
+    const filteredWallets = wallets.filter(
+      (wallet) => wallet.coin_id !== "518"
+    );
+    setFilterWallet(filteredWallets);
+  }, [wallets]);
   const defaultCoin = {
     coin_name: "Bitcoin",
     coin_symbol: "BTC",
@@ -33,22 +40,24 @@ const Converter = () => {
     handlePopupCoin();
   };
 
-  const handleMaxChange = (e) =>{
+  const handleMaxChange = (e) => {
     if (e.target.name === "amount") {
       setConvertAmount(e.target.value);
     }
-  }
+  };
 
   const handleSubmit = async () => {
     const walletAmount = parseFloat(selectedWallet.coin_amount);
-   
-    const convertedWallletAmount = await convertCoinToUSDT(convertAmount, selectedWallet.coin_id);
-    const new_balance = walletAmount-parseFloat(convertedWallletAmount);
-    const newUSDT = parseFloat(wallets[3]?.coin_amount) + parseFloat(convertedWallletAmount);
-    console.log(convertedWallletAmount);
-    if (convertedWallletAmount) {
+    const new_balance = parseFloat(walletAmount) - parseFloat(convertAmount);
+    const filterselectedWallet = wallets.find(
+      (wallet) => wallet.coin_id === "518"
+    );
+    const newUSDT =
+      parseFloat(filterselectedWallet?.coin_amount) + parseFloat(convertAmount);
+
+    if (convertAmount) {
       await updateUserBalance(user.id, selectedWallet.coin_id, new_balance);
-      await updateUserBalance(user.id, 518, newUSDT);
+      await updateUserBalance(user.id, "518", newUSDT);
       // Update the specific wallet directly in the state
       const updatedWallets = wallets.map((wallet) => {
         if (wallet.coin_id === selectedWallet.coin_id) {
@@ -66,7 +75,7 @@ const Converter = () => {
         ...selectedWallet,
         coin_amount: new_balance,
       });
-
+      setConvertAmount("");
       toast.success("Balance updated successfully");
     } else {
       toast.error("You don't have enough balance.");
@@ -75,13 +84,20 @@ const Converter = () => {
 
   useEffect(() => {
     if (user && wallets) {
-      setSelectedWallet(wallets[0]);
+      const filteredWallets = wallets.filter(
+        (wallet) => wallet.coin_id !== "518"
+      );
+      setSelectedWallet(filteredWallets[0]);
     }
+
     const fetchConvertedValues = async () => {
       if (wallets?.length > 0) {
+        const filteredWallets = wallets.filter(
+          (wallet) => wallet.coin_id !== "518"
+        );
         const newCoinValues = {};
 
-        for (const wallet of wallets) {
+        for (const wallet of filteredWallets) {
           try {
             const convertedCoin = await convertUSDTToCoin(
               wallet?.coin_amount,
@@ -139,17 +155,19 @@ const Converter = () => {
                     </div>
                   </div>
                 </div>
+                <div className="font-bold mt-1">
+                  <h1>Coin balance in USDT</h1>
+                  <h1>{selectedWallet?.coin_amount} USDT</h1>
+                </div>
               </div>
 
               <div className="coin_select">
-                  <div className="flex">
-                    <div className="select_title fs-16 fc-353F52 ff_NunitoSemiBold flex1">
-                      From coin
-                    </div>
+                <div className="flex">
+                  <div className="select_title fs-16 fc-353F52 ff_NunitoSemiBold flex1">
+                    From coin
                   </div>
-                  <div className="coin_select_container">
-                
-
+                </div>
+                <div className="coin_select_container">
                   <div
                     className="coin_select_content cursor-pointer"
                     onClick={handlePopupCoin}
@@ -176,26 +194,28 @@ const Converter = () => {
                     />
                   </div>
 
-                    <div className="amount_input">
-                      <input
-                        onChange={handleMaxChange}
-                        type="number"
-                        inputMode="numeric"
-                        name="amount"
-                        id="amount"
-                        value={convertAmount}
-                        placeholder="Amount"
-                      />
-                      <span
-                        className="all"
-                        onClick={() => setConvertAmount(coinValues[selectedWallet?.coin_id]) }
-                      >
-                        Max
-                      </span>
-                    </div>
+                  <div className="amount_input">
+                    <input
+                      onChange={handleMaxChange}
+                      type="number"
+                      inputMode="numeric"
+                      name="amount"
+                      id="amount"
+                      value={convertAmount}
+                      placeholder="type usdt amount"
+                    />
+                    <span
+                      className="all"
+                      onClick={() =>
+                        setConvertAmount(selectedWallet?.coin_amount)
+                      }
+                    >
+                      Max
+                    </span>
                   </div>
                 </div>
-                 
+              </div>
+
               <div className="time_select">
                 <div className="select_title fs-16 fc-353F52 ff_NunitoSemiBold">
                   To coin
@@ -256,7 +276,7 @@ const Converter = () => {
                       />
                     </div>
                     <div className="coin_list">
-                      {wallets.map((wallet, index) => {
+                      {filterWallet.map((wallet, index) => {
                         return (
                           <div className="coin_item" key={index}>
                             <div
