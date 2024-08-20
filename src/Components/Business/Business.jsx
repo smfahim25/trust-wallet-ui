@@ -95,7 +95,12 @@ const Business = () => {
   }, [balance, selectedWallet, user]);
 
   useEffect(() => {
-    setSelectedWallet(wallets[3]);
+    const filterselectedWallet = wallets.find(
+      (wallet) => wallet.coin_id === "518"
+    );
+    if (filterselectedWallet) {
+      setSelectedWallet(filterselectedWallet);
+    }
 
     if (timerProfits) {
       setSelectedTime(timerProfits[0].timer_profit.timer);
@@ -551,10 +556,10 @@ const Business = () => {
                             <img
                               className="icon_time"
                               src={
-                                `/assets/images/coins/${selectedWallet.coin_symbol.toLowerCase()}-logo.png` ||
+                                `/assets/images/coins/${selectedWallet?.coin_symbol?.toLowerCase()}-logo.png` ||
                                 ""
                               }
-                              alt={selectedWallet.coin_symbol || ""}
+                              alt={selectedWallet?.coin_symbol || ""}
                             />
                             <input
                               type="hidden"
