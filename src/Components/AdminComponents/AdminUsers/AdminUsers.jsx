@@ -9,7 +9,7 @@ import MoreActionModal from "./MoreActionModal";
 import CreateUserModal from "./CreateUserModal";
 
 const AdminUsers = () => {
-  const { adminUser} = useUser();
+  const { adminUser } = useUser();
   const [users, setUsers] = useState([]);
   const { setLoading } = useUser();
   const [error, setError] = useState(null);
@@ -20,7 +20,6 @@ const AdminUsers = () => {
   const [isMore, setIsMore] = useState(false);
   const [isNewUserOpen, setIsNewUserOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
-
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -40,22 +39,24 @@ const AdminUsers = () => {
     };
 
     fetchUserInfo();
-    if(updateSuccess || refreshDeposit){
+    if (updateSuccess || refreshDeposit) {
       fetchUserInfo();
     }
-  }, [updateSuccess,refreshDeposit]);
-
+  }, [updateSuccess, refreshDeposit]);
 
   const handleRefUpdate = async (user) => {
     const updatedUser = {
       is_referral: user.is_referral === 1 ? 0 : 1,
     };
-    
+
     try {
-      const response = await axios.put(`${API_BASE_URL}/users/${user.id}`, updatedUser);
+      const response = await axios.put(
+        `${API_BASE_URL}/users/${user.id}`,
+        updatedUser
+      );
       toast.success("User updated successfully");
       console.log("Data successfully submitted:", response);
-      setIsUpdateSuccess(!updateSuccess);  // Toggle to trigger re-fetch
+      setIsUpdateSuccess(!updateSuccess); // Toggle to trigger re-fetch
     } catch (error) {
       console.error("Error submitting data:", error);
       toast.error("Failed to update user.");
@@ -66,12 +67,15 @@ const AdminUsers = () => {
     const updatedUser = {
       is_profit: user.is_profit === 1 ? 0 : 1,
     };
-    
+
     try {
-      const response = await axios.put(`${API_BASE_URL}/users/${user.id}`, updatedUser);
+      const response = await axios.put(
+        `${API_BASE_URL}/users/${user.id}`,
+        updatedUser
+      );
       toast.success("User updated successfully");
       console.log("Data successfully submitted:", response);
-      setIsUpdateSuccess(!updateSuccess); 
+      setIsUpdateSuccess(!updateSuccess);
     } catch (error) {
       console.error("Error submitting data:", error);
       toast.error("Failed to update user.");
@@ -97,13 +101,11 @@ const AdminUsers = () => {
   };
 
   const openNewUser = () => {
-   
     setIsNewUserOpen(true);
   };
 
   const closeNewUser = () => {
     setIsNewUserOpen(false);
-   
   };
 
   const handleUpdateSuccess = () => {
@@ -114,25 +116,26 @@ const AdminUsers = () => {
     console.log("deleting ");
   };
 
-
   const formatWalletAddress = (address) => {
     return address.match(/.{1,14}/g).map((segment, index) => (
-      <span key={index} style={{ display: 'block' }}>{segment}</span>
+      <span key={index} style={{ display: "block" }}>
+        {segment}
+      </span>
     ));
   };
 
-  // filtering and pagination 
+  // filtering and pagination
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const tradesPerPage = 25; 
+  const tradesPerPage = 25;
 
   useEffect(() => {
-      const filtered = users.filter(trade => 
-          trade.uuid.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredUsers(filtered);
-      setPage(1); // Reset to first page on search
+    const filtered = users.filter((trade) =>
+      trade.uuid.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+    setPage(1); // Reset to first page on search
   }, [searchTerm, users]);
 
   // Calculate total pages
@@ -145,28 +148,29 @@ const AdminUsers = () => {
 
   // Handle search input change
   const handleSearchChange = (e) => {
-      setSearchTerm(e.target.value);
+    setSearchTerm(e.target.value);
   };
 
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <div className="flex justify-between">
-      <input
-                type="text"
-                placeholder="Search by UUID"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="mb-4 p-2 border border-gray-300 rounded"
-      />
-      {adminUser?.role ==='superadmin' && (
-                    <button onClick={openNewUser} className="bg-blue-500 hover:bg-blue-600 text-white px-2 rounded mr-4 mb-2">
-                    Add User
-                  </button>
-                  )}
-     
-
+        <input
+          type="text"
+          placeholder="Search by UUID"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="mb-4 p-2 border border-gray-300 rounded"
+        />
+        {adminUser?.role === "superadmin" && (
+          <button
+            onClick={openNewUser}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-2 rounded mr-4 mb-2"
+          >
+            Add User
+          </button>
+        )}
       </div>
-      
+
       <table className="min-w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
@@ -192,13 +196,13 @@ const AdminUsers = () => {
               <td className="py-2 px-4 border-b">{user.uuid}</td>
               <td className="py-2 px-4 border-b">{user?.name}</td>
               <td className="py-2 px-4 border-b">{user?.email}</td>
-              
+
               <td className="py-2 px-4 border-b">
                 {formatWalletAddress(user?.user_wallet)}
               </td>
 
               <td className="py-2 px-4 border-b">{user?.mobile}</td>
-             
+
               <td className="py-2 px-4 border-b">{user?.status}</td>
               <td className="py-2 px-4 border-b">
                 {new Date(user?.user_registered)
@@ -206,7 +210,7 @@ const AdminUsers = () => {
                   .replace("T", " ")
                   .substring(0, 19)}
               </td>
-            
+
               <td className="py-2 px-4 border-b">
                 <div className="flex flex-col space-y-2">
                   <button
@@ -218,33 +222,36 @@ const AdminUsers = () => {
                   <button
                     onClick={() => handleRefUpdate(user)}
                     className={`text-xs text-white py-1 px-2 rounded ${
-                      user.is_referral === 1 ? "bg-red-600 hover:bg-red-700" : "bg-gray-800 hover:bg-gray-600"
+                      user.is_referral === 1
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-gray-800 hover:bg-gray-600"
                     }`}
                   >
-                    {user.is_referral === 1 ? "Disable Referral" : "Active Referral"}
+                    {user.is_referral === 1
+                      ? "Disable Referral"
+                      : "Active Referral"}
                   </button>
                   <button
                     onClick={() => handleProfitUpdate(user)}
                     className={`text-xs text-white py-1 px-2 rounded ${
-                      user.is_profit === 1 ? "bg-red-600 hover:bg-red-700" : "bg-gray-800 hover:bg-gray-600"
+                      user.is_profit === 1
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-green-600 hover:bg-green-500"
                     }`}
                   >
                     {user.is_profit === 1 ? "Lose" : "Profit"}
                   </button>
-                  {adminUser?.role ==='superadmin' && (
+                  {adminUser?.role === "superadmin" && (
                     <button
-                    onClick={() => openMore(user)}
-                    className={`text-xs text-white py-1 px-2 rounded bg-gray-800 hover:bg-gray-600
+                      onClick={() => openMore(user)}
+                      className={`text-xs text-white py-1 px-2 rounded bg-gray-800 hover:bg-gray-600
                     `}
-                  >
-                    More
-                  </button>
+                    >
+                      More
+                    </button>
                   )}
-                  
-
                 </div>
               </td>
-
             </tr>
           ))}
         </tbody>
@@ -256,7 +263,7 @@ const AdminUsers = () => {
         details={userDetails}
         // onUpdateSuccess={handleUpdateSuccess}
       />
-       <MoreActionModal
+      <MoreActionModal
         isOpen={isMore}
         onClose={closeMore}
         details={userDetails}
@@ -268,7 +275,6 @@ const AdminUsers = () => {
         onClose={closeNewUser}
         onUpdateSuccess={handleUpdateSuccess}
       />
-
 
       <Pagination page={page} totalPages={totalPages} setPage={setPage} />
     </div>

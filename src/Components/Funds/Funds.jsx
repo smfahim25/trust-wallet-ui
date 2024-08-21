@@ -15,7 +15,6 @@ import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 const Funds = () => {
   const location = useLocation();
   const wallet = location.state?.wallet;
-  const coinAmount = location.state?.coinAmount;
   const { user, setLoading } = useUser();
   const [activeTab, setActiveTab] = useState("deposit");
   const [timeLeft, setTimeLeft] = useState(null);
@@ -23,6 +22,7 @@ const Funds = () => {
   const [amount, setAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawAddress, setWithdrawAddress] = useState("");
+  const [withdrawCoin, setWithdrawCoin] = useState("");
   const [screenshot, setScreenshot] = useState(null);
   const [preview, setPreview] = useState(null);
   const [availableBalance, setAvailableBalance] = useState("");
@@ -33,7 +33,7 @@ const Funds = () => {
     refetch,
   } = useFetchLatestDeposit(user?.id, wallet?.coin_id);
   const { balance } = useFetchUserBalance(user?.id, wallet?.coin_id);
-  const { convertUSDTToCoin } = useCryptoTradeConverter();
+  const { convertUSDTToCoin, convertCoinToUSDT } = useCryptoTradeConverter();
   useEffect(() => {
     const getConvertedAmount = async () => {
       let convertB;
@@ -74,11 +74,18 @@ const Funds = () => {
     setAmount(e.target.value);
   };
 
-  const handleWithdrawChange = (e) => {
+  const handleWithdrawChange = async (e) => {
     if (e.target.name === "withdrawAddress") {
       setWithdrawAddress(e.target.value);
     } else if (e.target.name === "withdrawAmount") {
       setWithdrawAmount(e.target.value);
+      let convertB;
+      try {
+        convertB = await convertCoinToUSDT(e.target.value, wallet.coin_id);
+      } catch (error) {
+        console.error("Error converting USDT to coin:", error);
+      }
+      setWithdrawCoin(convertB);
     }
   };
 
@@ -133,8 +140,8 @@ const Funds = () => {
       toast.error("Please provide both amount and address");
       setLoading(false);
       return;
-    } else if (parseFloat(withdrawAmount) > parseFloat(balance?.coin_amount)) {
-      toast.error("Withdraw amount can greater than main balance");
+    } else if (parseFloat(withdrawAmount) > parseFloat(availableBalance)) {
+      toast.error("Withdraw amount can not greater than available balance");
       setLoading(false);
       return;
     }
@@ -144,7 +151,7 @@ const Funds = () => {
       wallet_from: user?.user_wallet,
       coin_id: wallet?.coin_id,
       trans_hash: "#ex3j3h2shthni8",
-      amount: withdrawAmount,
+      amount: withdrawCoin,
     };
 
     try {
@@ -158,8 +165,7 @@ const Funds = () => {
       setWithdrawAmount("");
       setWithdrawAddress("");
       const new_balance =
-        parseInt(balance?.coin_amount) - parseInt(withdrawAmount);
-      console.log(new_balance);
+        parseInt(balance?.coin_amount) - parseInt(withdrawCoin);
       updateUserBalance(user?.id, wallet?.coin_id, new_balance);
     } catch (error) {
       setLoading(false);
@@ -568,7 +574,7 @@ const Funds = () => {
                     {wallet?.coin_symbol}{" "}
                     <span
                       className="all"
-                      onClick={() => setWithdrawAmount(balance?.coin_amount)}
+                      onClick={() => setWithdrawAmount(availableBalance)}
                     >
                       {" "}
                       | Max

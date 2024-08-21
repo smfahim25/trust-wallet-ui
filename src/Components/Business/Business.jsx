@@ -185,9 +185,9 @@ const Business = () => {
             order_id,
             order_type: type,
             order_position: selectedType.toLowerCase(),
-            user_id: user.id,
-            user_wallet: user.user_wallet,
-            wallet_coin_id: selectedWallet.coin_id,
+            user_id: user?.id,
+            user_wallet: user?.user_wallet,
+            wallet_coin_id: selectedWallet?.coin_id,
             trade_coin_id: coin,
             amount,
             wallet_amount: walletAmount,
@@ -196,7 +196,7 @@ const Business = () => {
             wallet_profit_amount,
             delivery_time: selectedTime,
             profit_level: selectedProfit,
-            is_profit: user.is_profit,
+            is_profit: user?.is_profit,
           }
         );
 
@@ -565,13 +565,13 @@ const Business = () => {
                               id="wallet_coin_id"
                               name="wallet_coin_id"
                               value={get_post_meta(
-                                wallets[3]?.ID,
+                                selectedWallet?.ID,
                                 "coin_id",
                                 true
                               )}
                             />
                             <span className="fc-131F30 ff_NunitoBold">
-                              {wallets[3]?.coin_symbol}
+                              {selectedWallet?.coin_symbol}
                             </span>
                             <img
                               src="/assets/images/icon_arrow_down.svg"

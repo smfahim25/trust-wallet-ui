@@ -5,6 +5,7 @@ import iconClose from "../../Assets/images/icon_close.svg";
 import Header from "../Header/Header";
 import { useUser } from "../../context/UserContext";
 import API_BASE_URL from "../../api/getApiURL";
+import getMetalCoinName from "../utils/getMetalCoinName";
 
 const Countdown = ({
   createdTime,
@@ -195,7 +196,6 @@ const ProfitStatistics = () => {
                           : order.order_type === "metal"
                           ? getMetalCoinSymbol(order.trade_coin_id)
                           : "";
-
                       return (
                         <div className="profit-content" key={order.id}>
                           <div className="profit-details">
@@ -206,7 +206,8 @@ const ProfitStatistics = () => {
                                 alt={order.coin_name}
                               />
                               <span className="coin-name ff_NunitoSemiBold">
-                                {tradeCoin}/{order.coin_symbol}
+                                {getMetalCoinName(tradeCoin)}/
+                                {order.coin_symbol}
                               </span>
                               <span className="profit-date ff_NunitoRegular">
                                 {getFormattedDeliveryTime(order.created_at)}
@@ -276,7 +277,7 @@ const ProfitStatistics = () => {
                               />
                             )}
                             <span className="coin-name ff_NunitoSemiBold">
-                              {tradeCoin}/{order.coin_symbol}
+                              {getMetalCoinName(tradeCoin)}/{order.coin_symbol}
                             </span>
                             <span className="profit-date ff_NunitoRegular">
                               {order.created_at}
@@ -330,13 +331,14 @@ const ProfitStatistics = () => {
                 <div className="history_info">
                   <div className="history-coin-details">
                     <img
-                      src={`./assets/images/coins/${selectedOrder.coin_symbol.toLowerCase()}-logo.png`}
+                      src={`./assets/images/coins/${selectedOrder?.coin_symbol.toLowerCase()}-logo.png`}
                       alt={selectedOrder.coin_name}
                       className="coin_logo"
                       id="coin_logo"
                     />
                     <span className="ff_NunitoSemiBold" id="trade_symbol">
-                      {selectedOrder.trade_coin_id}/{selectedOrder.coin_symbol}
+                      {getMetalCoinName(selectedOrder?.trade_coin_id)}/
+                      {selectedOrder?.coin_symbol}
                     </span>
                     <span className="ff_NunitoRegular" id="trade_entry">
                       {selectedOrder.created_at}
