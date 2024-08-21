@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import API_BASE_URL from "../../../api/getApiURL";
 import axios from "axios";
 import { toast } from "react-toastify";
-import BalanceModal from "./BalanceModal";
 import { useUser } from "../../../context/UserContext";
 import Pagination from "../../Pagination/Pagination";
-import MoreActionModal from "./MoreActionModal";
-import CreateUserModal from "./CreateUserModal";
+import BalanceModal from "../AdminUsers/BalanceModal";
+import MoreActionModal from "../AdminUsers/MoreActionModal";
+import CreateUserModal from "../AdminUsers/CreateUserModal";
 
-const AdminUsers = () => {
+
+const AllAdmins = () => {
   const { adminUser} = useUser();
   const [users, setUsers] = useState([]);
   const { setLoading } = useUser();
@@ -26,7 +27,7 @@ const AdminUsers = () => {
     const fetchUserInfo = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE_URL}/users?role=user`);
+        const response = await fetch(`${API_BASE_URL}/users`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -158,6 +159,13 @@ const AdminUsers = () => {
                 onChange={handleSearchChange}
                 className="mb-4 p-2 border border-gray-300 rounded"
       />
+      {adminUser?.role ==='superadmin' && (
+                    <button onClick={openNewUser} className="bg-blue-500 hover:bg-blue-600 text-white px-2 rounded mr-4 mb-2">
+                    Add User
+                  </button>
+                  )}
+     
+
       </div>
       
       <table className="min-w-full border border-gray-300">
@@ -172,7 +180,7 @@ const AdminUsers = () => {
 
             <th className="py-2 px-4 border-b">Wallet</th>
             <th className="py-2 px-4 border-b">Mobile</th>
-
+            <th className="py-2 px-4 border-b">Role</th>
             <th className="py-2 px-4 border-b">Status</th>
             <th className="py-2 px-4 border-b">Registration</th>
             <th className="py-2 px-4 border-b">Action</th>
@@ -191,7 +199,7 @@ const AdminUsers = () => {
               </td>
 
               <td className="py-2 px-4 border-b">{user?.mobile}</td>
-             
+              <td className="py-2 px-4 border-b">{user?.role}</td>
               <td className="py-2 px-4 border-b">{user?.status}</td>
               <td className="py-2 px-4 border-b">
                 {new Date(user?.user_registered)
@@ -268,4 +276,4 @@ const AdminUsers = () => {
   );
 };
 
-export default AdminUsers;
+export default AllAdmins;

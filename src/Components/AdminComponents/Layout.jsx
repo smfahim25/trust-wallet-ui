@@ -10,6 +10,7 @@ import Trading from "./Trading/Trading";
 import AddNewWallet from "./Wallets/AddNewWallet";
 import EditWallet from "./Wallets/EditWallet";
 import Settings from "./Settings/Settings";
+import AllAdmins from "./AllAdmins/AllAdmins";
 
 const Layout = () => {
   return (
@@ -21,6 +22,7 @@ const Layout = () => {
             <Routes>
               <Route path="/" element={<Trading />}></Route>
               <Route path="/users" element={<AdminUsers />}></Route>
+              <Route path="/admin-users" element={<AllAdmins />}></Route>
               <Route path="/wallets" element={<Wallets />}></Route>
               <Route path="/new-wallet" element={<AddNewWallet />}></Route>
               <Route path="/edit-wallet" element={<EditWallet />}></Route>

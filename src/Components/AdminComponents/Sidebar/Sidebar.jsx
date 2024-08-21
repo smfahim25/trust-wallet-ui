@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
-import { FaSignOutAlt, FaUsers, FaWallet } from "react-icons/fa";
+import { FaSignOutAlt, FaUser, FaUsers, FaWallet } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { GrTransaction } from "react-icons/gr";
 import { IoSettingsSharp } from "react-icons/io5";
@@ -39,6 +39,12 @@ const Sidebar = () => {
       to: "/cradmin/users",
       label: "Users",
       iconPath: <FaUsers size={20} />,
+      roles: ["superadmin"],
+    },
+    {
+      to: "/cradmin/admin-users",
+      label: "Admin Users",
+      iconPath: <FaUser size={20} />,
       roles: ["superadmin"],
     },
     {
