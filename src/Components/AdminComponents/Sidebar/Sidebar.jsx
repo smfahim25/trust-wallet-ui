@@ -61,7 +61,7 @@ const Sidebar = () => {
     },
     {
       to: "/cradmin/settings",
-      label: "Settings",
+      label: "Edit Feature",
       iconPath: <IoSettingsSharp size={20} />,
       roles: ["admin", "superadmin"],
     },

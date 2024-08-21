@@ -10,16 +10,19 @@ const Settings = () => {
     // const { timerProfits } = useTimerProfit();
     const [timerProfits, setTimerProfits] = useState([]);
     const [refreshData, setRefreshData] = useState(false);
+
+    const [refreshSetting, setRefreSetting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTimer, setSelectedTimer] = useState('');
 
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        mobile: '',
-        password: '',
-        user_wallet: '-',
-        role: 'user'
+        referral_registration_status: '',
+        referral_registration_bonus: '',
+        referral_deposit_bonus_status: '',
+        referral_deposit_bonus: '',
+        trade_amount_limit: '',
+        deposit_limit: '',
+        withdrawal_limit: ''
     });
 
     const [timerData, setTimerData] = useState({
@@ -56,6 +59,31 @@ const Settings = () => {
     
   }, [refreshData])
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/settings`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setFormData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    
+      fetchSettings();
+      if(refreshSetting){
+        fetchSettings();
+      }
+    
+  }, [refreshSetting])
+
     const [responseMessage, setResponseMessage] = useState('');
 
     const handleChange = (e) => {
@@ -76,14 +104,23 @@ const Settings = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        const updatedData = {
+            referral_registration_status: formData.referral_registration_status,
+            referral_registration_bonus: formData.referral_registration_bonus,
+            referral_deposit_bonus_status: formData.referral_deposit_bonus_status,
+            referral_deposit_bonus: formData.referral_deposit_bonus,
+            trade_amount_limit: formData.trade_amount_limit,
+            deposit_limit: formData.deposit_limit,
+            withdrawal_limit: formData.withdrawal_limit
+        }
         try {
-            const response = await axios.post(`${API_BASE_URL}/users/signup`, formData);
-            setResponseMessage('User registered successfully!');
-            toast.success("User registered successfully!");
+            const response = await axios.put(`${API_BASE_URL}/settings`, updatedData);
+            toast.success("Settings saved successfully!");
+            setRefreSetting(!refreshSetting);
+
 
         } catch (error) {
-            // setResponseMessage('Failed to register user.');
+            toast.error('Failed to saved settings.');
             console.error('There was an error!', error);
         }
     };
@@ -141,19 +178,19 @@ const Settings = () => {
                 <div className="flex flex-col items-center gap-4 p-6 rounded-md shadow-md sm:py-8 sm:px-12 bg-white text-black w-full">
                     
 
-                    <h2 className="text-2xl font-semibold leading-tight tracking-wide">General Settings</h2>
+                    <h2 className="text-2xl font-semibold leading-tight tracking-wide">General Features</h2>
                     
                     <div className="w-full mx-auto p-6 bg-white ">
                         <form onSubmit={handleSubmit} >
                             <div className='grid grid-cols-2 gap-4'>
                             <div className="mb-4 w-full">
-                                <label className="block text-gray-700 font-bold mb-2" htmlFor="referal_status">
+                                <label className="block text-gray-700 font-bold mb-2" htmlFor="referral_registration_status">
                                     Referal Registration Status
                                 </label>
                                 <select
-                                    id="referal_status"
-                                    name="referal_status"
-                                    value={formData.role}
+                                    id="referral_registration_status"
+                                    name="referral_registration_status"
+                                    value={formData.referral_registration_status}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     required
@@ -166,14 +203,14 @@ const Settings = () => {
                          
                             
                             <div className="mb-4 w-full">
-                                <label className="block text-gray-700 font-bold mb-2" htmlFor="referal_reg_bonus">
+                                <label className="block text-gray-700 font-bold mb-2" htmlFor="referral_registration_bonus">
                                 Referral Registration Bonus (USD)
                                 </label>
                                 <input
                                     type="number"
-                                    id="referal_reg_bonus"
-                                    name="referal_reg_bonus"
-                                    value={formData.name}
+                                    id="referral_registration_bonus"
+                                    name="referral_registration_bonus"
+                                    value={formData.referral_registration_bonus}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Enter registration bonus"
@@ -182,13 +219,13 @@ const Settings = () => {
                             </div>
 
                             <div className="mb-4 w-full">
-                                <label className="block text-gray-700 font-bold mb-2" htmlFor="referal_deposit_status">
+                                <label className="block text-gray-700 font-bold mb-2" htmlFor="referral_deposit_bonus_status">
                                 Referral Deposit Bonus Status
                                 </label>
                                 <select
-                                    id="referal_deposit_status"
-                                    name="referal_deposit_status"
-                                    value={formData.role}
+                                    id="referral_deposit_bonus_status"
+                                    name="referral_deposit_bonus_status"
+                                    value={formData.referral_deposit_bonus_status}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     required
@@ -200,14 +237,14 @@ const Settings = () => {
                             </div>
 
                             <div className="mb-4 w-full">
-                                <label className="block text-gray-700 font-bold mb-2" htmlFor="referal_deposit_bonus">
+                                <label className="block text-gray-700 font-bold mb-2" htmlFor="referral_deposit_bonus">
                                 Referral Deposit Bonus (%)
                                 </label>
                                 <input
                                     type="number"
-                                    id="referal_deposit_bonus"
-                                    name="referal_deposit_bonus"
-                                    value={formData.email}
+                                    id="referral_deposit_bonus"
+                                    name="referral_deposit_bonus"
+                                    value={formData.referral_deposit_bonus}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Enter referal deposit bonus"
@@ -216,14 +253,14 @@ const Settings = () => {
                             </div>
 
                             <div className="mb-4 w-full">
-                                <label className="block text-gray-700 font-bold mb-2" htmlFor="trade_limit">
+                                <label className="block text-gray-700 font-bold mb-2" htmlFor="trade_amount_limit">
                                 Trade Amount Limit
                                 </label>
                                 <input
                                     type="number"
-                                    id="trade_limit"
-                                    name="trade_limit"
-                                    value={formData.mobile}
+                                    id="trade_amount_limit"
+                                    name="trade_amount_limit"
+                                    value={formData.trade_amount_limit}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Enter trade amount limit"
@@ -238,7 +275,7 @@ const Settings = () => {
                                     type="number"
                                     id="deposit_limit"
                                     name="deposit_limit"
-                                    value={formData.password}
+                                    value={formData.deposit_limit}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Enter deposit limit"
@@ -248,14 +285,14 @@ const Settings = () => {
 
                            
                             <div className="mb-4 w-full">
-                                <label className="block text-gray-700 font-bold mb-2" htmlFor="withdraw_limit">
+                                <label className="block text-gray-700 font-bold mb-2" htmlFor="withdrawal_limit">
                                 Withdrawal Limit
                                 </label>
                                 <input
                                     type="number"
-                                    id="withdraw_limit"
-                                    name="withdraw_limit"
-                                    value={formData.password}
+                                    id="withdrawal_limit"
+                                    name="withdrawal_limit"
+                                    value={formData.withdrawal_limit}
                                     onChange={handleChange}
                                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Enter withdraw limit"
@@ -342,6 +379,7 @@ const Settings = () => {
                                     onChange={handleTimerChange}
                                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Minimum USDT"
+                                    required
                                 />
                             </div>
                             </div>
@@ -387,21 +425,17 @@ const Settings = () => {
                                 ))}
                                 </tbody>
                         </table>
-                    </div>
-
-
-
-
-                    
+                    </div>                   
                 </div> 
             </div>
+
             <DeleteModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onConfirm={confirmDelete}
-        title="Timer Profit"
-        description="This action cannot be undone."
-      />
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onConfirm={confirmDelete}
+                title="Timer Profit"
+                description="This action cannot be undone."
+            />
         </div>
     );
 };
