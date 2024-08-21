@@ -48,6 +48,11 @@ const Converter = () => {
 
   const handleSubmit = async () => {
     const walletAmount = parseFloat(selectedWallet.coin_amount);
+    if (parseFloat(convertAmount) > parseFloat(walletAmount)) {
+      toast.error("Convert amount can not grater than balance.");
+      return;
+    }
+
     const new_balance = parseFloat(walletAmount) - parseFloat(convertAmount);
     const filterselectedWallet = wallets.find(
       (wallet) => wallet.coin_id === "518"
