@@ -216,14 +216,14 @@ const AllAdmins = () => {
                   >
                     Balance
                   </button>
-                  <button
+                  {/* <button
                     onClick={() => handleRefUpdate(user)}
                     className={`text-xs text-white py-1 px-2 rounded ${
                       user.is_referral === 1 ? "bg-red-600 hover:bg-red-700" : "bg-gray-800 hover:bg-gray-600"
                     }`}
                   >
                     {user.is_referral === 1 ? "Disable Referral" : "Active Referral"}
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => handleProfitUpdate(user)}
                     className={`text-xs text-white py-1 px-2 rounded ${

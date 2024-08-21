@@ -10,7 +10,8 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
         email: '',
         mobile: '',
         password: '',
-        role: 'user'
+        role: 'user',
+        status: '',
     });
 
     const [responseMessage, setResponseMessage] = useState('');
@@ -22,6 +23,7 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
                 name: details.name,
                 email: details.email,
                 mobile: details.mobile,
+                status: details.status,
                 password: '',
                 role: details.role || 'user'
             });
@@ -145,6 +147,24 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
                         <option value="user">User</option>
                         <option value="admin">Admin</option>
                         <option value="superadmin">Superadmin</option>
+                    </select>
+                </div>
+
+                <div className="mb-4">
+                    <label className="block text-gray-700 font-bold mb-2" htmlFor="status">
+                        Status
+                    </label>
+                    <select
+                        id="status"
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                    >
+                        <option value="active">Active</option>
+                        <option value="inactive">InActive</option>
+                        
                     </select>
                 </div>
                 </div>
