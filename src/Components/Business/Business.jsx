@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../Header/Header";
 import { Link, useSearchParams } from "react-router-dom";
 import fetchMarketData from "../utils/getMarketData";
@@ -13,9 +13,13 @@ import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
 import { toast } from "react-toastify";
+import useTimerProfit from "../../hooks/useTimerProfit";
+import useSettings from "../../hooks/useSettings";
 
 const Business = () => {
   const { user, setLoading } = useUser();
+  const {settings} = useSettings();
+  const {timerProfits} = useTimerProfit();
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
   const type = searchParams.get("type");
@@ -39,27 +43,7 @@ const Business = () => {
   const [tradeCoinId /*setTradeCoinId*/] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
-
-  const timerProfits = useMemo(
-    () => [
-      {
-        timer_profit: { timer: "60S", profit: "10", mini_usdt: "10" },
-      },
-      {
-        timer_profit: { timer: "120S", profit: "35", mini_usdt: "1000" },
-      },
-      {
-        timer_profit: { timer: "12H", profit: "87", mini_usdt: "10000" },
-      },
-      {
-        timer_profit: { timer: "36H", profit: "205", mini_usdt: "50000" },
-      },
-      {
-        timer_profit: { timer: "7D", profit: "305", mini_usdt: "100000" },
-      },
-    ],
-    []
-  );
+  
 
   useEffect(() => {
     const loadData = async () => {

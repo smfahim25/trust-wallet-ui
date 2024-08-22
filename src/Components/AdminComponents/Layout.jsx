@@ -1,6 +1,5 @@
 import React from "react";
 import { Route, Routes } from "react-router";
-import AdminDashboard from "./AdminDashboard/AdminDashboard";
 import Sidebar from "./Sidebar/Sidebar";
 import AdminUsers from "./AdminUsers/AdminUsers";
 import Wallets from "./Wallets/Wallets";
@@ -11,6 +10,7 @@ import AddNewWallet from "./Wallets/AddNewWallet";
 import EditWallet from "./Wallets/EditWallet";
 import Settings from "./Settings/Settings";
 import AllAdmins from "./AllAdmins/AllAdmins";
+import Contact from "./Contact/Contact";
 
 const Layout = () => {
   return (
@@ -30,6 +30,7 @@ const Layout = () => {
               <Route path="/withdraws" element={<Withdraws />}></Route>
               <Route path="/trading" element={<Trading />}></Route>
               <Route path="/settings" element={<Settings />}></Route>
+              <Route path="/contact" element={<Contact />}></Route>
             </Routes>
           </div>
         </div>
