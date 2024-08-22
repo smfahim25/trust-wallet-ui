@@ -2122,9 +2122,6 @@ table.dataTable {
   transform: translate3d(-50%, -50%, 0);
 }
 
-#setting-menu-popup {
-  /* display: none; */
-}
 
 .setting_popup {
   padding: 4.26667vw;
@@ -2177,9 +2174,6 @@ table.dataTable {
   text-align: left;
 }
 
-#main-menu {
-  /* display:none; */
-}
 
 #menu-icon {
   cursor: pointer;
@@ -2847,11 +2841,6 @@ table.dataTable {
   margin-top: 3.2vw;
 }
 
-#forex-market,
-#metal-market,
-#top-market {
-  /* display: none; */
-}
 
 #profit-finished_order {
   display: none;
@@ -3019,9 +3008,6 @@ table.dataTable {
   margin-right: 4px;
 }
 
-#chat_popup {
-  display: none;
-}
 
 @media screen and (max-width: 786px) {
   .lineBoard {

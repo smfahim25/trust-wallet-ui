@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
 import { SiConvertio } from "react-icons/si";
+import useSettings from "../../../hooks/useSettings";
 
 // Mock data
 const appName = "TrustPro";
-const smartContractLink = "#";
 
 const SideNav = (props) => {
+  const {settings} = useSettings();
+  const smartContractLink = settings?.smart_contract_link || "#";
   const { toggleMenu, setToggleMenu } = props;
   const [knowledgeExpanded, setKnowledgeExpanded] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -156,14 +158,14 @@ const SideNav = (props) => {
                     </div>
                   </div>
                 </div>
-                <div className="items flex align-center chat-menu">
+                <Link to={'/contact-us'} className="items flex align-center chat-menu">
                   <img
                     src="/assets/images/menu/chat.png"
                     alt="Chat"
                     className="m-r-10"
                   />
                   <span className="over-line-1">Chat</span>
-                </div>
+                </Link>
                 <div
                   className="items flex align-center menu-settings"
                   onClick={toggleSettingsPopup}
