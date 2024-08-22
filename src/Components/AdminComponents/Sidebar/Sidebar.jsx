@@ -30,6 +30,18 @@ const Sidebar = () => {
       roles: ["admin", "superadmin"],
     },
     {
+      to: "/cradmin/settings",
+      label: "Edit Feature",
+      iconPath: <IoSettingsSharp size={20} />,
+      roles: ["admin", "superadmin"],
+    },
+    {
+      to: "/cradmin/contact",
+      label: "Contact",
+      iconPath: <IoChatbox size={20} />,
+      roles: ["superadmin"],
+    },
+    {
       to: "/cradmin/wallets",
       label: "Wallets",
       iconPath: <FaWallet size={20} />,
@@ -58,18 +70,6 @@ const Sidebar = () => {
       label: "Withdraws",
       iconPath: <PiHandWithdrawFill size={20} />,
       roles: ["admin", "superadmin"],
-    },
-    {
-      to: "/cradmin/settings",
-      label: "Edit Feature",
-      iconPath: <IoSettingsSharp size={20} />,
-      roles: ["admin", "superadmin"],
-    },
-    {
-      to: "/cradmin/contact",
-      label: "Contact",
-      iconPath: <IoChatbox size={20} />,
-      roles: ["superadmin"],
     },
   ];
 
@@ -147,7 +147,7 @@ const Sidebar = () => {
           )}
           <li>
             <button
-              className="flex items-center text-gray-900 bg-white p-0 space-x-4"
+              className="flex items-center text-gray-900 bg-white p-0 space-x-4 hover:bg-white"
               onClick={handleSignOut}
             >
               <FaSignOutAlt size={20} />

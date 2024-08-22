@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, memo } from "react";
 
-function TradingviewChart() {
+function TradingviewChart({ type, coin }) {
   const container = useRef(null);
-
   useEffect(() => {
     // Clear the container before appending a new script to avoid duplicates
     if (container.current) {
@@ -17,9 +16,9 @@ function TradingviewChart() {
     script.textContent = `
       {
          "width": "100%",
-         "height": "500",
-         "symbol": "BITSTAMP:BTCUSD",
-         "interval": "D",
+         "height": "370",
+         "symbol": "${type}:${coin}",
+         "interval": "30",
          "timezone": "Etc/UTC",
          "theme": "light",
          "style": "1",
@@ -42,7 +41,7 @@ function TradingviewChart() {
     return () => {
       clearTimeout(timeoutId); // Clean up timeout on component unmount
     };
-  }, []); // Ensure this effect only runs once by passing an empty dependency array
+  }, [type, coin]); // Ensure this effect only runs once by passing an empty dependency array
 
   return (
     <div
