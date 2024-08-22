@@ -24,6 +24,7 @@ import Converter from "./Components/Converter/Converter";
 import Layout from "./Components/AdminComponents/Layout";
 import AdminLogin from "./Components/AdminComponents/AdminLogin/AdminLogin";
 import AdminRoute from "./Components/AdminComponents/AdminRoute";
+import TradeviewChart from "./Components/Chart/TradeviewChart";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -113,6 +114,7 @@ function App() {
           {isConnected && isTrustWallet ? (
             <>
               <Route path="/" element={<Home />} />
+              <Route path="/chart" element={<TradeviewChart />} />
               <Route path="/profile" element={<Profile walletId={account} />} />
               <Route path="/account" element={<Account />} />
               <Route path="/transaction" element={<Transaction />} />
@@ -132,7 +134,14 @@ function App() {
             <>
               <Route path="/" element={<GuestHome />} />
               <Route path="/admin-login" element={<AdminLogin />}></Route>
-              <Route path="/cradmin/*" element={<AdminRoute><Layout /></AdminRoute>} />
+              <Route
+                path="/cradmin/*"
+                element={
+                  <AdminRoute>
+                    <Layout />
+                  </AdminRoute>
+                }
+              />
             </>
           )}
         </Routes>
