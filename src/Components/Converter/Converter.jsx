@@ -12,17 +12,21 @@ const Converter = () => {
   const [selectedWallet, setSelectedWallet] = useState(null);
   const { convertUSDTToCoin } = useCryptoTradeConverter();
   const [coinPopupVisible, setCoinPopupVisible] = useState(false);
+  const [filterPopupVisible, setFilterPopupVisible] = useState(false);
   const { updateUserBalance } = useUpdateUserBalance();
   const [coinValues, setCoinValues] = useState({});
   const [convertAmount, setConvertAmount] = useState("");
-  const [filterWallet, setFilterWallet] = useState([]);
+  const [filterWallets, setFilterWallets] = useState([]);
+  const [filterWalletSelect, setFilterWalletsSelect] = useState(null);
 
   useEffect(() => {
     const filteredWallets = wallets.filter(
-      (wallet) => wallet.coin_id !== "518"
+      (wallet) => wallet.coin_id !== selectedWallet?.coin_id
     );
-    setFilterWallet(filteredWallets);
-  }, [wallets]);
+    setFilterWallets(filteredWallets);
+    setFilterWalletsSelect(filteredWallets[0]);
+  }, [wallets, selectedWallet]);
+
   const defaultCoin = {
     coin_name: "Bitcoin",
     coin_symbol: "BTC",
@@ -33,11 +37,19 @@ const Converter = () => {
   const handlePopupCoin = () => {
     setCoinPopupVisible(!coinPopupVisible);
   };
+  const handleFilterCoin = () => {
+    setFilterPopupVisible(!filterPopupVisible);
+  };
 
   const handleSelectCoin = (item) => {
     setSelectedWallet(item);
 
     handlePopupCoin();
+  };
+  const handleSelectFilter = (item) => {
+    setFilterWalletsSelect(item);
+
+    handleFilterCoin();
   };
 
   const handleMaxChange = (e) => {
@@ -54,20 +66,17 @@ const Converter = () => {
     }
 
     const new_balance = parseFloat(walletAmount) - parseFloat(convertAmount);
-    const filterselectedWallet = wallets.find(
-      (wallet) => wallet.coin_id === "518"
-    );
     const newUSDT =
-      parseFloat(filterselectedWallet?.coin_amount) + parseFloat(convertAmount);
+      parseFloat(filterWalletSelect?.coin_amount) + parseFloat(convertAmount);
 
     if (convertAmount) {
       await updateUserBalance(user.id, selectedWallet.coin_id, new_balance);
-      await updateUserBalance(user.id, "518", newUSDT);
+      await updateUserBalance(user.id, filterWalletSelect.coin_id, newUSDT);
       // Update the specific wallet directly in the state
       const updatedWallets = wallets.map((wallet) => {
         if (wallet.coin_id === selectedWallet.coin_id) {
           return { ...wallet, coin_amount: new_balance };
-        } else if (wallet.coin_id === 518) {
+        } else if (wallet.coin_id === filterWalletSelect) {
           return { ...wallet, coin_amount: newUSDT };
         }
         return wallet;
@@ -89,20 +98,14 @@ const Converter = () => {
 
   useEffect(() => {
     if (user && wallets) {
-      const filteredWallets = wallets.filter(
-        (wallet) => wallet.coin_id !== "518"
-      );
-      setSelectedWallet(filteredWallets[0]);
+      setSelectedWallet(wallets[0]);
     }
 
     const fetchConvertedValues = async () => {
       if (wallets?.length > 0) {
-        const filteredWallets = wallets.filter(
-          (wallet) => wallet.coin_id !== "518"
-        );
         const newCoinValues = {};
 
-        for (const wallet of filteredWallets) {
+        for (const wallet of wallets) {
           try {
             const convertedCoin = await convertUSDTToCoin(
               wallet?.coin_amount,
@@ -231,15 +234,24 @@ const Converter = () => {
                 >
                   <div
                     className="time_select_content"
-                    // onClick={handlePopupCoin}
+                    onClick={handleFilterCoin}
                   >
                     <div className="value">
                       <img
-                        src={"/assets/images/coins/usdt-logo.png"}
+                        src={
+                          `/assets/images/coins/${filterWalletSelect?.coin_symbol.toLowerCase()}-logo.png` ||
+                          defaultCoin.coin_logo
+                        }
                         className="icon_time"
-                        alt="Time"
+                        alt={
+                          filterWalletSelect?.coin_symbol ||
+                          defaultCoin.coin_logo
+                        }
                       />
-                      <span id="delivery_time">USDT</span>
+                      <span id="delivery_time">
+                        {filterWalletSelect?.coin_symbol ||
+                          defaultCoin.coin_symbol}
+                      </span>
                     </div>
                     <img
                       src="/assets/images/icon_arrow_down.svg"
@@ -281,7 +293,7 @@ const Converter = () => {
                       />
                     </div>
                     <div className="coin_list">
-                      {filterWallet.map((wallet, index) => {
+                      {wallets.map((wallet, index) => {
                         return (
                           <div className="coin_item" key={index}>
                             <div
@@ -289,6 +301,46 @@ const Converter = () => {
                               data-coin_logo={wallet.coin_logo}
                               data-coin_symbol={wallet.coin_symbol}
                               onClick={() => handleSelectCoin(wallet)}
+                            >
+                              <img
+                                src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
+                                alt={wallet.coin_symbol}
+                              />
+                              <div
+                                style={{ marginLeft: "5px" }}
+                              >{` ${wallet.coin_symbol}`}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {filterPopupVisible && (
+                <div id="select_coin_popup">
+                  <div className="ssb-overlay" style={{ zIndex: 2023 }}></div>
+                  <div
+                    className="select_popup ssb-popup ssb-popup--round ssb-popup--bottom"
+                    style={{ zIndex: 2024, height: "auto" }}
+                  >
+                    <div className="range_title">
+                      <img
+                        src="/assets/images/icon_close.svg"
+                        className="icon_close cursor-pointer"
+                        alt="Close"
+                        onClick={handleFilterCoin}
+                      />
+                    </div>
+                    <div className="coin_list">
+                      {filterWallets.map((wallet, index) => {
+                        return (
+                          <div className="coin_item" key={index}>
+                            <div
+                              className="name cursor-pointer"
+                              data-coin_logo={wallet.coin_logo}
+                              data-coin_symbol={wallet.coin_symbol}
+                              onClick={() => handleSelectFilter(wallet)}
                             >
                               <img
                                 src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
