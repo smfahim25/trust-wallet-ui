@@ -14,11 +14,9 @@ import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
 import { toast } from "react-toastify";
 import useTimerProfit from "../../hooks/useTimerProfit";
-import useSettings from "../../hooks/useSettings";
 
 const Business = () => {
   const { user, setLoading } = useUser();
-  const {settings} = useSettings();
   const {timerProfits} = useTimerProfit();
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
@@ -86,9 +84,9 @@ const Business = () => {
 
   useEffect(() => {
     if (timerProfits) {
-      setSelectedTime(timerProfits[0].timer_profit.timer);
-      setSelectedProfit(timerProfits[0].timer_profit.profit);
-      setSelectedMiniUsdt(timerProfits[0].timer_profit.mini_usdt);
+      setSelectedTime(timerProfits[0]?.timer);
+      setSelectedProfit(timerProfits[0]?.profit);
+      setSelectedMiniUsdt(timerProfits[0]?.mini_usdt);
     }
   }, [wallets, timerProfits]);
 
@@ -105,9 +103,9 @@ const Business = () => {
   };
 
   const handleSelectTimer = (item) => {
-    setSelectedTime(item.timer_profit.timer);
-    setSelectedProfit(item.timer_profit.profit);
-    setSelectedMiniUsdt(item.timer_profit.mini_usdt);
+    setSelectedTime(item?.timer);
+    setSelectedProfit(item?.profit);
+    setSelectedMiniUsdt(item?.mini_usdt);
     handlePopupTime();
   };
 
@@ -645,10 +643,10 @@ const Business = () => {
                             <div
                               onClick={() => handleSelectTimer(item)}
                               className="name"
-                              data-mini_usdt={item.timer_profit.mini_usdt}
-                              data-profit_level={item.timer_profit.profit}
+                              data-mini_usdt={item?.mini_usdt}
+                              data-profit_level={item?.profit}
                             >
-                              {item.timer_profit.timer}
+                              {item?.timer}
                             </div>
                           </div>
                         ))}
