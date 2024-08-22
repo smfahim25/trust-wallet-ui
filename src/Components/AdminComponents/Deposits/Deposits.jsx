@@ -124,6 +124,14 @@ const Deposits = () => {
       setSearchTerm(e.target.value);
   };
 
+  const formatWalletAddress = (address) => {
+    return address?.match(/.{1,14}/g)?.map((segment, index) => (
+      <span key={index} style={{ display: "block" }}>
+        {segment}
+      </span>
+    ));
+  };
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
@@ -142,6 +150,7 @@ const Deposits = () => {
 
             <th className="py-2 px-4 border-b">Amount</th>
             <th className="py-2 px-4 border-b">Documets</th>
+            <th className="py-2 px-4 border-b">Wallet Address</th>
             <th className="py-2 px-4 border-b">Status</th>
             <th className="py-2 px-4 border-b">Action</th>
           </tr>
@@ -165,6 +174,7 @@ const Deposits = () => {
                   />
                 </div>
               </td>
+              <td className="py-2 px-4 border-b">{formatWalletAddress(deposit?.wallet_from)}</td>
               <td className="py-2 px-4 border-b">{deposit.status}</td>
               <td className="py-2 px-4 border-b">
                 <button

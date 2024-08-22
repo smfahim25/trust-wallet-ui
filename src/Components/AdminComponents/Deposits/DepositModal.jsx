@@ -34,12 +34,18 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
       trans_hash:transHash,
     };
 
+    const updatedDeposit = {
+      amount,
+      status,
+      
+    };
+
     console.log(updatedData);
     if (title === "Deposit") {
       try {
         const response = await axios.put(
           `${API_BASE_URL}/deposits/${details.id}`,
-          updatedData
+          updatedDeposit
         );
         toast.success("Deposit updated successfully");
         console.log("Data successfully submitted:", response);
@@ -126,23 +132,27 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
               <option value="rejected">Reject</option>
             </select>
           </div>
-          <div>
-            <label
-              htmlFor="transHash"
-              className="block mb-2 text-sm font-medium text-gray-700"
-            >
-              Transaction Hash
-            </label>
-            <input
-              id="transHash"
-              type="text"
-              name="transHash"
-              value={transHash}
-              onChange={handleChange}
-              placeholder="Transaction Hash"
-              className="w-full p-2 border rounded"
-            />
-          </div>
+
+          {title === "Withdraw" && (
+            <div>
+              <label
+                htmlFor="transHash"
+                className="block mb-2 text-sm font-medium text-gray-700"
+              >
+                Transaction Hash
+              </label>
+              <input
+                id="transHash"
+                type="text"
+                name="transHash"
+                value={transHash}
+                onChange={handleChange}
+                placeholder="Transaction Hash"
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          )}
+
         </div>
         <div className="mb-4"></div>
 
