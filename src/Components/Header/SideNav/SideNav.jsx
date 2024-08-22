@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
-import { SiConvertio } from "react-icons/si";
+import { SiConvertio, SiTeradata, SiTradingview } from "react-icons/si";
 import useSettings from "../../../hooks/useSettings";
 
 // Mock data
@@ -75,6 +75,10 @@ const SideNav = (props) => {
                     alt="Home"
                     className="m-r-10"
                   />
+                  <span className="over-line-1">Home</span>
+                </Link>
+                <Link className="items flex align-center" to="/">
+                  <SiTeradata size={20} className="m-r-10 text-[#1552f0]" />
                   <span className="over-line-1">Trading</span>
                 </Link>
                 <Link className="items flex align-center" to="/account">

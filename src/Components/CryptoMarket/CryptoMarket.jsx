@@ -7,16 +7,19 @@ import { useUser } from "../../context/UserContext";
 function CryptoMarket() {
   const [marketData, setMarketData] = useState([]);
   const { setLoading } = useUser();
+  const cryptoURL = "https://api.coinlore.net/api/ticker/?id=90,2679,2,257,80,1,89,2713,2321,58,48543,118";
+  // const cryptoURL = "https://api.coinlore.net/api/tickers/";
   //   const [activeWallet, setActiveWallet] = useState(null);
   useEffect(() => {
     setLoading(true);
     async function fetchMarketData() {
       try {
         const response = await fetch(
-          "https://api.coinlore.net/api/ticker/?id=90,2679,2,257,80,1,89,2713,2321,58,48543,118"
+          cryptoURL
         );
         const data = await response.json();
         setMarketData(data);
+        // setMarketData(data.data); // for all coin 
         setLoading(false);
       } catch (error) {
         console.error("Error fetching market data:", error);
