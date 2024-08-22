@@ -14,10 +14,11 @@ import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import API_BASE_URL from "../../api/getApiURL";
 import { toast } from "react-toastify";
 import useTimerProfit from "../../hooks/useTimerProfit";
+import TradeviewChart from "../Chart/TradeviewChart";
 
 const Business = () => {
   const { user, setLoading } = useUser();
-  const {timerProfits} = useTimerProfit();
+  const { timerProfits } = useTimerProfit();
   const [searchParams] = useSearchParams();
   const coin = searchParams.get("coin");
   const type = searchParams.get("type");
@@ -41,7 +42,6 @@ const Business = () => {
   const [tradeCoinId /*setTradeCoinId*/] = useState(coin);
   const [walletAmount, setWalletAmount] = useState(0.0);
   const { balance } = useFetchUserBalance(user?.id, selectedWallet?.coin_id);
-  
 
   useEffect(() => {
     const loadData = async () => {
@@ -293,15 +293,25 @@ const Business = () => {
       <div className="pro_trend">
         <div className="k_container">
           <div id="k_trend" className="k_line">
-            <BusinessChart />
-          </div>
-          <div className="time_select ff_NunitoBold">
-            <div className="time_item">5M</div>
-            <div className="time_item">15M</div>
-            <div className="time_item active">1H</div>
-            <div className="time_item">6H</div>
-            <div className="time_item">1D</div>
-            <div className="time_item">1W</div>
+            <TradeviewChart
+              type={
+                type === "forex" &&
+                (coin === "CHFUSD" || coin === "JPYUSD" || coin === "CADUSD")
+                  ? "FX_IDC"
+                  : type === "forex"
+                  ? "FX"
+                  : type === "crypto"
+                  ? "BINANCE"
+                  : ""
+              }
+              coin={
+                type === "forex"
+                  ? coin
+                  : type === "metal"
+                  ? coin
+                  : `${market?.symbol}USD`
+              }
+            />
           </div>
         </div>
       </div>

@@ -114,7 +114,6 @@ function App() {
           {isConnected && isTrustWallet ? (
             <>
               <Route path="/" element={<Home />} />
-              <Route path="/chart" element={<TradeviewChart />} />
               <Route path="/profile" element={<Profile walletId={account} />} />
               <Route path="/account" element={<Account />} />
               <Route path="/transaction" element={<Transaction />} />
