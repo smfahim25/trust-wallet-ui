@@ -19,13 +19,12 @@ import { useUser } from "./context/UserContext";
 import Spinner from "./Components/Spinner/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import AdminDashboard from "./Components/AdminComponents/AdminDashboard/AdminDashboard";
 import Converter from "./Components/Converter/Converter";
 import Layout from "./Components/AdminComponents/Layout";
 import AdminLogin from "./Components/AdminComponents/AdminLogin/AdminLogin";
 import AdminRoute from "./Components/AdminComponents/AdminRoute";
 import TradeviewChart from "./Components/Chart/TradeviewChart";
-
+import ChatPopup from "./Components/ChatPopup/ChatPopup";
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
@@ -34,6 +33,7 @@ function App() {
   const [referral] = useState("");
   const [web3, setWeb3] = useState(null);
   const { setUser, loading, setLoading } = useUser();
+  const [isChatVisible, setChatVisible] = useState(false);
 
   useEffect(() => {
     if (!window.location.hash) {
@@ -102,6 +102,16 @@ function App() {
     }
   }, [isConnected, isTrustWallet, account, referral, setUser, setLoading]);
 
+  
+
+  const handleChatClick = () => {
+      setChatVisible(true);
+  };
+
+  const handleCloseChat = () => {
+      setChatVisible(false);
+  };
+
   return (
     <div>
       {loading && (
@@ -146,6 +156,20 @@ function App() {
         </Routes>
       </div>
       <ToastContainer autoClose={2000} position="bottom-center" />
+       {/* Chat Icon */}
+       <div className="c-chat" onClick={handleChatClick}>
+                <div className="c-chat-wrap">
+                    <div className="arrow-icon">
+                        <svg color="inherit" width="100%" height="100%" viewBox="0 0 32 32" className="c-svg">
+                            <path fill="#FFFFFF" d="M12.63,26.46H8.83a6.61,6.61,0,0,1-6.65-6.07,89.05,89.05,0,0,1,0-11.2A6.5,6.5,0,0,1,8.23,3.25a121.62,121.62,0,0,1,15.51,0A6.51,6.51,0,0,1,29.8,9.19a77.53,77.53,0,0,1,0,11.2,6.61,6.61,0,0,1-6.66,6.07H19.48L12.63,31V26.46"></path>
+                            <path fill="#2000F0" d="M19.57,21.68h3.67a2.08,2.08,0,0,0,2.11-1.81,89.86,89.86,0,0,0,0-10.38,1.9,1.9,0,0,0-1.84-1.74,113.15,113.15,0,0,0-15,0A1.9,1.9,0,0,0,6.71,9.49a74.92,74.92,0,0,0-.06,10.38,2,2,0,0,0,2.1,1.81h3.81V26.5Z" className="lc-1adcsh3 e1nep2br0"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            {/* Chat Popup */}
+            <ChatPopup visible={isChatVisible} onClose={handleCloseChat} />
     </div>
   );
 }
