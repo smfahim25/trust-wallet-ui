@@ -7,11 +7,13 @@ import { IoCloseCircleSharp } from "react-icons/io5";
 const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
   const [amount, setAmount] = useState(details?.amount || "");
   const [status, setStatus] = useState(details?.status || "");
+  const [transHash, setTransHash] = useState(details?.trans_hash || "");
 
   useEffect(() => {
     // When details change, update the state
     setAmount(details?.amount || "");
     setStatus(details?.status || "");
+    setTransHash(details?.trans_hash || "");
   }, [details]);
 
   const handleChange = (e) => {
@@ -19,6 +21,8 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
       setAmount(e.target.value);
     } else if (e.target.name === "status") {
       setStatus(e.target.value);
+    }else if (e.target.name === "transHash") {
+      setTransHash(e.target.value);
     }
   };
 
@@ -27,6 +31,7 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
     const updatedData = {
       amount,
       status,
+      trans_hash:transHash,
     };
 
     console.log(updatedData);
@@ -120,6 +125,23 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
               <option value="pending">Pending</option>
               <option value="rejected">Reject</option>
             </select>
+          </div>
+          <div>
+            <label
+              htmlFor="transHash"
+              className="block mb-2 text-sm font-medium text-gray-700"
+            >
+              Transaction Hash
+            </label>
+            <input
+              id="transHash"
+              type="text"
+              name="transHash"
+              value={transHash}
+              onChange={handleChange}
+              placeholder="Transaction Hash"
+              className="w-full p-2 border rounded"
+            />
           </div>
         </div>
         <div className="mb-4"></div>

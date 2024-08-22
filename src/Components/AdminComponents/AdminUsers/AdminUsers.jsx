@@ -234,7 +234,7 @@ const AdminUsers = () => {
                   >
                     {user.is_profit === 1 ? "Lose" : "Profit"}
                   </button>
-                  {adminUser?.role === "superadmin" && (
+                  {/* {adminUser?.role === "superadmin" && (
                     <button
                       onClick={() => openMore(user)}
                       className={`text-xs text-white py-1 px-2 rounded bg-gray-800 hover:bg-gray-600
@@ -242,7 +242,7 @@ const AdminUsers = () => {
                     >
                       More
                     </button>
-                  )}
+                  )} */}
                 </div>
               </td>
             </tr>

@@ -90,7 +90,7 @@ const Withdraws = () => {
   const [filteredWithdraws, setFilteredWithdraws] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
-  const tradesPerPage = 5; 
+  const tradesPerPage = 25; 
 
   useEffect(() => {
       const filtered = withdraws.filter(trade => 
@@ -113,6 +113,14 @@ const Withdraws = () => {
       setSearchTerm(e.target.value);
   };
 
+  const formatWalletAddress = (address) => {
+    return address?.match(/.{1,14}/g)?.map((segment, index) => (
+      <span key={index} style={{ display: "block" }}>
+        {segment}
+      </span>
+    ));
+  };
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
@@ -130,18 +138,21 @@ const Withdraws = () => {
             <th className="py-2 px-4 border-b">Wallet</th>
 
             <th className="py-2 px-4 border-b">Amount</th>
-            {/* <th className="py-2 px-4 border-b">Documets</th> */}
+            <th className="py-2 px-4 border-b">Wallet Address</th>
+            <th className="py-2 px-4 border-b">Transaction Hash</th>
             <th className="py-2 px-4 border-b">Status</th>
             <th className="py-2 px-4 border-b">Action</th>
           </tr>
         </thead>
         <tbody className="text-center">
-          {currentWithdraws?.map((withdraw, index) => (
+          {currentWithdraws?.reverse().map((withdraw, index) => (
             <tr key={withdraw.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{withdraw?.user_uuid}</td>
               <td className="py-2 px-4 border-b">{withdraw?.coin_name}</td>
               <td className="py-2 px-4 border-b">{withdraw?.amount}</td>
+              <td className="py-2 px-4 border-b">{formatWalletAddress(withdraw?.wallet_to)}</td>
+              <td className="py-2 px-4 border-b">{formatWalletAddress(withdraw?.trans_hash)}</td>
 
               <td className="py-2 px-4 border-b">{withdraw.status}</td>
               <td className="py-2 px-4 border-b">
