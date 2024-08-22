@@ -7,6 +7,28 @@ import { useUser } from "../../context/UserContext";
 import API_BASE_URL from "../../api/getApiURL";
 import getMetalCoinName from "../utils/getMetalCoinName";
 
+const parseDuration = (duration) => {
+  const durationMap = {
+    S: 1000, // seconds
+    M: 60 * 1000, // minutes
+    H: 60 * 60 * 1000, // hours
+    D: 24 * 60 * 60 * 1000, // days
+    W: 7 * 24 * 60 * 60 * 1000, // weeks
+    M: 30 * 24 * 60 * 60 * 1000, // months (approx)
+    Y: 365 * 24 * 60 * 60 * 1000, // years (approx)
+  };
+
+  // Extract the number and the unit from the duration string
+  const match = duration.match(/^(\d+)([SMHDWMOY])$/);
+  if (match) {
+    const [, number, unit] = match;
+    return parseInt(number, 10) * (durationMap[unit] || 0);
+  }
+
+  // Default to 0 if the duration format is not recognized
+  return 0;
+};
+
 const Countdown = ({
   createdTime,
   duration,
@@ -18,23 +40,14 @@ const Countdown = ({
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
-    let deliveryTime;
-    if (duration === "60S") {
-      deliveryTime = 60 * 1000;
-    } else if (duration === "120S") {
-      deliveryTime = 120 * 1000;
-    } else if (duration === "12H") {
-      deliveryTime = 12 * 60 * 60 * 1000;
-    } else if (duration === "36H") {
-      deliveryTime = 36 * 60 * 60 * 1000;
-    } else if (duration === "7D") {
-      deliveryTime = 7 * 24 * 60 * 60 * 1000;
-    }
+    const deliveryTime = parseDuration(duration);
     const createdAt = new Date(createdTime);
+
     const updateTimer = () => {
       const endTime = new Date(createdAt.getTime() + deliveryTime);
       const now = new Date();
       const diff = endTime - now;
+
       if (diff <= 0) {
         setTimeLeft("00:00:00");
         setStatus("finished");
@@ -55,10 +68,18 @@ const Countdown = ({
         "0"
       );
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const months = Math.floor(days / 30);
+      const years = Math.floor(days / 365);
 
       let timeString = "";
 
-      if (days > 0) {
+      if (years > 0) {
+        const remainingMonths = Math.floor((days % 365) / 30);
+        timeString = `${years}y ${remainingMonths}mo ${hours}h ${minutes}m ${seconds}s`;
+      } else if (months > 0) {
+        const remainingDays = days % 30;
+        timeString = `${months}mo ${remainingDays}d ${hours}h ${minutes}m ${seconds}s`;
+      } else if (days > 0) {
         timeString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
       } else if (hours > 0) {
         timeString = `${hours}h ${minutes}m ${seconds}s`;
@@ -141,7 +162,7 @@ const ProfitStatistics = () => {
       fetchMarketData();
     }
   }, [setLoading, user, status]);
-
+  console.log(runningOrders);
   return (
     <div
       className="profit"
