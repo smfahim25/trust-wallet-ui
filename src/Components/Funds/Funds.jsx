@@ -11,10 +11,12 @@ import { MdOutlineWatchLater } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
+import useSettings from "../../hooks/useSettings";
 
 const Funds = () => {
   const location = useLocation();
   const wallet = location.state?.wallet;
+  const {settings} = useSettings();
   const { user, setLoading } = useUser();
   const [activeTab, setActiveTab] = useState("deposit");
   const [timeLeft, setTimeLeft] = useState(null);
@@ -26,6 +28,7 @@ const Funds = () => {
   const [screenshot, setScreenshot] = useState(null);
   const [preview, setPreview] = useState(null);
   const [availableBalance, setAvailableBalance] = useState("");
+  const [minWithdrawAmount, setMinWithdrawAmount] = useState("");
   const { updateUserBalance, success } = useUpdateUserBalance();
   const {
     data: latestDeposit,
@@ -46,10 +49,22 @@ const Funds = () => {
         console.error("Error converting USDT to coin:", error);
       }
       setAvailableBalance(convertB);
+      if(settings.withdrawal_limit){
+        try {
+          const convertWL = await convertUSDTToCoin(
+            settings?.withdrawal_limit,
+            wallet.coin_id
+          );
+          setMinWithdrawAmount(convertWL);
+
+        } catch (error) {
+          console.error("Error converting USDT to coin:", error);
+        }
+      }
     };
 
     getConvertedAmount();
-  }, [balance?.coin_amount, wallet.coin_id, convertUSDTToCoin]);
+  }, [balance?.coin_amount, wallet.coin_id, convertUSDTToCoin,settings]);
 
   // console.log(avilable);
   const handleSwitchTab = (tab) => {
@@ -65,9 +80,6 @@ const Funds = () => {
       window.location.reload();
     }
   }, [loading, setLoading, success]);
-
-  const depositLimit = 50; // USD
-  const withdrawLimit = 10; // USD
   const withdrawalFee = 0.001; // 0.1%
 
   const handleAmountChange = (e) => {
@@ -367,9 +379,9 @@ const Funds = () => {
                                         id="deposit_limit_coin"
                                         style={{ display: "none" }}
                                       >
-                                        {depositLimit}
+                                        {settings?.deposit_limit}
                                       </div>
-                                      <span> (US$ {depositLimit})</span>
+                                      <span> (US$ {settings?.deposit_limit})</span>
                                     </div>
                                   </div>
                                 </div>
@@ -584,16 +596,11 @@ const Funds = () => {
                 <div className="input_warning">
                   <span>Minimum Withdrawal Amount: </span>
                   <div id="withdraw_limit_coin" style={{ display: "none" }}>
-                    {/* Convert USD to Coin Amount */}
-                    {(withdrawLimit / parseFloat(balance?.coin_amount)).toFixed(
-                      8
-                    )}
+                    {minWithdrawAmount}
                   </div>
                   <span>
-                    {(withdrawLimit / parseFloat(balance?.coin_amount)).toFixed(
-                      8
-                    )}{" "}
-                    {wallet?.coin_symbol} <span> (US$ {withdrawLimit}) </span>
+                    {minWithdrawAmount}{" "}
+                    {wallet?.coin_symbol} <span> (US$ {settings?.withdrawal_limit}) </span>
                   </span>
                 </div>
               </div>
