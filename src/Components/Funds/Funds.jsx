@@ -179,7 +179,6 @@ const Funds = () => {
       const main_balance = new Decimal(parseFloat(balance?.coin_amount));
       const withdraw_balance = new Decimal(parseFloat(withdrawCoin));
       const new_balance = main_balance.d[0] - withdraw_balance.d[0];
-      console.log(main_balance.d[0]);
       updateUserBalance(user?.id, wallet?.coin_id, new_balance);
     } catch (error) {
       setLoading(false);
