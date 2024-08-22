@@ -12,11 +12,12 @@ import { toast } from "react-toastify";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 import useSettings from "../../hooks/useSettings";
+import Decimal from "decimal.js";
 
 const Funds = () => {
   const location = useLocation();
   const wallet = location.state?.wallet;
-  const {settings} = useSettings();
+  const { settings } = useSettings();
   const { user, setLoading } = useUser();
   const [activeTab, setActiveTab] = useState("deposit");
   const [timeLeft, setTimeLeft] = useState(null);
@@ -49,14 +50,13 @@ const Funds = () => {
         console.error("Error converting USDT to coin:", error);
       }
       setAvailableBalance(convertB);
-      if(settings.withdrawal_limit){
+      if (settings.withdrawal_limit) {
         try {
           const convertWL = await convertUSDTToCoin(
             settings?.withdrawal_limit,
             wallet.coin_id
           );
           setMinWithdrawAmount(convertWL);
-
         } catch (error) {
           console.error("Error converting USDT to coin:", error);
         }
@@ -64,7 +64,7 @@ const Funds = () => {
     };
 
     getConvertedAmount();
-  }, [balance?.coin_amount, wallet.coin_id, convertUSDTToCoin,settings]);
+  }, [balance?.coin_amount, wallet.coin_id, convertUSDTToCoin, settings]);
 
   // console.log(avilable);
   const handleSwitchTab = (tab) => {
@@ -162,7 +162,7 @@ const Funds = () => {
       wallet_to: withdrawAddress,
       wallet_from: user?.user_wallet,
       coin_id: wallet?.coin_id,
-      trans_hash: "#ex3j3h2shthni8",
+      trans_hash: "",
       amount: withdrawCoin,
     };
 
@@ -176,8 +176,10 @@ const Funds = () => {
       setLoading(false);
       setWithdrawAmount("");
       setWithdrawAddress("");
-      const new_balance =
-        parseInt(balance?.coin_amount) - parseInt(withdrawCoin);
+      const main_balance = new Decimal(parseFloat(balance?.coin_amount));
+      const withdraw_balance = new Decimal(parseFloat(withdrawCoin));
+      const new_balance = main_balance.d[0] - withdraw_balance.d[0];
+      console.log(main_balance.d[0]);
       updateUserBalance(user?.id, wallet?.coin_id, new_balance);
     } catch (error) {
       setLoading(false);
@@ -381,7 +383,10 @@ const Funds = () => {
                                       >
                                         {settings?.deposit_limit}
                                       </div>
-                                      <span> (US$ {settings?.deposit_limit})</span>
+                                      <span>
+                                        {" "}
+                                        (US$ {settings?.deposit_limit})
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
@@ -555,15 +560,18 @@ const Funds = () => {
                     onChange={handleWithdrawChange}
                     name="withdrawAddress"
                     type="text"
+                    value={withdrawAddress}
                     id="receiver_account"
                     placeholder="Receiving Address"
                     className="address_input"
                   />
-                  <img
-                    src="/assets/images/icon_delete.svg"
-                    className="icon_delete"
-                    alt="Delete"
-                  />
+                  <span onClick={() => setWithdrawAddress("")}>
+                    <img
+                      src="/assets/images/icon_delete.svg"
+                      className="icon_delete"
+                      alt="Delete"
+                    />
+                  </span>
                 </div>
                 <div className="address">
                   <img
@@ -599,8 +607,8 @@ const Funds = () => {
                     {minWithdrawAmount}
                   </div>
                   <span>
-                    {minWithdrawAmount}{" "}
-                    {wallet?.coin_symbol} <span> (US$ {settings?.withdrawal_limit}) </span>
+                    {minWithdrawAmount} {wallet?.coin_symbol}{" "}
+                    <span> (US$ {settings?.withdrawal_limit}) </span>
                   </span>
                 </div>
               </div>
