@@ -3,7 +3,6 @@ import Header from "../Header/Header";
 import { Link, useSearchParams } from "react-router-dom";
 import fetchMarketData from "../utils/getMarketData";
 import numberFormat from "../utils/numberFormat";
-import BusinessChart from "../Chart/BusinessChart";
 import getMetalCoinName from "../utils/getMetalCoinName";
 import axios from "axios";
 import useWallets from "../../hooks/useWallets";
