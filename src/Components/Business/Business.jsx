@@ -147,9 +147,9 @@ const Business = () => {
       !selectedTime
     ) {
       toast.error("Something is wrong. Try Again!");
-    } else if (amount <= 0) {
+    } else if (parseFloat(amount) <= 0) {
       toast.error("Amount is required!!! Please place amount");
-    } else if (amount < selectedMiniUsdt) {
+    } else if (parseFloat(amount) < parseFloat(selectedMiniUsdt)) {
       toast.error(`Minimum deposit amount is ${selectedMiniUsdt} USDT`);
     } else if (amount > parseFloat(userBalance)) {
       toast.error("Balance is not available");
