@@ -21,7 +21,7 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
       setAmount(e.target.value);
     } else if (e.target.name === "status") {
       setStatus(e.target.value);
-    }else if (e.target.name === "transHash") {
+    } else if (e.target.name === "transHash") {
       setTransHash(e.target.value);
     }
   };
@@ -31,13 +31,12 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
     const updatedData = {
       amount,
       status,
-      trans_hash:transHash,
+      trans_hash: transHash,
     };
 
     const updatedDeposit = {
       amount,
       status,
-      
     };
 
     console.log(updatedData);
@@ -76,7 +75,7 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative flex flex-col items-center max-w-lg gap-4 p-6 rounded-md shadow-md sm:py-8 sm:px-12 bg-white text-black">
+      <div className="relative flex flex-col max-w-lg gap-4 p-6 rounded-md shadow-md sm:py-8 sm:px-12 bg-white text-black">
         <button
           onClick={onClose}
           className="absolute top-2 right-2"
@@ -89,9 +88,17 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
           <IoCloseCircleSharp size={40} />
         </button>
 
-        <h2 className="text-2xl font-semibold leading-tight tracking-wide">
+        <h2 className="text-2xl font-semibold leading-tight tracking-wide text-center">
           Update {title}
         </h2>
+        {title === "Withdraw" && (
+          <div>
+            <h2 className="text-left">
+              Wallet:{" "}
+              <span className="font-bold text-md">{details?.wallet_to}</span>
+            </h2>
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label
@@ -152,7 +159,6 @@ const DepositModal = ({ isOpen, onClose, details, onUpdateSuccess, title }) => {
               />
             </div>
           )}
-
         </div>
         <div className="mb-4"></div>
 

@@ -51,7 +51,7 @@ const Sidebar = () => {
       to: "/cradmin/users",
       label: "Users",
       iconPath: <FaUsers size={20} />,
-      roles: ["superadmin"],
+      roles: ["admin", "superadmin"],
     },
     {
       to: "/cradmin/admin-users",
