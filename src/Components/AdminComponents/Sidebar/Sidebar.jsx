@@ -4,7 +4,7 @@ import { useUser } from "../../../context/UserContext";
 import { FaSignOutAlt, FaUser, FaUsers, FaWallet } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { GrTransaction } from "react-icons/gr";
-import { IoSettingsSharp } from "react-icons/io5";
+import { IoChatbox, IoSettingsSharp } from "react-icons/io5";
 import { PiHandDepositFill, PiHandWithdrawFill } from "react-icons/pi";
 
 const Sidebar = () => {
@@ -64,6 +64,12 @@ const Sidebar = () => {
       label: "Edit Feature",
       iconPath: <IoSettingsSharp size={20} />,
       roles: ["admin", "superadmin"],
+    },
+    {
+      to: "/cradmin/contact",
+      label: "Contact",
+      iconPath: <IoChatbox size={20} />,
+      roles: ["superadmin"],
     },
   ];
 
