@@ -145,6 +145,7 @@ const ProfitStatistics = () => {
             `${API_BASE_URL}/tradeorder/user/${user?.id}?status=${status}`
           );
           const data = await response.json();
+          console.log(data);
           if (response.status !== 404) {
             if (status === "finished") {
               setOrders(data);
@@ -294,26 +295,26 @@ const ProfitStatistics = () => {
                 ) : (
                   <div className="profit-history">
                     {runningOrders?.map((order) => {
-                      const tradeCoin =
-                        order.order_type === "crypto"
-                          ? order.trade_coin_id
-                          : order.order_type === "forex"
-                          ? order.trade_coin_id.replace("USD", "")
-                          : order.order_type === "metal"
-                          ? getMetalCoinSymbol(order.trade_coin_id)
-                          : "";
                       return (
                         <div className="profit-content" key={order.id}>
                           <div className="profit-details">
                             <div className="profit-coin-details flex">
-                              <img
-                                className="coin-symbol"
-                                src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
-                                alt={order.coin_name}
-                              />
+                              {order?.order_type === "metal" ||
+                              order?.order_type === "forex" ? (
+                                <img
+                                  className="coin-symbol"
+                                  src={`./assets/images/coins/${order?.trade_coin_id?.toLowerCase()}-logo.png`}
+                                  alt={order.coin_name}
+                                />
+                              ) : (
+                                <img
+                                  className="coin-symbol"
+                                  src={`./assets/images/coins/${order?.trade_coin_symbol?.toLowerCase()}-logo.png`}
+                                  alt={order.coin_name}
+                                />
+                              )}
                               <span className="coin-name ff_NunitoSemiBold">
-                                {getMetalCoinName(tradeCoin)}/
-                                {order.coin_symbol}
+                                {order?.trade_coin_symbol}/{order?.coin_symbol}
                               </span>
                               <span className="profit-date ff_NunitoRegular">
                                 {getFormattedDeliveryTime(order.created_at)}
@@ -351,15 +352,6 @@ const ProfitStatistics = () => {
               ) : (
                 <div className="profit-history">
                   {orders?.map((order) => {
-                    const tradeCoin =
-                      order.order_type === "crypto"
-                        ? order.trade_coin_id
-                        : order.order_type === "forex"
-                        ? order.trade_coin_id.replace("USD", "")
-                        : order.order_type === "metal"
-                        ? getMetalCoinSymbol(order.trade_coin_id)
-                        : "";
-
                     return (
                       <div
                         className="profit-content profit-content-pop"
@@ -372,31 +364,31 @@ const ProfitStatistics = () => {
                             order?.order_type === "forex" ? (
                               <img
                                 className="coin-symbol"
-                                src={`./assets/images/coins/${order?.trade_coin_id.toLowerCase()}-logo.png`}
+                                src={`./assets/images/coins/${order?.trade_coin_id?.toLowerCase()}-logo.png`}
                                 alt={order.coin_name}
                               />
                             ) : (
                               <img
                                 className="coin-symbol"
-                                src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
+                                src={`./assets/images/coins/${order?.trade_coin_symbol?.toLowerCase()}-logo.png`}
                                 alt={order.coin_name}
                               />
                             )}
                             <span className="coin-name ff_NunitoSemiBold">
-                              {getMetalCoinName(tradeCoin)}/{order.coin_symbol}
+                              {order?.trade_coin_symbol}/{order?.coin_symbol}
                             </span>
                             <span className="profit-date ff_NunitoRegular">
-                              {order.created_at}
+                              {getFormattedDeliveryTime(order?.created_at)}
                             </span>
                           </div>
                           <div className="profit-details-amount">
                             <span className="profit-text">
-                              {order.is_profit ? "Profit" : "Loss"}
+                              {order?.is_profit ? "Profit" : "Loss"}
                             </span>
                             <span
                               className="profit-amount"
                               style={{
-                                color: order.is_profit ? "green" : "red",
+                                color: order?.is_profit ? "green" : "red",
                               }}
                             >
                               US$ {order?.profit_amount}
@@ -437,13 +429,13 @@ const ProfitStatistics = () => {
                 <div className="history_info">
                   <div className="history-coin-details">
                     <img
-                      src={`/assets/images/coins/${selectedOrder?.coin_symbol.toLowerCase()}-logo.png`}
+                      src={`/assets/images/coins/${selectedOrder?.trade_coin_symbol?.toLowerCase()}-logo.png`}
                       alt={selectedOrder.coin_name}
                       className="coin_logo"
                       id="coin_logo"
                     />
                     <span className="ff_NunitoSemiBold" id="trade_symbol">
-                      {getMetalCoinName(selectedOrder?.trade_coin_id)}/
+                      {selectedOrder?.trade_coin_symbol}/
                       {selectedOrder?.coin_symbol}
                     </span>
                     <span className="ff_NunitoRegular" id="trade_entry">
