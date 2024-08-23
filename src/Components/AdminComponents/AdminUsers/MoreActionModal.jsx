@@ -3,7 +3,7 @@ import axios from 'axios';
 import API_BASE_URL from '../../../api/getApiURL';
 import { toast } from 'react-toastify';
 
-const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
+const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess,role }) => {
 
     const [formData, setFormData] = useState({
         name: '',
@@ -12,6 +12,7 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
         password: '',
         role: 'user',
         status: '',
+        note: '',
     });
 
     const [responseMessage, setResponseMessage] = useState('');
@@ -25,7 +26,8 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
                 mobile: details.mobile,
                 status: details.status,
                 password: '',
-                role: details.role || 'user'
+                role: details.role || 'user',
+                note: details.note || '',
             });
         }
     }, [details]);
@@ -80,12 +82,13 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter your name"
+                        placeholder="Enter name"
                         required
                     />
                 </div>
-
-                <div className="mb-4">
+                {role === "superadmin" && (
+                    <>
+                    <div className="mb-4">
                     <label className="block text-gray-700 font-bold mb-2" htmlFor="email">
                         Email
                     </label>
@@ -131,8 +134,8 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
                         
                     />
                 </div>
-
-                <div className="mb-4">
+                
+                    <div className="mb-4">
                     <label className="block text-gray-700 font-bold mb-2" htmlFor="role">
                         Role
                     </label>
@@ -149,6 +152,9 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
                         <option value="superadmin">Superadmin</option>
                     </select>
                 </div>
+                    </>      
+                    )}
+               
 
                 <div className="mb-4">
                     <label className="block text-gray-700 font-bold mb-2" htmlFor="status">
@@ -166,6 +172,20 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess }) => {
                         <option value="inactive">InActive</option>
                         
                     </select>
+                </div>
+                <div className="mb-4">
+                    <label className="block text-gray-700 font-bold mb-2" htmlFor="note">
+                        Note
+                    </label>
+                    <input
+                        type="text"
+                        id="note"
+                        name="note"
+                        value={formData.note}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="write note for this user"
+                    />
                 </div>
                 </div>
                 
