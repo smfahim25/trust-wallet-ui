@@ -156,7 +156,7 @@ const Deposits = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {currentDeposits?.map((deposit, index) => (
+          {currentDeposits?.reverse().map((deposit, index) => (
             <tr key={deposit.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{deposit?.user_uuid}</td>

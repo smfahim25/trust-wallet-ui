@@ -261,6 +261,7 @@ const AllAdmins = () => {
         isOpen={isMore}
         onClose={closeMore}
         details={userDetails}
+        role={adminUser?.role}
         onUpdateSuccess={handleUpdateSuccess}
       />
 
