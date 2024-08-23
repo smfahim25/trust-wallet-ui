@@ -13,6 +13,8 @@ const Trading = () => {
   const { setLoading } = useUser();
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false);
+
 
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [tradeDetail, setTradeDetail] = useState(null);
@@ -38,7 +40,10 @@ const Trading = () => {
     };
 
     fetchTradeOrders();
-  }, []);
+    if(isUpdated){
+      fetchTradeOrders();
+    }
+  }, [isUpdated]);
 
 // filtering and pagination 
   const [filteredTrades, setFilteredTrades] = useState([]);
@@ -109,6 +114,27 @@ const Trading = () => {
     }
     closeModal();
   };
+
+  const handleProfitUpdate = async (trade) => {
+    const updatedUser = {
+      is_profit: trade.is_profit === 1 ? 0 : 1,
+    };
+
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/tradeorder/${trade.id}`,
+        updatedUser
+      );
+      toast.success("Trade updated successfully");
+      console.log("Data successfully submitted:", response);
+      setIsUpdated(!isUpdated);
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      toast.error("Failed to update user.");
+    }
+  };
+
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
@@ -131,7 +157,7 @@ const Trading = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {currentTrades?.map((trade, index) => (
+          {currentTrades?.reverse().map((trade, index) => (
             <tr key={trade.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{trade?.user_uuid}</td>
@@ -147,18 +173,34 @@ const Trading = () => {
               </td>
 
               <td className="py-2 px-4 border-b">
-                <button
+              <div className="flex flex-col space-y-2">
+              <button
                   onClick={() => openDetailsModal(trade)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2"
+                  className="text-xs bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2"
                 >
                   Details
                 </button>
+                {trade.status ==="running" && (
+                  <button
+                    onClick={() => handleProfitUpdate(trade)}
+                    className={`text-xs text-white mr-2 py-1 px-2 rounded ${
+                      trade.is_profit === 1
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-green-600 hover:bg-green-500"
+                    }`}
+                  >
+                    {trade.is_profit === 1 ? "Lose" : "Profit"}
+                  </button>
+                )}
+                
                 <button
                   onClick={() => openModal(trade.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"
+                  className="text-xs bg-red-500 hover:bg-red-600 text-white py-1 px-2 mr-2 rounded"
                 >
                   Delete
                 </button>
+              </div>
+                
               </td>
             </tr>
           ))}
