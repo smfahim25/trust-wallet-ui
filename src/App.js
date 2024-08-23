@@ -23,7 +23,6 @@ import Converter from "./Components/Converter/Converter";
 import Layout from "./Components/AdminComponents/Layout";
 import AdminLogin from "./Components/AdminComponents/AdminLogin/AdminLogin";
 import AdminRoute from "./Components/AdminComponents/AdminRoute";
-import TradeviewChart from "./Components/Chart/TradeviewChart";
 import ChatPopup from "./Components/ChatPopup/ChatPopup";
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -42,13 +41,8 @@ function App() {
 
     if (window.ethereum) {
       const ethereumProvider = window.ethereum;
-      const isTrustWallet =
-        ethereumProvider.isTrust ||
-        (ethereumProvider &&
-          ethereumProvider.isMetaMask === undefined &&
-          ethereumProvider.isTrustWallet === undefined);
 
-      if (isTrustWallet) {
+      if (ethereumProvider) {
         setIsTrustWallet(true);
         connectWallet();
       } else {

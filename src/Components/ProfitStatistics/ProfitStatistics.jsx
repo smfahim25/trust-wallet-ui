@@ -10,7 +10,6 @@ import getMetalCoinName from "../utils/getMetalCoinName";
 const parseDuration = (duration) => {
   const durationMap = {
     S: 1000, // seconds
-    M: 60 * 1000, // minutes
     H: 60 * 60 * 1000, // hours
     D: 24 * 60 * 60 * 1000, // days
     W: 7 * 24 * 60 * 60 * 1000, // weeks
@@ -19,7 +18,7 @@ const parseDuration = (duration) => {
   };
 
   // Extract the number and the unit from the duration string
-  const match = duration.match(/^(\d+)([SMHDWMOY])$/);
+  const match = duration.match(/^(\d+)([SHDWMY])$/);
   if (match) {
     const [, number, unit] = match;
     return parseInt(number, 10) * (durationMap[unit] || 0);
@@ -163,6 +162,92 @@ const ProfitStatistics = () => {
     }
   }, [setLoading, user, status]);
 
+  const extractUnit = (deliveryTime) => {
+    const match = deliveryTime.match(/[SHDWMY]/);
+    return match ? match[0] : null;
+  };
+
+  const calculateDeliveryPrice = (
+    isProfit,
+    orderPosition,
+    deliveryTime,
+    purchasePrice
+  ) => {
+    const unit = extractUnit(deliveryTime);
+    let deliveryPrice = parseFloat(purchasePrice);
+
+    if (isProfit) {
+      if (orderPosition === "buy") {
+        if (deliveryPrice > 50) {
+          if (unit === "S") {
+            deliveryPrice += 90;
+          } else if (unit === "H") {
+            deliveryPrice += 350;
+          } else if (unit === "D") {
+            deliveryPrice += 550;
+          } else if (unit === "W") {
+            deliveryPrice += 850;
+          } else if (unit === "M") {
+            deliveryPrice += 1850;
+          } else if (unit === "Y") {
+            deliveryPrice += 5850;
+          }
+        } else {
+          if (unit === "S") {
+            deliveryPrice += 2;
+          } else if (unit === "H") {
+            deliveryPrice += 5;
+          } else if (unit === "D") {
+            deliveryPrice += 8;
+          } else if (unit === "W") {
+            deliveryPrice += 12;
+          } else if (unit === "M") {
+            deliveryPrice += 20;
+          } else if (unit === "Y") {
+            deliveryPrice += 25;
+          }
+        }
+      } else {
+        if (deliveryPrice > 50) {
+          if (unit === "S") {
+            deliveryPrice -= 30;
+          } else if (unit === "H") {
+            deliveryPrice -= 150;
+          } else if (unit === "D") {
+            deliveryPrice -= 350;
+          } else if (unit === "W") {
+            deliveryPrice -= 550;
+          } else if (unit === "M") {
+            deliveryPrice -= 850;
+          } else if (unit === "Y") {
+            deliveryPrice -= 5850;
+          }
+        } else {
+          deliveryPrice -= 0.05;
+        }
+      }
+    } else {
+      if (deliveryPrice > 50) {
+        if (unit === "S") {
+          deliveryPrice -= 30;
+        } else if (unit === "H") {
+          deliveryPrice -= 150;
+        } else if (unit === "D") {
+          deliveryPrice -= 350;
+        } else if (unit === "W") {
+          deliveryPrice -= 550;
+        } else if (unit === "M") {
+          deliveryPrice -= 850;
+        } else if (unit === "Y") {
+          deliveryPrice -= 5850;
+        }
+      } else {
+        deliveryPrice -= 0.05;
+      }
+    }
+
+    return deliveryPrice;
+  };
   return (
     <div
       className="profit"
@@ -352,7 +437,7 @@ const ProfitStatistics = () => {
                 <div className="history_info">
                   <div className="history-coin-details">
                     <img
-                      src={`./assets/images/coins/${selectedOrder?.coin_symbol.toLowerCase()}-logo.png`}
+                      src={`/assets/images/coins/${selectedOrder?.coin_symbol.toLowerCase()}-logo.png`}
                       alt={selectedOrder.coin_name}
                       className="coin_logo"
                       id="coin_logo"
@@ -404,9 +489,12 @@ const ProfitStatistics = () => {
                   <div className="history-content">
                     <div className="history-label">Delivery Price</div>
                     <div className="history-value" id="delivery_price">
-                      {selectedOrder.order_position === "buy"
-                        ? parseFloat(selectedOrder.purchase_price) + 320.0
-                        : parseFloat(selectedOrder.purchase_price) - 280.0}
+                      {calculateDeliveryPrice(
+                        selectedOrder?.is_profit,
+                        selectedOrder.order_position,
+                        selectedOrder.delivery_time,
+                        selectedOrder.purchase_price
+                      )}
                     </div>
                   </div>
                   <div className="history-content">
