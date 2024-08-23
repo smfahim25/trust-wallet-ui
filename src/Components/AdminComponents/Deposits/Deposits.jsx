@@ -97,18 +97,20 @@ const Deposits = () => {
     setRefreshDeposit(!refreshDeposit);
   };
 
-  // filtering and pagination 
+  // filtering and pagination
   const [filteredDeposits, setFilteredDeposits] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const tradesPerPage = 25; 
+  const tradesPerPage = 25;
 
   useEffect(() => {
-      const filtered = deposits.filter(trade => 
-          trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = deposits
+      ?.reverse()
+      .filter((trade) =>
+        trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredDeposits(filtered);
-      setPage(1); // Reset to first page on search
+    setFilteredDeposits(filtered);
+    setPage(1); // Reset to first page on search
   }, [searchTerm, deposits]);
 
   // Calculate total pages
@@ -117,11 +119,14 @@ const Deposits = () => {
   // Get current page's data
   const indexOfLastTrade = page * tradesPerPage;
   const indexOfFirstTrade = indexOfLastTrade - tradesPerPage;
-  const currentDeposits = filteredDeposits.slice(indexOfFirstTrade, indexOfLastTrade);
+  const currentDeposits = filteredDeposits.slice(
+    indexOfFirstTrade,
+    indexOfLastTrade
+  );
 
   // Handle search input change
   const handleSearchChange = (e) => {
-      setSearchTerm(e.target.value);
+    setSearchTerm(e.target.value);
   };
 
   const formatWalletAddress = (address) => {
@@ -135,12 +140,12 @@ const Deposits = () => {
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
-                type="text"
-                placeholder="Search by UUID"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="mb-4 p-2 border border-gray-300 rounded"
-            />
+        type="text"
+        placeholder="Search by UUID"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        className="mb-4 p-2 border border-gray-300 rounded"
+      />
       <table className="min-w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
@@ -156,7 +161,7 @@ const Deposits = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {currentDeposits?.reverse().map((deposit, index) => (
+          {currentDeposits?.map((deposit, index) => (
             <tr key={deposit.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{deposit?.user_uuid}</td>
@@ -174,7 +179,9 @@ const Deposits = () => {
                   />
                 </div>
               </td>
-              <td className="py-2 px-4 border-b">{formatWalletAddress(deposit?.wallet_from)}</td>
+              <td className="py-2 px-4 border-b">
+                {formatWalletAddress(deposit?.wallet_from)}
+              </td>
               <td className="py-2 px-4 border-b">{deposit.status}</td>
               <td className="py-2 px-4 border-b">
                 <button

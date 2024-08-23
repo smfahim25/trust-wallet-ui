@@ -86,18 +86,20 @@ const Withdraws = () => {
     setRefreshDeposit(!refreshDeposit);
   };
 
-  // filtering and pagination 
+  // filtering and pagination
   const [filteredWithdraws, setFilteredWithdraws] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const tradesPerPage = 25; 
+  const tradesPerPage = 25;
 
   useEffect(() => {
-      const filtered = withdraws.filter(trade => 
-          trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = withdraws
+      ?.reverse()
+      .filter((trade) =>
+        trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredWithdraws(filtered);
-      setPage(1); // Reset to first page on search
+    setFilteredWithdraws(filtered);
+    setPage(1); // Reset to first page on search
   }, [searchTerm, withdraws]);
 
   // Calculate total pages
@@ -106,11 +108,14 @@ const Withdraws = () => {
   // Get current page's data
   const indexOfLastTrade = page * tradesPerPage;
   const indexOfFirstTrade = indexOfLastTrade - tradesPerPage;
-  const currentWithdraws = filteredWithdraws.slice(indexOfFirstTrade, indexOfLastTrade);
+  const currentWithdraws = filteredWithdraws.slice(
+    indexOfFirstTrade,
+    indexOfLastTrade
+  );
 
   // Handle search input change
   const handleSearchChange = (e) => {
-      setSearchTerm(e.target.value);
+    setSearchTerm(e.target.value);
   };
 
   const formatWalletAddress = (address) => {
@@ -124,12 +129,12 @@ const Withdraws = () => {
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
-                type="text"
-                placeholder="Search by UUID"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="mb-4 p-2 border border-gray-300 rounded"
-            />
+        type="text"
+        placeholder="Search by UUID"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        className="mb-4 p-2 border border-gray-300 rounded"
+      />
       <table className="min-w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
@@ -145,14 +150,18 @@ const Withdraws = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {currentWithdraws?.reverse().map((withdraw, index) => (
+          {currentWithdraws?.map((withdraw, index) => (
             <tr key={withdraw.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{withdraw?.user_uuid}</td>
               <td className="py-2 px-4 border-b">{withdraw?.coin_name}</td>
               <td className="py-2 px-4 border-b">{withdraw?.amount}</td>
-              <td className="py-2 px-4 border-b">{formatWalletAddress(withdraw?.wallet_to)}</td>
-              <td className="py-2 px-4 border-b">{formatWalletAddress(withdraw?.trans_hash)}</td>
+              <td className="py-2 px-4 border-b">
+                {formatWalletAddress(withdraw?.wallet_to)}
+              </td>
+              <td className="py-2 px-4 border-b">
+                {formatWalletAddress(withdraw?.trans_hash)}
+              </td>
 
               <td className="py-2 px-4 border-b">{withdraw.status}</td>
               <td className="py-2 px-4 border-b">
