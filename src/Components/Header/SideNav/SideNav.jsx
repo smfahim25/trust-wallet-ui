@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
-import { SiConvertio, SiTeradata, SiTradingview } from "react-icons/si";
+import { SiConvertio } from "react-icons/si";
 import useSettings from "../../../hooks/useSettings";
 
 // Mock data
 const appName = "TrustPro";
 
 const SideNav = (props) => {
-  const {settings} = useSettings();
+  const { settings } = useSettings();
   const smartContractLink = settings?.smart_contract_link || "#";
   const { toggleMenu, setToggleMenu } = props;
   const [knowledgeExpanded, setKnowledgeExpanded] = useState(false);
@@ -75,10 +75,6 @@ const SideNav = (props) => {
                     alt="Home"
                     className="m-r-10"
                   />
-                  <span className="over-line-1">Home</span>
-                </Link>
-                <Link className="items flex align-center" to="/">
-                  <SiTeradata size={20} className="m-r-10 text-[#1552f0]" />
                   <span className="over-line-1">Trading</span>
                 </Link>
                 <Link className="items flex align-center" to="/account">
@@ -162,7 +158,10 @@ const SideNav = (props) => {
                     </div>
                   </div>
                 </div>
-                <Link to={'/contact-us'} className="items flex align-center chat-menu">
+                <Link
+                  to={"/contact-us"}
+                  className="items flex align-center chat-menu"
+                >
                   <img
                     src="/assets/images/menu/chat.png"
                     alt="Chat"

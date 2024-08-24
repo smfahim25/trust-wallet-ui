@@ -158,7 +158,6 @@ const AdminUsers = () => {
   const indexOfLastTrade = page * tradesPerPage;
   const indexOfFirstTrade = indexOfLastTrade - tradesPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstTrade, indexOfLastTrade);
-
   // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -195,6 +194,7 @@ const AdminUsers = () => {
             {/* <th className="py-2 px-4 border-b">#</th> */}
             <th className="py-2 px-4 border-b">UUID</th>
             <th className="py-2 px-4 border-b">Name</th>
+            <th className="py-2 px-4 border-b">Note</th>
 
             <th className="py-2 px-4 border-b">Email</th>
             {/* <th className="py-2 px-4 border-b">Mobile</th> */}
@@ -214,6 +214,7 @@ const AdminUsers = () => {
               {/* <td className="py-2 px-4 border-b">{index + 1}</td> */}
               <td className="py-2 px-4 border-b">{user.uuid}</td>
               <td className="py-2 px-4 border-b">{user?.name}</td>
+              <td className="py-2 px-4 border-b">{user?.note}</td>
               <td className="py-2 px-4 border-b">{user?.email}</td>
 
               <td className="py-2 px-4 border-b">
@@ -261,7 +262,8 @@ const AdminUsers = () => {
                   >
                     {user.is_profit === 1 ? "Lose" : "Profit"}
                   </button>
-                  {(adminUser?.role === "superadmin" || adminUser?.role === "admin") && (
+                  {(adminUser?.role === "superadmin" ||
+                    adminUser?.role === "admin") && (
                     <button
                       onClick={() => openMore(user)}
                       className={`text-xs text-white py-1 px-2 rounded bg-gray-800 hover:bg-gray-600

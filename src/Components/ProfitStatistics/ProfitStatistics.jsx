@@ -10,7 +10,6 @@ import getMetalCoinName from "../utils/getMetalCoinName";
 const parseDuration = (duration) => {
   const durationMap = {
     S: 1000, // seconds
-    M: 60 * 1000, // minutes
     H: 60 * 60 * 1000, // hours
     D: 24 * 60 * 60 * 1000, // days
     W: 7 * 24 * 60 * 60 * 1000, // weeks
@@ -19,7 +18,7 @@ const parseDuration = (duration) => {
   };
 
   // Extract the number and the unit from the duration string
-  const match = duration.match(/^(\d+)([SMHDWMOY])$/);
+  const match = duration.match(/^(\d+)([SHDWMY])$/);
   if (match) {
     const [, number, unit] = match;
     return parseInt(number, 10) * (durationMap[unit] || 0);
@@ -163,6 +162,92 @@ const ProfitStatistics = () => {
     }
   }, [setLoading, user, status]);
 
+  const extractUnit = (deliveryTime) => {
+    const match = deliveryTime.match(/[SHDWMY]/);
+    return match ? match[0] : null;
+  };
+
+  const calculateDeliveryPrice = (
+    isProfit,
+    orderPosition,
+    deliveryTime,
+    purchasePrice
+  ) => {
+    const unit = extractUnit(deliveryTime);
+    let deliveryPrice = parseFloat(purchasePrice);
+
+    if (isProfit) {
+      if (orderPosition === "buy") {
+        if (deliveryPrice > 50) {
+          if (unit === "S") {
+            deliveryPrice += 90;
+          } else if (unit === "H") {
+            deliveryPrice += 350;
+          } else if (unit === "D") {
+            deliveryPrice += 550;
+          } else if (unit === "W") {
+            deliveryPrice += 850;
+          } else if (unit === "M") {
+            deliveryPrice += 1850;
+          } else if (unit === "Y") {
+            deliveryPrice += 5850;
+          }
+        } else {
+          if (unit === "S") {
+            deliveryPrice += 2;
+          } else if (unit === "H") {
+            deliveryPrice += 5;
+          } else if (unit === "D") {
+            deliveryPrice += 8;
+          } else if (unit === "W") {
+            deliveryPrice += 12;
+          } else if (unit === "M") {
+            deliveryPrice += 20;
+          } else if (unit === "Y") {
+            deliveryPrice += 25;
+          }
+        }
+      } else {
+        if (deliveryPrice > 50) {
+          if (unit === "S") {
+            deliveryPrice -= 30;
+          } else if (unit === "H") {
+            deliveryPrice -= 150;
+          } else if (unit === "D") {
+            deliveryPrice -= 350;
+          } else if (unit === "W") {
+            deliveryPrice -= 550;
+          } else if (unit === "M") {
+            deliveryPrice -= 850;
+          } else if (unit === "Y") {
+            deliveryPrice -= 5850;
+          }
+        } else {
+          deliveryPrice -= 0.05;
+        }
+      }
+    } else {
+      if (deliveryPrice > 50) {
+        if (unit === "S") {
+          deliveryPrice -= 30;
+        } else if (unit === "H") {
+          deliveryPrice -= 150;
+        } else if (unit === "D") {
+          deliveryPrice -= 350;
+        } else if (unit === "W") {
+          deliveryPrice -= 550;
+        } else if (unit === "M") {
+          deliveryPrice -= 850;
+        } else if (unit === "Y") {
+          deliveryPrice -= 5850;
+        }
+      } else {
+        deliveryPrice -= 0.05;
+      }
+    }
+
+    return deliveryPrice;
+  };
   return (
     <div
       className="profit"
@@ -209,26 +294,26 @@ const ProfitStatistics = () => {
                 ) : (
                   <div className="profit-history">
                     {runningOrders?.map((order) => {
-                      const tradeCoin =
-                        order.order_type === "crypto"
-                          ? order.trade_coin_id
-                          : order.order_type === "forex"
-                          ? order.trade_coin_id.replace("USD", "")
-                          : order.order_type === "metal"
-                          ? getMetalCoinSymbol(order.trade_coin_id)
-                          : "";
                       return (
                         <div className="profit-content" key={order.id}>
                           <div className="profit-details">
                             <div className="profit-coin-details flex">
-                              <img
-                                className="coin-symbol"
-                                src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
-                                alt={order.coin_name}
-                              />
+                              {order?.order_type === "metal" ||
+                              order?.order_type === "forex" ? (
+                                <img
+                                  className="coin-symbol"
+                                  src={`./assets/images/coins/${order?.trade_coin_id?.toLowerCase()}-logo.png`}
+                                  alt={order.coin_name}
+                                />
+                              ) : (
+                                <img
+                                  className="coin-symbol"
+                                  src={`./assets/images/coins/${order?.trade_coin_symbol?.toLowerCase()}-logo.png`}
+                                  alt={order.coin_name}
+                                />
+                              )}
                               <span className="coin-name ff_NunitoSemiBold">
-                                {getMetalCoinName(tradeCoin)}/
-                                {order.coin_symbol}
+                                {order?.trade_coin_symbol}/{order?.coin_symbol}
                               </span>
                               <span className="profit-date ff_NunitoRegular">
                                 {getFormattedDeliveryTime(order.created_at)}
@@ -266,15 +351,6 @@ const ProfitStatistics = () => {
               ) : (
                 <div className="profit-history">
                   {orders?.map((order) => {
-                    const tradeCoin =
-                      order.order_type === "crypto"
-                        ? order.trade_coin_id
-                        : order.order_type === "forex"
-                        ? order.trade_coin_id.replace("USD", "")
-                        : order.order_type === "metal"
-                        ? getMetalCoinSymbol(order.trade_coin_id)
-                        : "";
-
                     return (
                       <div
                         className="profit-content profit-content-pop"
@@ -287,31 +363,31 @@ const ProfitStatistics = () => {
                             order?.order_type === "forex" ? (
                               <img
                                 className="coin-symbol"
-                                src={`./assets/images/coins/${order?.trade_coin_id.toLowerCase()}-logo.png`}
+                                src={`./assets/images/coins/${order?.trade_coin_id?.toLowerCase()}-logo.png`}
                                 alt={order.coin_name}
                               />
                             ) : (
                               <img
                                 className="coin-symbol"
-                                src={`./assets/images/coins/${order?.coin_symbol.toLowerCase()}-logo.png`}
+                                src={`./assets/images/coins/${order?.trade_coin_symbol?.toLowerCase()}-logo.png`}
                                 alt={order.coin_name}
                               />
                             )}
                             <span className="coin-name ff_NunitoSemiBold">
-                              {getMetalCoinName(tradeCoin)}/{order.coin_symbol}
+                              {order?.trade_coin_symbol}/{order?.coin_symbol}
                             </span>
                             <span className="profit-date ff_NunitoRegular">
-                              {order.created_at}
+                              {getFormattedDeliveryTime(order?.created_at)}
                             </span>
                           </div>
                           <div className="profit-details-amount">
                             <span className="profit-text">
-                              {order.is_profit ? "Profit" : "Loss"}
+                              {order?.is_profit ? "Profit" : "Loss"}
                             </span>
                             <span
                               className="profit-amount"
                               style={{
-                                color: order.is_profit ? "green" : "red",
+                                color: order?.is_profit ? "green" : "red",
                               }}
                             >
                               US$ {order?.profit_amount}
@@ -352,17 +428,17 @@ const ProfitStatistics = () => {
                 <div className="history_info">
                   <div className="history-coin-details">
                     <img
-                      src={`./assets/images/coins/${selectedOrder?.coin_symbol.toLowerCase()}-logo.png`}
+                      src={`/assets/images/coins/${selectedOrder?.trade_coin_symbol?.toLowerCase()}-logo.png`}
                       alt={selectedOrder.coin_name}
                       className="coin_logo"
                       id="coin_logo"
                     />
                     <span className="ff_NunitoSemiBold" id="trade_symbol">
-                      {getMetalCoinName(selectedOrder?.trade_coin_id)}/
+                      {selectedOrder?.trade_coin_symbol}/
                       {selectedOrder?.coin_symbol}
                     </span>
                     <span className="ff_NunitoRegular" id="trade_entry">
-                      {selectedOrder.created_at}
+                      {getFormattedDeliveryTime(selectedOrder.created_at)}
                     </span>
                   </div>
                   <div className="history-content">
@@ -404,18 +480,18 @@ const ProfitStatistics = () => {
                   <div className="history-content">
                     <div className="history-label">Delivery Price</div>
                     <div className="history-value" id="delivery_price">
-                      {selectedOrder.order_position === "buy"
-                        ? parseFloat(selectedOrder.purchase_price) + 320.0
-                        : parseFloat(selectedOrder.purchase_price) - 280.0}
+                      {calculateDeliveryPrice(
+                        selectedOrder?.is_profit,
+                        selectedOrder.order_position,
+                        selectedOrder.delivery_time,
+                        selectedOrder.purchase_price
+                      )}
                     </div>
                   </div>
                   <div className="history-content">
                     <div className="history-label">Delivery time</div>
                     <div className="history-value" id="delivery_time">
-                      {getFormattedDeliveryTime(
-                        selectedOrder.created_at,
-                        selectedOrder.delivery_time
-                      )}
+                      {getFormattedDeliveryTime(selectedOrder.created_at)}
                     </div>
                   </div>
                   <div className="history-content">

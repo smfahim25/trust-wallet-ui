@@ -170,6 +170,7 @@ const Business = () => {
             user_wallet: user?.user_wallet,
             wallet_coin_id: selectedWallet?.coin_id,
             trade_coin_id: coin,
+            trade_coin_symbol: market?.symbol,
             amount,
             wallet_amount: walletAmount,
             profit_amount,

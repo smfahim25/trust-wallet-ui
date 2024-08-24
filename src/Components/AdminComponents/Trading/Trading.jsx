@@ -15,12 +15,9 @@ const Trading = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdated, setIsUpdated] = useState(false);
 
-
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [tradeDetail, setTradeDetail] = useState(null);
   const [selectedTradeId, setSelectedTradeId] = useState(null);
-
-  
 
   useEffect(() => {
     const fetchTradeOrders = async () => {
@@ -40,23 +37,25 @@ const Trading = () => {
     };
 
     fetchTradeOrders();
-    if(isUpdated){
+    if (isUpdated) {
       fetchTradeOrders();
     }
   }, [isUpdated]);
 
-// filtering and pagination 
+  // filtering and pagination
   const [filteredTrades, setFilteredTrades] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const tradesPerPage = 20; 
+  const tradesPerPage = 20;
 
   useEffect(() => {
-      const filtered = trades.filter(trade => 
-          trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = trades
+      ?.reverse()
+      .filter((trade) =>
+        trade.user_uuid.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredTrades(filtered);
-      setPage(1); // Reset to first page on search
+    setFilteredTrades(filtered);
+    setPage(1); // Reset to first page on search
   }, [searchTerm, trades]);
 
   // Calculate total pages
@@ -65,11 +64,14 @@ const Trading = () => {
   // Get current page's data
   const indexOfLastTrade = page * tradesPerPage;
   const indexOfFirstTrade = indexOfLastTrade - tradesPerPage;
-  const currentTrades = filteredTrades.slice(indexOfFirstTrade, indexOfLastTrade);
+  const currentTrades = filteredTrades.slice(
+    indexOfFirstTrade,
+    indexOfLastTrade
+  );
 
   // Handle search input change
   const handleSearchChange = (e) => {
-      setSearchTerm(e.target.value);
+    setSearchTerm(e.target.value);
   };
 
   const handleDelete = async (tradeId) => {
@@ -134,16 +136,15 @@ const Trading = () => {
     }
   };
 
-
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
-                type="text"
-                placeholder="Search by UUID"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="mb-4 p-2 border border-gray-300 rounded"
-            />
+        type="text"
+        placeholder="Search by UUID"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        className="mb-4 p-2 border border-gray-300 rounded"
+      />
       <table className="min-w-full border border-gray-300  ">
         <thead>
           <tr className="bg-gray-200">
@@ -157,13 +158,15 @@ const Trading = () => {
           </tr>
         </thead>
         <tbody className="text-center">
-          {currentTrades?.reverse().map((trade, index) => (
+          {currentTrades?.map((trade, index) => (
             <tr key={trade.id}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{trade?.user_uuid}</td>
               <td className="py-2 px-4 border-b">{trade?.order_id}</td>
 
-              <td className="py-2 px-4 border-b">{getMetalCoinName(trade?.trade_coin_id)}</td>
+              <td className="py-2 px-4 border-b">
+                {getMetalCoinName(trade?.trade_coin_id)}
+              </td>
               <td className="py-2 px-4 border-b">{trade?.status}</td>
               <td className="py-2 px-4 border-b">
                 {new Date(trade?.created_at)
@@ -173,34 +176,33 @@ const Trading = () => {
               </td>
 
               <td className="py-2 px-4 border-b">
-              <div className="flex flex-col space-y-2">
-              <button
-                  onClick={() => openDetailsModal(trade)}
-                  className="text-xs bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2"
-                >
-                  Details
-                </button>
-                {trade.status ==="running" && (
+                <div className="flex flex-col space-y-2">
                   <button
-                    onClick={() => handleProfitUpdate(trade)}
-                    className={`text-xs text-white mr-2 py-1 px-2 rounded ${
-                      trade.is_profit === 1
-                        ? "bg-red-600 hover:bg-red-700"
-                        : "bg-green-600 hover:bg-green-500"
-                    }`}
+                    onClick={() => openDetailsModal(trade)}
+                    className="text-xs bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2"
                   >
-                    {trade.is_profit === 1 ? "Lose" : "Profit"}
+                    Details
                   </button>
-                )}
-                
-                <button
-                  onClick={() => openModal(trade.id)}
-                  className="text-xs bg-red-500 hover:bg-red-600 text-white py-1 px-2 mr-2 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-                
+                  {trade.status === "running" && (
+                    <button
+                      onClick={() => handleProfitUpdate(trade)}
+                      className={`text-xs text-white mr-2 py-1 px-2 rounded ${
+                        trade.is_profit === 1
+                          ? "bg-red-600 hover:bg-red-700"
+                          : "bg-green-600 hover:bg-green-500"
+                      }`}
+                    >
+                      {trade.is_profit === 1 ? "Lose" : "Profit"}
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => openModal(trade.id)}
+                    className="text-xs bg-red-500 hover:bg-red-600 text-white py-1 px-2 mr-2 rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
