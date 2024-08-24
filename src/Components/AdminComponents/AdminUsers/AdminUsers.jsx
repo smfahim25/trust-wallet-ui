@@ -127,16 +127,29 @@ const AdminUsers = () => {
   // filtering and pagination
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchEmployee, setSearchEmployee] = useState("");
   const [page, setPage] = useState(1);
   const tradesPerPage = 25;
 
   useEffect(() => {
-    const filtered = users.filter((trade) =>
-      trade.uuid.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filtered = users;
+  
+    if (searchTerm) {
+      filtered = filtered.filter((user) =>
+        user.uuid.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+  
+    if (searchEmployee) {
+      filtered = filtered.filter((user) =>
+        user?.employee?.toLowerCase().includes(searchEmployee.toLowerCase())
+      );
+    }
+  
     setFilteredUsers(filtered);
-    setPage(1); // Reset to first page on search
-  }, [searchTerm, users]);
+    setPage(1); // Reset to the first page on search
+  }, [searchTerm, searchEmployee, users]);
+  
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredUsers.length / tradesPerPage);
@@ -166,6 +179,11 @@ const AdminUsers = () => {
     return localDateTime.replace(",", "");
   };
 
+   // Handle search input change
+   const handleEmployeeSearchChange = (e) => {
+    setSearchEmployee(e.target.value);
+  };
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <div className="flex justify-between">
@@ -176,6 +194,14 @@ const AdminUsers = () => {
           onChange={handleSearchChange}
           className="mb-4 p-2 border border-gray-300 rounded"
         />
+        <input
+          type="text"
+          placeholder="Search by employee"
+          value={searchEmployee}
+          onChange={handleEmployeeSearchChange}
+          className="mb-4 p-2 border border-gray-300 rounded"
+        />
+        
       </div>
 
       <table className="min-w-full border border-gray-300">
@@ -191,6 +217,7 @@ const AdminUsers = () => {
 
             <th className="py-2 px-4 border-b">Wallet</th>
             <th className="py-2 px-4 border-b">Mobile</th>
+            <th className="py-2 px-4 border-b">Employee</th>
 
             <th className="py-2 px-4 border-b">Status</th>
             <th className="py-2 px-4 border-b">Registration</th>
@@ -211,6 +238,7 @@ const AdminUsers = () => {
               </td>
 
               <td className="py-2 px-4 border-b">{user?.mobile}</td>
+              <td className="py-2 px-4 border-b">{user?.employee}</td>
 
               <td className="py-2 px-4 border-b">{user?.status}</td>
               <td className="py-2 px-4 border-b">

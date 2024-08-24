@@ -13,6 +13,7 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess,role }) => 
         role: 'user',
         status: '',
         note: '',
+        employee: '',
     });
 
     const [responseMessage, setResponseMessage] = useState('');
@@ -28,6 +29,7 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess,role }) => 
                 password: '',
                 role: details.role || 'user',
                 note: details.note || '',
+                employee: details.employee || '',
             });
         }
     }, [details]);
@@ -185,6 +187,20 @@ const MoreActionModal = ({ isOpen, onClose, details, onUpdateSuccess,role }) => 
                         onChange={handleChange}
                         className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="write note for this user"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label className="block text-gray-700 font-bold mb-2" htmlFor="employee">
+                        Employee
+                    </label>
+                    <input
+                        type="text"
+                        id="employee"
+                        name="employee"
+                        value={formData.employee}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="assign employee"
                     />
                 </div>
                 </div>
