@@ -149,6 +149,22 @@ const AdminUsers = () => {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
+  const getFormattedDeliveryTime = (createdAt) => {
+    const date = new Date(createdAt);
+
+    // Convert date to local time string
+    const localDateTime = date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    return localDateTime.replace(",", "");
+  };
 
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
@@ -198,10 +214,7 @@ const AdminUsers = () => {
 
               <td className="py-2 px-4 border-b">{user?.status}</td>
               <td className="py-2 px-4 border-b">
-                {new Date(user?.user_registered)
-                  .toISOString()
-                  .replace("T", " ")
-                  .substring(0, 19)}
+                {getFormattedDeliveryTime(user?.user_registered)}
               </td>
 
               <td className="py-2 px-4 border-b">

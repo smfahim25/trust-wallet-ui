@@ -35,13 +35,13 @@ const TransactionHistory = ({ details, onClose }) => {
               </div>
               <div className="history-content">
                 <div className="history-label">Sender</div>
-                <div className="history-value" id="sender">
+                <div className="history-value break-all" id="sender">
                   {details && details.wallet_from}
                 </div>
               </div>
               <div className="history-content">
                 <div className="history-label">Receiver</div>
-                <div className="history-value" id="receiver">
+                <div className="history-value break-all" id="receiver">
                   {details && details.wallet_to}
                 </div>
               </div>

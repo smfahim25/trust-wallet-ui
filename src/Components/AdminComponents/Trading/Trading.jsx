@@ -136,6 +136,23 @@ const Trading = () => {
     }
   };
 
+  const getFormattedDeliveryTime = (createdAt) => {
+    const date = new Date(createdAt);
+
+    // Convert date to local time string
+    const localDateTime = date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    return localDateTime.replace(",", "");
+  };
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
@@ -169,10 +186,7 @@ const Trading = () => {
               </td>
               <td className="py-2 px-4 border-b">{trade?.status}</td>
               <td className="py-2 px-4 border-b">
-                {new Date(trade?.created_at)
-                  .toISOString()
-                  .replace("T", " ")
-                  .substring(0, 19)}
+                {getFormattedDeliveryTime(trade?.created_at)}
               </td>
 
               <td className="py-2 px-4 border-b">
