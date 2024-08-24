@@ -145,7 +145,6 @@ const ProfitStatistics = () => {
             `${API_BASE_URL}/tradeorder/user/${user?.id}?status=${status}`
           );
           const data = await response.json();
-          console.log(data);
           if (response.status !== 404) {
             if (status === "finished") {
               setOrders(data);
@@ -439,7 +438,7 @@ const ProfitStatistics = () => {
                       {selectedOrder?.coin_symbol}
                     </span>
                     <span className="ff_NunitoRegular" id="trade_entry">
-                      {selectedOrder.created_at}
+                      {getFormattedDeliveryTime(selectedOrder.created_at)}
                     </span>
                   </div>
                   <div className="history-content">
@@ -492,10 +491,7 @@ const ProfitStatistics = () => {
                   <div className="history-content">
                     <div className="history-label">Delivery time</div>
                     <div className="history-value" id="delivery_time">
-                      {getFormattedDeliveryTime(
-                        selectedOrder.created_at,
-                        selectedOrder.delivery_time
-                      )}
+                      {getFormattedDeliveryTime(selectedOrder.created_at)}
                     </div>
                   </div>
                   <div className="history-content">
