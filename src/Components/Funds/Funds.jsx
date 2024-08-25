@@ -177,13 +177,31 @@ const Funds = () => {
         console.error("Failed to copy: ", err);
       });
   };
+  const getFormattedDeliveryTime = (createdAt) => {
+    const date = new Date(createdAt);
+
+    // Convert date to local time string
+    const localDateTime = date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    return localDateTime.replace(",", "");
+  };
 
   useEffect(() => {
     if (!latestDeposit || !latestDeposit?.created_at) {
       return;
     }
     let timerInterval;
-    const createdAt = new Date(latestDeposit?.created_at);
+    const createdAt = new Date(
+      getFormattedDeliveryTime(latestDeposit?.created_at)
+    );
     const countdownEnd = new Date(createdAt.getTime() + 60 * 60 * 1000); // Add 1 hour to the created_at time
 
     const updateTimer = () => {

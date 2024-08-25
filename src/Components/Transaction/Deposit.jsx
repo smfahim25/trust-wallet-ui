@@ -15,7 +15,19 @@ const Deposit = ({ openTransactionHistory }) => {
 
   const getFormattedDeliveryTime = (createdAt) => {
     const date = new Date(createdAt);
-    return date.toISOString().split("T").join(" ").slice(0, 19);
+
+    // Convert date to local time string
+    const localDateTime = date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    return localDateTime.replace(",", "");
   };
 
   useEffect(() => {

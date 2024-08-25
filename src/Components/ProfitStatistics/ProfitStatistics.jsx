@@ -5,7 +5,6 @@ import iconClose from "../../Assets/images/icon_close.svg";
 import Header from "../Header/Header";
 import { useUser } from "../../context/UserContext";
 import API_BASE_URL from "../../api/getApiURL";
-import getMetalCoinName from "../utils/getMetalCoinName";
 
 const parseDuration = (duration) => {
   const durationMap = {
@@ -133,7 +132,19 @@ const ProfitStatistics = () => {
 
   const getFormattedDeliveryTime = (createdAt) => {
     const date = new Date(createdAt);
-    return date.toISOString().split("T").join(" ").slice(0, 19);
+
+    // Convert date to local time string
+    const localDateTime = date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    return localDateTime.replace(",", "");
   };
 
   useEffect(() => {
@@ -324,7 +335,9 @@ const ProfitStatistics = () => {
                                 <span className="text-[15px]">Running</span>
                                 <span className="text-[15px]">
                                   <Countdown
-                                    createdTime={order.created_at}
+                                    createdTime={getFormattedDeliveryTime(
+                                      order.created_at
+                                    )}
                                     duration={order.delivery_time}
                                     setStatus={setStatus}
                                     setRunningOrders={setRunningOrders}
