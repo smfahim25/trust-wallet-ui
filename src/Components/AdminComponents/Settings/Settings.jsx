@@ -6,7 +6,7 @@ import DeleteModal from "../DeleteModal/DeleteModal";
 import { toast } from "react-toastify";
 
 const Settings = () => {
-  const { setLoading } = useUser();
+  const { adminUser,setLoading } = useUser();
   // const { timerProfits } = useTimerProfit();
   const [timerProfits, setTimerProfits] = useState([]);
   const [refreshData, setRefreshData] = useState(false);
@@ -150,6 +150,19 @@ const Settings = () => {
     }
   };
 
+  const handleReset = async () => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/reset`
+      );
+      console.log("Delete response: ", response);
+      toast.success("Reset Successful");
+    } catch (error) {
+      console.error("There was an error deleting the timer profit: ", error);
+      toast.error("Delete Failed");
+    }
+  };
+
   const openModal = (timerId) => {
     setSelectedTimer(timerId);
     setIsModalOpen(true);
@@ -170,7 +183,7 @@ const Settings = () => {
   return (
     <div>
       <div className="grid grid-cols-2 gap-4 items-center justify-center w-full">
-        <div className="flex flex-col items-center gap-4 rounded-md shadow-md sm:py-8 sm:px-12 bg-white text-black w-full">
+        <div className="flex flex-col items-center gap-4 rounded-md shadow-md sm:py-8 sm:px-12 bg-white text-black w-full min-h-[90vh]">
           <div>
             <h2 className="text-2xl font-semibold leading-tight tracking-wide">
               General Features
@@ -439,6 +452,21 @@ const Settings = () => {
           </div>
         </div>
       </div>
+      {adminUser?.role ==='superadmin' && (
+        <div className="flex flex-col items-center gap-4 p-6 rounded-md shadow-md sm:py-8 sm:px-12 bg-white text-black w-full mt-5">
+        <h2 className="text-center text-red-400">Danger Zone</h2>
+        <p>If you click here everything will be deleted. Are you sure?</p>
+        <div className="mb-4 flex justify-center">
+              <button
+                onClick={handleReset}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Reset All Data
+              </button>
+            </div>
+      </div>
+      )}
+    
 
       <DeleteModal
         isOpen={isModalOpen}

@@ -456,7 +456,7 @@ const Funds = () => {
                       style={{ marginLeft: "5px", cursor: "pointer" }}
                       onClick={handleCopyAddress}
                     >
-                      <FaRegCopy />
+                      <FaRegCopy /> Copy Address
                     </span>
                   </div>
                 </div>
