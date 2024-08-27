@@ -24,6 +24,7 @@ import Layout from "./Components/AdminComponents/Layout";
 import AdminLogin from "./Components/AdminComponents/AdminLogin/AdminLogin";
 import AdminRoute from "./Components/AdminComponents/AdminRoute";
 import ChatPopup from "./Components/ChatPopup/ChatPopup";
+import NotFound from "./Components/NotFound/NotFound";
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
@@ -131,6 +132,7 @@ function App() {
                 element={<ReferralBonusHistory />}
               />
               <Route path="/contact-us" element={<Contact />} />
+              <Route path="/*" element={<NotFound />}></Route>
             </Routes>
             <ChatPopup visible={isChatVisible} onClose={handleCloseChat} />
             <div className="c-chat" onClick={handleChatClick}>
@@ -170,6 +172,7 @@ function App() {
                   </AdminRoute>
                 }
               />
+              <Route path="/*" element={<NotFound />}></Route>
             </Routes>
           </>
         )}
