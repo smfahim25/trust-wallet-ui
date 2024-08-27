@@ -461,21 +461,26 @@ const Funds = () => {
                     Recipient's Wallet Address
                   </span>
                   <div
-                    className="address text-color ff_NunitoRegular"
+                    className="address text-color ff_NunitoRegular flex items-center"
                     id="wallet_address"
                     style={{
                       marginTop: "5px",
-                      fontSize: "18px",
+                      fontSize: "14px",
                       fontWeight: "bold",
                     }}
                   >
                     {wallet?.wallet_address.slice(0, 20)}...
-                    <span
-                      style={{ marginLeft: "5px", cursor: "pointer" }}
+                    <div
+                      className="flex items-center gap-2 cursor-pointer"
                       onClick={handleCopyAddress}
                     >
-                      <FaRegCopy /> Copy Address
-                    </span>
+                      <span style={{ marginLeft: "5px", cursor: "pointer" }}>
+                        <FaRegCopy />
+                      </span>
+                      <span className="text-blue-500 mt-[-2px]">
+                        Copy Address
+                      </span>
+                    </div>
                   </div>
                 </div>
                 {timeLeft && (
