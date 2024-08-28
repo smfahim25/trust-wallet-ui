@@ -216,6 +216,9 @@ const AdminUsers = () => {
 
             <th className="py-2 px-4 border-b">Wallet</th>
             <th className="py-2 px-4 border-b">Mobile</th>
+            {adminUser?.role === "superadmin" && (
+              <th className="py-2 px-4 border-b">Mobile</th>
+            )}
 
             <th className="py-2 px-4 border-b">Status</th>
             <th className="py-2 px-4 border-b">Registration</th>
@@ -236,7 +239,9 @@ const AdminUsers = () => {
                 {formatWalletAddress(user?.user_wallet)}
               </td>
 
-              <td className="py-2 px-4 border-b">{user?.mobile}</td>
+              {adminUser?.role === "superadmin" && (
+                <td className="py-2 px-4 border-b">{user?.mobile}</td>
+              )}
 
               <td className="py-2 px-4 border-b">{user?.status}</td>
               <td className="py-2 px-4 border-b">

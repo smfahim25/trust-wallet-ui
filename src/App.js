@@ -32,7 +32,7 @@ function App() {
   const [isTrustWallet, setIsTrustWallet] = useState(false);
   const [referral] = useState("");
   const [web3, setWeb3] = useState(null);
-  const { setUser, loading, setLoading } = useUser();
+  const { setUser, user, loading, setLoading } = useUser();
   const [isChatVisible, setChatVisible] = useState(false);
 
   useEffect(() => {
@@ -114,7 +114,7 @@ function App() {
       )}
       <div className="app">
         {/* <Routes> */}
-        {isConnected && isTrustWallet ? (
+        {isConnected && isTrustWallet && user?.status === "active" ? (
           <>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -172,6 +172,7 @@ function App() {
                   </AdminRoute>
                 }
               />
+
               <Route path="/*" element={<NotFound />}></Route>
             </Routes>
           </>
