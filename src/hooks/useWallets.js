@@ -15,7 +15,7 @@ const useWallets = (id) => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setWallets(data);
+        setWallets(data.userBalances);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -28,7 +28,7 @@ const useWallets = (id) => {
     }
   }, [id]);
 
-  return { wallets, loading, error,setWallets };
+  return { wallets, loading, error, setWallets };
 };
 
 export default useWallets;
