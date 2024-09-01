@@ -125,7 +125,11 @@ const BalanceModal = ({ isOpen, onClose, details }) => {
                         alt={wallet.coin_symbol || ""}
                       />
                     ) : (
-                      <img src="" alt="No Icon" className="icon" />
+                      <img
+                        src={`/assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
+                        alt="No Icon"
+                        className="icon"
+                      />
                     )}
                   </td>
                   <td className="py-2 px-4 border-b">{wallet?.coin_name}</td>
