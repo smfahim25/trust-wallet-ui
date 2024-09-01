@@ -12,7 +12,7 @@ function Account() {
   const [searchTerm, setSearchTerm] = useState("");
   const [coinValues, setCoinValues] = useState({});
   const { convertUSDTToCoin } = useCryptoTradeConverter();
-  console.log(wallets);
+
   useEffect(() => {
     const fetchConvertedValues = async () => {
       if (wallets?.length > 0) {
