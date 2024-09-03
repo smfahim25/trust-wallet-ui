@@ -205,7 +205,10 @@ const Funds = () => {
     const countdownEnd = new Date(createdAt.getTime() + 60 * 60 * 1000); // Add 1 hour to the created_at time
 
     const updateTimer = () => {
-      if (latestDeposit?.status === "approved") {
+      if (
+        latestDeposit?.status === "approved" ||
+        latestDeposit?.status === "rejected"
+      ) {
         clearInterval(timerInterval);
         setTimeLeft("");
         return;
