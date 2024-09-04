@@ -2,33 +2,33 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../api/getApiURL";
 
-const useFetchLatestDeposit = (userId, coinId) => {
-  const [data, setData] = useState(null);
+const useGetAllMessages = (convId, userId) => {
+  const [messages, setMessages] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchLatestDeposit = useCallback(async () => {
+  const fetchAllMessages = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${API_BASE_URL}/deposits/latest/${userId}/coin/${coinId}`
+        `${API_BASE_URL}/messages/${convId}/user/${userId}`
       );
-      setData(response.data);
+      setMessages(response.data);
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
-  }, [userId, coinId]);
+  }, [userId, convId]);
 
   useEffect(() => {
-    if (userId && coinId) {
-      fetchLatestDeposit();
+    if (userId) {
+      fetchAllMessages();
     }
-  }, [userId, coinId, fetchLatestDeposit]);
+  }, [userId, fetchAllMessages]);
 
   // Returning fetchLatestDeposit as refetch function
-  return { data, loading, error, refetch: fetchLatestDeposit };
+  return { messages, setMessages, loading, error, refetch: fetchAllMessages };
 };
 
-export default useFetchLatestDeposit;
+export default useGetAllMessages;

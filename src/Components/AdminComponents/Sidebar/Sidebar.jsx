@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
 import { FaSignOutAlt, FaUser, FaUsers, FaWallet } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
-import { GrTransaction } from "react-icons/gr";
 import { IoChatbox, IoSettingsSharp } from "react-icons/io5";
 import { PiHandDepositFill, PiHandWithdrawFill } from "react-icons/pi";
 
@@ -41,6 +40,14 @@ const Sidebar = () => {
       iconPath: <IoChatbox size={20} />,
       roles: ["superadmin"],
     },
+
+    {
+      to: "/cradmin/live-support",
+      label: "Inbox",
+      iconPath: <IoChatbox size={20} />,
+      roles: ["admin", "superadmin"],
+    },
+
     {
       to: "/cradmin/wallets",
       label: "Wallets",

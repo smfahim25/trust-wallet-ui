@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import API_BASE_URL from "../api/getApiURL";
+import { API_BASE_URL } from "../api/getApiURL";
 import { useUser } from "../context/UserContext";
 
 const useTimerProfit = () => {
@@ -24,12 +24,10 @@ const useTimerProfit = () => {
       }
     };
 
-    
-      fetchTimerProftis();
-    
+    fetchTimerProftis();
   }, []);
 
-  return { timerProfits, error,setTimerProfits};
+  return { timerProfits, error, setTimerProfits };
 };
 
 export default useTimerProfit;

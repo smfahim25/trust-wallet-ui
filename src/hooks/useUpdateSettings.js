@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../api/getApiURL';
+import { useState } from "react";
+import axios from "axios";
+import { API_BASE_URL } from "../api/getApiURL";
 
 export const useUpdateSettings = () => {
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ export const useUpdateSettings = () => {
     setSuccess(false);
 
     try {
-      await axios.put(`${API_BASE_URL}/settings`, updatedData );
+      await axios.put(`${API_BASE_URL}/settings`, updatedData);
       setSuccess(true);
     } catch (err) {
       setError(err);

@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../api/getApiURL';
+import { useState } from "react";
+import axios from "axios";
+import { API_BASE_URL } from "../api/getApiURL";
 
 export const useUpdateUserBalance = () => {
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,10 @@ export const useUpdateUserBalance = () => {
     setSuccess(false);
 
     try {
-      await axios.put(`${API_BASE_URL}/userbalance/${userId}/balance/${coinId}`, { coinAmount });
+      await axios.put(
+        `${API_BASE_URL}/userbalance/${userId}/balance/${coinId}`,
+        { coinAmount }
+      );
       setSuccess(true);
     } catch (err) {
       setError(err);

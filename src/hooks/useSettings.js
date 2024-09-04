@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import API_BASE_URL from "../api/getApiURL";
+import { API_BASE_URL } from "../api/getApiURL";
 
 const useSettings = () => {
   const [settings, setSettings] = useState([]);
@@ -23,12 +23,10 @@ const useSettings = () => {
       }
     };
 
-
-      fetchSettings();
-    
+    fetchSettings();
   }, []);
 
-  return { settings, loading, error,setSettings };
+  return { settings, loading, error, setSettings };
 };
 
 export default useSettings;

@@ -2,16 +2,16 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../api/getApiURL";
 
-const useFetchLatestDeposit = (userId, coinId) => {
+const useGetAllConversation = (userId) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchLatestDeposit = useCallback(async () => {
+  const fetchAllConversation = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${API_BASE_URL}/deposits/latest/${userId}/coin/${coinId}`
+        `${API_BASE_URL}/conversation/user/${userId}`
       );
       setData(response.data);
     } catch (err) {
@@ -19,16 +19,16 @@ const useFetchLatestDeposit = (userId, coinId) => {
     } finally {
       setLoading(false);
     }
-  }, [userId, coinId]);
+  }, [userId]);
 
   useEffect(() => {
-    if (userId && coinId) {
-      fetchLatestDeposit();
+    if (userId) {
+      fetchAllConversation();
     }
-  }, [userId, coinId, fetchLatestDeposit]);
+  }, [userId, fetchAllConversation]);
 
   // Returning fetchLatestDeposit as refetch function
-  return { data, loading, error, refetch: fetchLatestDeposit };
+  return { data, loading, error, refetch: fetchAllConversation };
 };
 
-export default useFetchLatestDeposit;
+export default useGetAllConversation;
