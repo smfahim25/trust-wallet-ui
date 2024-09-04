@@ -97,8 +97,8 @@ const EditWallet = () => {
   };
 
   return (
-    <div class="card bg-white">
-      <div class="card-body">
+    <div className="card bg-white">
+      <div className="card-body">
         <h2 className="mx-5 py-3 text-lg font-semibold">Edit wallet</h2>
         <div className="container mx-auto p-4">
           <form

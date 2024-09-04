@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../../api/getApiURL";
 import { useUser } from "../../../context/UserContext";
-import { useSocketContext } from "../../../context/SocketContext";
 import useListenMessages from "../../../hooks/useListenMessages";
 import useGetMessages from "../../../hooks/useGetMessages";
-import useConversation from "../../../zustand/useConversation";
 import { format, formatDistanceToNow, differenceInHours } from "date-fns";
 import { FaReply } from "react-icons/fa";
+import useConversation from "../../../zustand/useConversion";
+import { useSocketContext } from "../../../context/SocketContext";
 
 const SupportInbox = () => {
   const { adminUser } = useUser();
@@ -92,8 +92,15 @@ const SupportInbox = () => {
     <div className="flex">
       <div className="w-1/3 bg-white shadow-lg p-4 h-[90vh] overflow-y-auto">
         <h3 className="text-xl font-bold mb-4">Conversations</h3>
+        {conversations?.length < 1 && (
+          <div>
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              There is no message to see
+            </div>
+          </div>
+        )}
         <ul className="space-y-2">
-          {conversations.map((conv) => (
+          {conversations?.map((conv) => (
             <li
               key={conv.conversation_id}
               className="p-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-md"
@@ -108,7 +115,7 @@ const SupportInbox = () => {
                       : "text-red-500"
                   }`}
                 >
-                  {checkOnlineStatus(conv.user1_id) ? "Online" : "Offline"}
+                  {checkOnlineStatus(conv?.user1_id) ? "Online" : "Offline"}
                 </p>
               </div>
             </li>

@@ -2,15 +2,15 @@ import React, { useEffect, useState, useRef } from "react";
 import Header from "../Header/Header";
 import axios from "axios";
 import { useUser } from "../../context/UserContext";
-import useGetAllConversation from "../../hooks/useGetAllConversation";
 import { API_BASE_URL } from "../../api/getApiURL";
 import { IoSend } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import debounce from "lodash.debounce";
 import useListenMessages from "../../hooks/useListenMessages";
-import useConversation from "../../zustand/useConversation";
-import useGetMessages from "../../hooks/useGetMessages";
 import { differenceInHours, format, formatDistanceToNow } from "date-fns";
+import useGetAllConversation from "../../hooks/useGetAllConversion";
+import useConversation from "../../zustand/useConversion";
+import useGetMessages from "../../hooks/useGetMessages";
 
 const ChatComponent = () => {
   const [message, setMessage] = useState("");

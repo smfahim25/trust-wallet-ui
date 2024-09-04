@@ -1,32 +1,25 @@
-import { useEffect, useState } from "react";
-import useConversation from "../zustand/useConversation";
-import { API_BASE_URL } from "../api/getApiURL";
-import { toast } from "react-toastify";
+import { useEffect } from "react";
+import { useSocketContext } from "../context/SocketContext";
+import notificationSound from "../Assets/sound/notification.mp3";
+import useConversation from "../zustand/useConversion";
 
-const useGetMessages = () => {
-  const [loading, setLoading] = useState(false);
-  const { messages, setMessages, selectedConversation } = useConversation();
+const useListenMessages = () => {
+  const { socket } = useSocketContext();
+  const { messages, setMessages } = useConversation();
 
   useEffect(() => {
-    const getMessages = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/messages/${selectedConversation.conversation_id}/user/0`
-        );
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        setMessages(data);
-      } catch (error) {
-        toast.error(error.message);
-      } finally {
-        setLoading(false);
-      }
+    const handleNewMessage = (newMessage) => {
+      const sound = new Audio(notificationSound);
+      sound.play().catch((error) => {
+        console.warn("Notification sound could not be played:", error);
+      });
+      setMessages([...messages, newMessage]);
     };
 
-    if (selectedConversation?.conversation_id) getMessages();
-  }, [selectedConversation?.conversation_id, setMessages]);
+    socket?.on("newMessage", handleNewMessage);
 
-  return { messages, loading };
+    return () => socket?.off("newMessage", handleNewMessage);
+  }, [socket, setMessages, messages]);
 };
-export default useGetMessages;
+
+export default useListenMessages;

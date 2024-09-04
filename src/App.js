@@ -25,6 +25,8 @@ import AdminLogin from "./Components/AdminComponents/AdminLogin/AdminLogin";
 import AdminRoute from "./Components/AdminComponents/AdminRoute";
 import ChatPopup from "./Components/ChatPopup/ChatPopup";
 import NotFound from "./Components/NotFound/NotFound";
+import ChatComponent from "./Components/ChatComponent/ChatComponent";
+import useListenMessages from "./hooks/useListenMessages";
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
@@ -35,6 +37,7 @@ function App() {
   const { setUser, user, loading, setLoading } = useUser();
   const [isChatVisible, setChatVisible] = useState(false);
   const location = useLocation();
+  useListenMessages();
 
   useEffect(() => {
     // Hide chat popup when navigating to /live-chat
@@ -139,6 +142,7 @@ function App() {
                 element={<ReferralBonusHistory />}
               />
               <Route path="/contact-us" element={<Contact />} />
+              <Route path="/live-chat" element={<ChatComponent />} />
               <Route path="/*" element={<NotFound />}></Route>
             </Routes>
             {!location.pathname.includes("/live-chat") && (
