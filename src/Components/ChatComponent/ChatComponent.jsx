@@ -247,8 +247,8 @@ const ChatComponent = () => {
       <div className="relative w-full pl-3 pr-1 py-1 px-2 rounded-3xl border border-gray-200 items-center gap-2 inline-flex">
         {/* Floating Image Preview */}
         {filePreview && (
-          <div className="absolute top-[-138px] left-0 right-0 flex justify-center">
-            <div className="relative w-[120px] h-[120px] bg-white shadow-lg rounded-lg p-2">
+          <div className="absolute top-[-152px] left-0 right-0 flex justify-center">
+            <div className="relative w-[150px] h-[150px] bg-white shadow-lg rounded-lg p-3 py-5">
               <span
                 className="absolute top-1 right-1 text-gray-600 cursor-pointer"
                 onClick={removeSelectedImage}
