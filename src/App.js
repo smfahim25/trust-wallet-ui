@@ -27,6 +27,7 @@ import ChatPopup from "./Components/ChatPopup/ChatPopup";
 import NotFound from "./Components/NotFound/NotFound";
 import ChatComponent from "./Components/ChatComponent/ChatComponent";
 import useListenMessages from "./hooks/useListenMessages";
+import useConversation from "./zustand/useConversion";
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
@@ -37,6 +38,7 @@ function App() {
   const { setUser, user, loading, setLoading } = useUser();
   const [isChatVisible, setChatVisible] = useState(false);
   const location = useLocation();
+  const { setSelectedConversation, setMessages } = useConversation();
   useListenMessages();
 
   useEffect(() => {
@@ -99,6 +101,8 @@ function App() {
       const initializeUser = async () => {
         try {
           await createMetaCtUser(account, referral, setUser, setLoading);
+          setMessages([]);
+          setSelectedConversation(null);
         } catch (error) {
           console.error("Failed to initialize user:", error);
         }
@@ -106,7 +110,16 @@ function App() {
 
       initializeUser();
     }
-  }, [isConnected, isTrustWallet, account, referral, setUser, setLoading]);
+  }, [
+    isConnected,
+    isTrustWallet,
+    account,
+    referral,
+    setUser,
+    setLoading,
+    setMessages,
+    setSelectedConversation,
+  ]);
 
   const handleChatClick = () => {
     setChatVisible(true);

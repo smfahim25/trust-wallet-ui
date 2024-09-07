@@ -205,7 +205,10 @@ const ChatComponent = () => {
             onChange={handleFileChange}
             style={{ display: "none" }} // Hide the file input
           /> */}
-          <button onClick={handleSendMessage}>
+          <button
+            onClick={handleSendMessage}
+            className="flex justify-center items-center"
+          >
             <IoSend title="send" />
           </button>
         </div>
