@@ -6,11 +6,11 @@ import { API_BASE_URL } from "../../api/getApiURL";
 import { IoSend } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import debounce from "lodash.debounce";
-import useListenMessages from "../../hooks/useListenMessages";
 import { differenceInHours, format, formatDistanceToNow } from "date-fns";
-import useGetAllConversation from "../../hooks/useGetAllConversion";
 import useConversation from "../../zustand/useConversion";
 import useGetMessages from "../../hooks/useGetMessages";
+import useListenMessages from "../../hooks/useListenMessages";
+import useGetAllConversation from "../../hooks/useGetAllConversion";
 
 const ChatComponent = () => {
   const [message, setMessage] = useState("");
@@ -36,7 +36,7 @@ const ChatComponent = () => {
     if (data) {
       setSelectedConversation(data[0]);
     }
-  }, [data]);
+  }, [data, setSelectedConversation]);
 
   useEffect(() => {
     // Scroll to bottom when the messages state is updated
@@ -105,8 +105,8 @@ const ChatComponent = () => {
       <Header pageTitle="Live Chat" />
       <hr className="" />
       <div className="h-[83vh] overflow-y-auto">
-        {messages ? (
-          messages?.map((message, index) => {
+        {messages && messages.length > 0 ? (
+          messages.map((message, index) => {
             const isCurrentUser = message?.sender_id === user.id;
             const previousMessage = messages[index - 1];
             const showLabel =
@@ -145,7 +145,7 @@ const ChatComponent = () => {
                       )}
                       <div className="w-full flex flex-col">
                         <div className="px-3.5 py-2 bg-gray-100 rounded justify-start items-center gap-3 inline-flex break-normal flex-wrap">
-                          <h5 className="text-gray-900 text-sm font-normal leading-snug ">
+                          <h5 className="text-gray-900 text-sm font-normal leading-snug">
                             {message?.message_text}
                           </h5>
                         </div>
@@ -162,7 +162,18 @@ const ChatComponent = () => {
             );
           })
         ) : (
-          <p className="text-center">Write your message how can we help</p>
+          <div className="flex flex-col justify-center items-center h-[50vh]">
+            <div className="">
+              <img
+                src="/avatar.jpg"
+                alt="User Avatar"
+                className="rounded-full h-[150px] w-[150px]"
+              />
+            </div>
+            <p className="text-center text-lg font-semibold">
+              Write your question briefly, how can we help?
+            </p>
+          </div>
         )}
 
         {/* Ref to capture the end of the chat */}

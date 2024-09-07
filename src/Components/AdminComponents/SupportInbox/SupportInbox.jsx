@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../../api/getApiURL";
 import { useUser } from "../../../context/UserContext";
-import useListenMessages from "../../../hooks/useListenMessages";
-import useGetMessages from "../../../hooks/useGetMessages";
+import { useSocketContext } from "../../../context/SocketContext";
 import { format, formatDistanceToNow, differenceInHours } from "date-fns";
 import { FaReply } from "react-icons/fa";
 import useConversation from "../../../zustand/useConversion";
-import { useSocketContext } from "../../../context/SocketContext";
+import useGetMessages from "../../../hooks/useGetMessages";
+import useListenMessages from "../../../hooks/useListenMessages";
 
 const SupportInbox = () => {
   const { adminUser } = useUser();
@@ -16,10 +16,9 @@ const SupportInbox = () => {
   const [replyText, setReplyText] = useState("");
   const { selectedConversation, setSelectedConversation, setMessages } =
     useConversation();
-  const { messages, loading } = useGetMessages();
+  const { messages } = useGetMessages();
   useListenMessages();
 
-  // Ref for scrolling to the bottom
   const chatEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -29,16 +28,17 @@ const SupportInbox = () => {
   };
 
   useEffect(() => {
-    fetchConversations();
-    if (messages) {
-      scrollToBottom(); // Scroll to bottom when messages update
+    if (messages && selectedConversation) {
+      scrollToBottom();
     }
-  }, [messages]);
+
+    fetchConversations();
+  }, [messages, selectedConversation]);
 
   const fetchConversations = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/conversation/`);
-      setConversations(response.data);
+      setConversations(response.data.conversations);
     } catch (error) {
       console.error("Error fetching conversations:", error);
     }
@@ -63,6 +63,15 @@ const SupportInbox = () => {
 
   const handleFetchConversation = (conv) => {
     setSelectedConversation(conv);
+    // Since unread_count is handled in real-time, we reset it locally when a conversation is opened
+    setConversations((prevConversations) =>
+      prevConversations.map((c) =>
+        c.conversation_id === conv.conversation_id
+          ? { ...c, unread_count: 0 }
+          : c
+      )
+    );
+    scrollToBottom();
   };
 
   const checkOnlineStatus = (userId) => {
@@ -88,26 +97,31 @@ const SupportInbox = () => {
     }
   };
 
+  // Filter messages by selected conversation ID
+  const filteredMessages = messages?.filter(
+    (msg) => msg.conversation_id === selectedConversation?.conversation_id
+  );
+
   return (
     <div className="flex">
       <div className="w-1/3 bg-white shadow-lg p-4 h-[90vh] overflow-y-auto">
         <h3 className="text-xl font-bold mb-4">Conversations</h3>
-        {conversations?.length < 1 && (
-          <div>
-            <div className="flex-1 flex items-center justify-center text-gray-500">
-              There is no message to see
-            </div>
-          </div>
-        )}
         <ul className="space-y-2">
-          {conversations?.map((conv) => (
+          {conversations.map((conv) => (
             <li
               key={conv.conversation_id}
               className="p-2 bg-gray-200 hover:bg-gray-300 cursor-pointer rounded-md"
               onClick={() => handleFetchConversation(conv)}
             >
               <div className="flex justify-between">
-                <p>{conv?.user1_name || conv?.user1_uuid}</p>
+                <p>
+                  {conv?.user1_name || conv?.user1_uuid}
+                  {conv.unread_count > 0 && (
+                    <span className="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-blue-800 bg-blue-200 rounded-full">
+                      {conv.unread_count}
+                    </span>
+                  )}
+                </p>
                 <p
                   className={`text-xs ${
                     checkOnlineStatus(conv.user1_id)
@@ -115,7 +129,7 @@ const SupportInbox = () => {
                       : "text-red-500"
                   }`}
                 >
-                  {checkOnlineStatus(conv?.user1_id) ? "Online" : "Offline"}
+                  {checkOnlineStatus(conv.user1_id) ? "Online" : "Offline"}
                 </p>
               </div>
             </li>
@@ -131,9 +145,8 @@ const SupportInbox = () => {
                 selectedConversation?.user1_uuid}
             </div>
             <div className="flex-1 overflow-y-auto mb-4">
-              {messages?.map((msg, index) => {
+              {filteredMessages?.map((msg, index) => {
                 const isAdmin = msg.sender_type === "admin";
-
                 return (
                   <div key={msg.id} className="grid pb-1 px-2">
                     {isAdmin ? (
@@ -180,7 +193,7 @@ const SupportInbox = () => {
                   type="text"
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  onKeyDown={handleKeyDown} // Listen for Enter key
+                  onKeyDown={handleKeyDown}
                   placeholder="Type your reply here..."
                   className="w-full grow shrink basis-0 text-black text-xs font-medium leading-4 focus:outline-none h-[20px]"
                 />

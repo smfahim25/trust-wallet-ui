@@ -1,22 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
 import { FaSignOutAlt, FaUser, FaUsers, FaWallet } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { IoChatbox, IoSettingsSharp } from "react-icons/io5";
 import { PiHandDepositFill, PiHandWithdrawFill } from "react-icons/pi";
+import { useSocketContext } from "../../../context/SocketContext";
+import axios from "axios";
+import { API_BASE_URL } from "../../../api/getApiURL";
 
 const Sidebar = () => {
   const { adminUser, logout } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [unreadConv, setUnreadConv] = useState(0); // Initialize as 0
+  const { socket } = useSocketContext();
 
+  // Fetch unread conversations count from API
+  const fetchConversations = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/conversation/`);
+      setUnreadConv(response.data.unreadConversationsCount);
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchConversations();
+    const handleNewMessage = (newMessage) => {
+      setUnreadConv(newMessage?.unreadConversationsCount || 0); // Update unread count
+      console.log("New conversation received: ", newMessage);
+    };
+
+    socket?.on("getUnreadMessage", handleNewMessage);
+
+    return () => socket?.off("getUnreadMessage", handleNewMessage);
+  }, [socket]);
+
+  // Sign out handler
   const handleSignOut = () => {
     logout();
     navigate("/admin-login");
   };
 
+  // Toggle sidebar (mobile)
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -40,14 +69,12 @@ const Sidebar = () => {
       iconPath: <IoChatbox size={20} />,
       roles: ["superadmin"],
     },
-
     {
       to: "/cradmin/live-support",
       label: "Inbox",
       iconPath: <IoChatbox size={20} />,
       roles: ["admin", "superadmin"],
     },
-
     {
       to: "/cradmin/wallets",
       label: "Wallets",
@@ -148,6 +175,11 @@ const Sidebar = () => {
                   >
                     {option.iconPath}
                     <span className="text-[16px]">{option.label}</span>
+                    {unreadConv > 0 && option.label === "Inbox" && (
+                      <span className="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-blue-800 bg-blue-200 rounded-full">
+                        {unreadConv}
+                      </span>
+                    )}
                   </Link>
                 </li>
               )
