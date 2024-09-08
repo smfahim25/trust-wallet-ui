@@ -13,6 +13,7 @@ import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 import useSettings from "../../hooks/useSettings";
 import Decimal from "decimal.js";
+import { useSocketContext } from "../../context/SocketContext";
 
 const Funds = () => {
   const location = useLocation();
@@ -28,13 +29,17 @@ const Funds = () => {
   const [screenshot, setScreenshot] = useState(null);
   const [preview, setPreview] = useState(null);
   const [availableBalance, setAvailableBalance] = useState("");
+  const { socket } = useSocketContext();
   const { updateUserBalance, success } = useUpdateUserBalance();
   const {
     data: latestDeposit,
     loading,
     refetch,
   } = useFetchLatestDeposit(user?.id, wallet?.coin_id);
-  const { balance } = useFetchUserBalance(user?.id, wallet?.coin_id);
+  const { balance, refetch: refetchUserBalance } = useFetchUserBalance(
+    user?.id,
+    wallet?.coin_id
+  );
   const { convertUSDTToCoin } = useCryptoTradeConverter();
 
   useEffect(() => {
@@ -50,9 +55,15 @@ const Funds = () => {
       }
       setAvailableBalance(convertB);
     };
-
-    getConvertedAmount();
-  }, [balance?.coin_amount, wallet.coin_id, convertUSDTToCoin]);
+    if (!availableBalance) {
+      getConvertedAmount();
+    }
+  }, [
+    balance?.coin_amount,
+    wallet.coin_id,
+    convertUSDTToCoin,
+    availableBalance,
+  ]);
 
   // console.log(avilable);
   const handleSwitchTab = (tab) => {
@@ -241,6 +252,27 @@ const Funds = () => {
     timerInterval = setInterval(updateTimer, 1000);
     return () => clearInterval(timerInterval);
   }, [latestDeposit]);
+
+  useEffect(() => {
+    const handleUpdateDeposit = (data) => {
+      if (data?.deposit.status === "approved") {
+        toast.success("Deposit accepted");
+      } else {
+        toast.error("Deposit rejected");
+      }
+      if (
+        data?.deposit.status === "approved" ||
+        data?.deposit.status === "rejected"
+      ) {
+        refetch();
+        refetchUserBalance();
+      }
+    };
+
+    socket?.on("updateDeposit", handleUpdateDeposit);
+
+    return () => socket?.off("updateDeposit", handleUpdateDeposit);
+  }, [socket, refetch, refetchUserBalance]);
 
   return (
     <div className="recharge">

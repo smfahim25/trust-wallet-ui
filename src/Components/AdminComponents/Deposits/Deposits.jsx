@@ -7,6 +7,7 @@ import DepositModal from "./DepositModal";
 import ImageViewer from "./ImageViewer";
 import { useUser } from "../../../context/UserContext";
 import Pagination from "../../Pagination/Pagination";
+import { useSocketContext } from "../../../context/SocketContext";
 
 const Deposits = () => {
   const [deposits, setDeposits] = useState([]);
@@ -18,7 +19,7 @@ const Deposits = () => {
   const [isImgView, setIsImgView] = useState(false);
   const [depositDetail, setDepositDetail] = useState(null);
   const [refreshDeposit, setRefreshDeposit] = useState(false);
-
+  const { socket } = useSocketContext();
   useEffect(() => {
     const fetchDepositInfo = async () => {
       setLoading(true);
@@ -38,6 +39,8 @@ const Deposits = () => {
 
     fetchDepositInfo();
     if (refreshDeposit) {
+      console.log("Getting refresh call");
+
       fetchDepositInfo();
     }
   }, [refreshDeposit, setLoading, setError]);
@@ -137,6 +140,18 @@ const Deposits = () => {
     ));
   };
 
+  useEffect(() => {
+    const handleUpdateDeposit = (data) => {
+      console.log("Deposit added: ", data);
+      if (data) {
+        console.log("handleUpdateSuccess called");
+        setRefreshDeposit(!refreshDeposit);
+      }
+    };
+    socket?.on("newDeposit", handleUpdateDeposit);
+    return () => socket?.off("newDeposit", handleUpdateDeposit);
+  }, [socket, setRefreshDeposit, refreshDeposit]);
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
@@ -184,12 +199,14 @@ const Deposits = () => {
               </td>
               <td className="py-2 px-4 border-b">{deposit.status}</td>
               <td className="py-2 px-4 border-b">
-                <button
-                  onClick={() => openDetailsModal(deposit)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2"
-                >
-                  Edit
-                </button>
+                {deposit.status === "pending" && (
+                  <button
+                    onClick={() => openDetailsModal(deposit)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2"
+                  >
+                    Edit
+                  </button>
+                )}
                 <button
                   onClick={() => openModal(deposit.id)}
                   className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"

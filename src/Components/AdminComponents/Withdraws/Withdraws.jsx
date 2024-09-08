@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import DeleteModal from "../DeleteModal/DeleteModal";
 import { useUser } from "../../../context/UserContext";
 import Pagination from "../../Pagination/Pagination";
+import { useSocketContext } from "../../../context/SocketContext";
 
 const Withdraws = () => {
   const [withdraws, setWithdraws] = useState([]);
@@ -16,6 +17,7 @@ const Withdraws = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [depositDetail, setDepositDetail] = useState(null);
   const [refreshDeposit, setRefreshDeposit] = useState(false);
+  const { socket } = useSocketContext();
 
   useEffect(() => {
     const fetchWithdrawInfo = async () => {
@@ -38,7 +40,7 @@ const Withdraws = () => {
     if (refreshDeposit) {
       fetchWithdrawInfo();
     }
-  }, [refreshDeposit]);
+  }, [refreshDeposit, setLoading]);
 
   const handleDelete = async (withdrawID) => {
     try {
@@ -126,6 +128,18 @@ const Withdraws = () => {
     ));
   };
 
+  useEffect(() => {
+    const handleUpdateWithdraw = (data) => {
+      console.log("withdraw added: ", data);
+      if (data) {
+        console.log("handleUpdateSuccess called");
+        setRefreshDeposit(!refreshDeposit);
+      }
+    };
+    socket?.on("newWithdraw", handleUpdateWithdraw);
+    return () => socket?.off("newWithdraw", handleUpdateWithdraw);
+  }, [socket, setRefreshDeposit, refreshDeposit]);
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
@@ -165,12 +179,14 @@ const Withdraws = () => {
 
               <td className="py-2 px-4 border-b">{withdraw.status}</td>
               <td className="py-2 px-4 border-b">
-                <button
-                  onClick={() => openDetailsModal(withdraw)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2"
-                >
-                  Edit
-                </button>
+                {withdraw.status === "pending" && (
+                  <button
+                    onClick={() => openDetailsModal(withdraw)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded mr-2"
+                  >
+                    Edit
+                  </button>
+                )}
                 <button
                   onClick={() => openModal(withdraw.id)}
                   className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"

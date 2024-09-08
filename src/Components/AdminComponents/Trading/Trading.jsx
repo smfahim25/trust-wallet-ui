@@ -7,6 +7,7 @@ import DetailsCard from "./DetailsCard";
 import { useUser } from "../../../context/UserContext";
 import getMetalCoinName from "../../utils/getMetalCoinName";
 import Pagination from "../../Pagination/Pagination";
+import { useSocketContext } from "../../../context/SocketContext";
 
 const Trading = () => {
   const [trades, setTrades] = useState([]);
@@ -18,6 +19,8 @@ const Trading = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [tradeDetail, setTradeDetail] = useState(null);
   const [selectedTradeId, setSelectedTradeId] = useState(null);
+
+  const { socket } = useSocketContext();
 
   useEffect(() => {
     const fetchTradeOrders = async () => {
@@ -40,7 +43,7 @@ const Trading = () => {
     if (isUpdated) {
       fetchTradeOrders();
     }
-  }, [isUpdated]);
+  }, [isUpdated, setLoading]);
 
   // filtering and pagination
   const [filteredTrades, setFilteredTrades] = useState([]);
@@ -153,6 +156,30 @@ const Trading = () => {
     return localDateTime.replace(",", "");
   };
 
+  useEffect(() => {
+    const handleUpdateTrading = (data) => {
+      console.log("new trade added: ", data);
+      if (data) {
+        console.log("handleUpdateSuccess called");
+        setIsUpdated(!isUpdated);
+      }
+    };
+    socket?.on("newTradeOrder", handleUpdateTrading);
+    return () => socket?.off("newTradeOrder", handleUpdateTrading);
+  }, [socket, setIsUpdated, isUpdated]);
+
+  useEffect(() => {
+    const handleUpdateTrading = (data) => {
+      console.log("trade status changed : ", data);
+      if (data) {
+        console.log("handleUpdateSuccess called");
+        setIsUpdated(!isUpdated);
+      }
+    };
+    socket?.on("updateTradeStatus", handleUpdateTrading);
+    return () => socket?.off("updateTradeStatus", handleUpdateTrading);
+  }, [socket, setIsUpdated, isUpdated]);
+
   return (
     <div className="h-[80vh] overflow-x-auto overflow-y-auto">
       <input
@@ -182,7 +209,7 @@ const Trading = () => {
               <td className="py-2 px-4 border-b">{trade?.user_uuid}</td>
               <td className="py-2 px-4 border-b">{trade?.order_id}</td>
 
-              <td className="py-2 border-b">
+              <td className="py-2 px-4 border-b">
                 {getMetalCoinName(trade?.trade_coin_id)}
               </td>
               <td className={`py-2 px-4 border-b text-white font-semibold`}>
@@ -193,7 +220,6 @@ const Trading = () => {
                       : "bg-red-600"
                   } px-5 py-2`}
                 >
-                  {" "}
                   {trade?.order_position}
                 </span>
               </td>
