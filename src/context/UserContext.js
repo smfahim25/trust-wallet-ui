@@ -9,7 +9,7 @@ export const UserProvider = ({ children }) => {
   });
 
   const [adminUser, setAdminUser] = useState(() => {
-    const savedAdminUser = localStorage.getItem("adminUser");
+    const savedAdminUser = sessionStorage.getItem("adminUser");
     return savedAdminUser ? JSON.parse(savedAdminUser) : null;
   });
 
