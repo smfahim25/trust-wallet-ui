@@ -142,9 +142,7 @@ const Deposits = () => {
 
   useEffect(() => {
     const handleUpdateDeposit = (data) => {
-      console.log("Deposit added: ", data);
       if (data) {
-        console.log("handleUpdateSuccess called");
         setRefreshDeposit(!refreshDeposit);
       }
     };

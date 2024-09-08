@@ -130,9 +130,7 @@ const Withdraws = () => {
 
   useEffect(() => {
     const handleUpdateWithdraw = (data) => {
-      console.log("withdraw added: ", data);
       if (data) {
-        console.log("handleUpdateSuccess called");
         setRefreshDeposit(!refreshDeposit);
       }
     };

@@ -158,9 +158,7 @@ const Trading = () => {
 
   useEffect(() => {
     const handleUpdateTrading = (data) => {
-      console.log("new trade added: ", data);
       if (data) {
-        console.log("handleUpdateSuccess called");
         setIsUpdated(!isUpdated);
       }
     };
@@ -170,9 +168,7 @@ const Trading = () => {
 
   useEffect(() => {
     const handleUpdateTrading = (data) => {
-      console.log("trade status changed : ", data);
       if (data) {
-        console.log("handleUpdateSuccess called");
         setIsUpdated(!isUpdated);
       }
     };

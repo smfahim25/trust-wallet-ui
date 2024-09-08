@@ -15,7 +15,7 @@ const Withdraw = ({ openTransactionHistory }) => {
   const { socket } = useSocketContext();
   const [refreshWithdraw, setRefreshWithdraw] = useState(false);
 
-  const itemsPerPage = 3;
+  const itemsPerPage = 10;
 
   const getFormattedDeliveryTime = (createdAt) => {
     const date = new Date(createdAt);
