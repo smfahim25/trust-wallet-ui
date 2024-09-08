@@ -7,12 +7,12 @@ export const UserProvider = ({ children }) => {
     const savedUser = localStorage.getItem("user");
     return savedUser ? JSON.parse(savedUser) : null;
   });
-  
+
   const [adminUser, setAdminUser] = useState(() => {
     const savedAdminUser = localStorage.getItem("adminUser");
     return savedAdminUser ? JSON.parse(savedAdminUser) : null;
   });
-  
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -20,14 +20,14 @@ export const UserProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    localStorage.setItem("adminUser", JSON.stringify(adminUser));
+    sessionStorage.setItem("adminUser", JSON.stringify(adminUser));
   }, [adminUser]);
 
   const logout = () => {
     setUser(null);
     setAdminUser(null);
     localStorage.removeItem("user");
-    localStorage.removeItem("adminUser");
+    sessionStorage.removeItem("adminUser");
   };
 
   return (
