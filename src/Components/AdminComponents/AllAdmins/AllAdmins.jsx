@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { API_BASE_URL } from "../../../api/getApiURL";
-import axios from "axios";
-import { toast } from "react-toastify";
+// import axios from "axios";
+// import { toast } from "react-toastify";
 import { useUser } from "../../../context/UserContext";
 import Pagination from "../../Pagination/Pagination";
 import BalanceModal from "../AdminUsers/BalanceModal";
 import MoreActionModal from "../AdminUsers/MoreActionModal";
 import CreateUserModal from "../AdminUsers/CreateUserModal";
+import PermissionModal from "../AdminUsers/PermissionModal";
 
 const AllAdmins = () => {
   const { adminUser } = useUser();
@@ -19,6 +20,8 @@ const AllAdmins = () => {
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
   const [isMore, setIsMore] = useState(false);
   const [isNewUserOpen, setIsNewUserOpen] = useState(false);
+
+  const [isPermissionOpen, setIsPermissionOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
 
   useEffect(() => {
@@ -42,45 +45,45 @@ const AllAdmins = () => {
     if (updateSuccess || refreshDeposit) {
       fetchUserInfo();
     }
-  }, [updateSuccess, refreshDeposit]);
+  }, [updateSuccess, refreshDeposit, setLoading]);
 
-  const handleRefUpdate = async (user) => {
-    const updatedUser = {
-      is_referral: user.is_referral === 1 ? 0 : 1,
-    };
+  // const handleRefUpdate = async (user) => {
+  //   const updatedUser = {
+  //     is_referral: user.is_referral === 1 ? 0 : 1,
+  //   };
 
-    try {
-      const response = await axios.put(
-        `${API_BASE_URL}/users/${user.id}`,
-        updatedUser
-      );
-      toast.success("User updated successfully");
-      console.log("Data successfully submitted:", response);
-      setIsUpdateSuccess(!updateSuccess); // Toggle to trigger re-fetch
-    } catch (error) {
-      console.error("Error submitting data:", error);
-      toast.error("Failed to update user.");
-    }
-  };
+  //   try {
+  //     const response = await axios.put(
+  //       `${API_BASE_URL}/users/${user.id}`,
+  //       updatedUser
+  //     );
+  //     toast.success("User updated successfully");
+  //     console.log("Data successfully submitted:", response);
+  //     setIsUpdateSuccess(!updateSuccess); // Toggle to trigger re-fetch
+  //   } catch (error) {
+  //     console.error("Error submitting data:", error);
+  //     toast.error("Failed to update user.");
+  //   }
+  // };
 
-  const handleProfitUpdate = async (user) => {
-    const updatedUser = {
-      is_profit: user.is_profit === 1 ? 0 : 1,
-    };
+  // const handleProfitUpdate = async (user) => {
+  //   const updatedUser = {
+  //     is_profit: user.is_profit === 1 ? 0 : 1,
+  //   };
 
-    try {
-      const response = await axios.put(
-        `${API_BASE_URL}/users/${user.id}`,
-        updatedUser
-      );
-      toast.success("User updated successfully");
-      console.log("Data successfully submitted:", response);
-      setIsUpdateSuccess(!updateSuccess);
-    } catch (error) {
-      console.error("Error submitting data:", error);
-      toast.error("Failed to update user.");
-    }
-  };
+  //   try {
+  //     const response = await axios.put(
+  //       `${API_BASE_URL}/users/${user.id}`,
+  //       updatedUser
+  //     );
+  //     toast.success("User updated successfully");
+  //     console.log("Data successfully submitted:", response);
+  //     setIsUpdateSuccess(!updateSuccess);
+  //   } catch (error) {
+  //     console.error("Error submitting data:", error);
+  //     toast.error("Failed to update user.");
+  //   }
+  // };
   const openBalanceModal = (user) => {
     setUserDetails(user);
     setIsBalanceModalOpen(true);
@@ -108,13 +111,22 @@ const AllAdmins = () => {
     setIsNewUserOpen(false);
   };
 
+  const openPermissionModal = (user) => {
+    setUserDetails(user);
+    setIsPermissionOpen(true);
+  };
+
+  const closePermissionModal = () => {
+    setIsPermissionOpen(false);
+  };
+
   const handleUpdateSuccess = () => {
     setRefreshDeposit(!refreshDeposit);
   };
 
-  const handleDelete = () => {
-    console.log("deleting ");
-  };
+  // const handleDelete = () => {
+  //   console.log("deleting ");
+  // };
 
   const formatWalletAddress = (address) => {
     return address.match(/.{1,14}/g).map((segment, index) => (
@@ -199,9 +211,7 @@ const AllAdmins = () => {
             {/* <th className="py-2 px-4 border-b">Mobile</th> */}
 
             <th className="py-2 px-4 border-b">Wallet</th>
-            {adminUser?.role === "superadmin" && (
-              <th className="py-2 px-4 border-b">Mobile</th>
-            )}
+            <th className="py-2 px-4 border-b">Mobile</th>
             <th className="py-2 px-4 border-b">Role</th>
             <th className="py-2 px-4 border-b">Status</th>
             <th className="py-2 px-4 border-b">Registration</th>
@@ -220,9 +230,7 @@ const AllAdmins = () => {
                 {formatWalletAddress(user?.user_wallet)}
               </td>
 
-              {adminUser?.role === "superadmin" && (
-                <td className="py-2 px-4 border-b">{user?.mobile}</td>
-              )}
+              <td className="py-2 px-4 border-b">{user?.mobile}</td>
               <td className="py-2 px-4 border-b">{user?.role}</td>
               <td className="py-2 px-4 border-b">{user?.status}</td>
               <td className="py-2 px-4 border-b">
@@ -237,24 +245,14 @@ const AllAdmins = () => {
                   >
                     Balance
                   </button>
-                  {/* <button
-                    onClick={() => handleRefUpdate(user)}
-                    className={`text-xs text-white py-1 px-2 rounded ${
-                      user.is_referral === 1 ? "bg-red-600 hover:bg-red-700" : "bg-gray-800 hover:bg-gray-600"
-                    }`}
-                  >
-                    {user.is_referral === 1 ? "Disable Referral" : "Active Referral"}
-                  </button> */}
-                  <button
-                    onClick={() => handleProfitUpdate(user)}
-                    className={`text-xs text-white py-1 px-2 rounded ${
-                      user.is_profit === 1
-                        ? "bg-red-600 hover:bg-red-700"
-                        : "bg-gray-800 hover:bg-gray-600"
-                    }`}
-                  >
-                    {user.is_profit === 1 ? "Lose" : "Profit"}
-                  </button>
+                  {user?.role === "admin" && (
+                    <button
+                      onClick={() => openPermissionModal(user)}
+                      className={`text-xs text-white py-1 px-2 rounded bg-gray-800 hover:bg-gray-600`}
+                    >
+                      Permissions
+                    </button>
+                  )}
                   {adminUser?.role === "superadmin" && (
                     <button
                       onClick={() => openMore(user)}
@@ -288,6 +286,13 @@ const AllAdmins = () => {
       <CreateUserModal
         isOpen={isNewUserOpen}
         onClose={closeNewUser}
+        onUpdateSuccess={handleUpdateSuccess}
+      />
+
+      <PermissionModal
+        isOpen={isPermissionOpen}
+        onClose={closePermissionModal}
+        details={userDetails}
         onUpdateSuccess={handleUpdateSuccess}
       />
 
