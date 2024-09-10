@@ -158,7 +158,9 @@ const Trading = () => {
 
   useEffect(() => {
     const handleUpdateTrading = (data) => {
+      console.log("new trade added: ", data);
       if (data) {
+        console.log("handleUpdateSuccess called");
         setIsUpdated(!isUpdated);
       }
     };
@@ -168,7 +170,9 @@ const Trading = () => {
 
   useEffect(() => {
     const handleUpdateTrading = (data) => {
+      console.log("trade status changed : ", data);
       if (data) {
+        console.log("handleUpdateSuccess called");
         setIsUpdated(!isUpdated);
       }
     };
@@ -191,6 +195,7 @@ const Trading = () => {
             <th className="py-2 px-4 border-b">#</th>
             <th className="py-2 px-4 border-b">UUID</th>
             <th className="py-2 px-4 border-b">Order Id</th>
+            <th className="py-2 px-4 border-b">Employee Name</th>
             <th className="py-2 px-4 border-b">Trade Coin</th>
             <th className="py-2 px-4 border-b">Trade Position</th>
             <th className="py-2 px-4 border-b">Status</th>
@@ -204,6 +209,7 @@ const Trading = () => {
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{trade?.user_uuid}</td>
               <td className="py-2 px-4 border-b">{trade?.order_id}</td>
+              <td className="py-2 px-4 border-b">{trade?.asigned_employee}</td>
 
               <td className="py-2 px-4 border-b">
                 {getMetalCoinName(trade?.trade_coin_id)}
