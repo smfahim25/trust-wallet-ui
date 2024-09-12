@@ -33,9 +33,6 @@ const AdminLogin = () => {
         setAdminUser(userData);
         toast.success("Login successful!");
         navigate("/cradmin");
-      } else if (userData.status === "active") {
-        toast.success("Login successful!");
-        setUser(userData);
       } else {
         navigate("/");
       }

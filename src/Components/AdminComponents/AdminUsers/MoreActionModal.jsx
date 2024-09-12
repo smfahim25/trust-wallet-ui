@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../../api/getApiURL";
 import { toast } from "react-toastify";
+import { useUser } from "../../../context/UserContext";
 
 const MoreActionModal = ({
   isOpen,
@@ -10,6 +11,7 @@ const MoreActionModal = ({
   onUpdateSuccess,
   role,
 }) => {
+  const { adminUser } = useUser();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -192,25 +194,27 @@ const MoreActionModal = ({
                   </>
                 )}
 
-                <div className="mb-4">
-                  <label
-                    className="block text-gray-700 font-bold mb-2"
-                    htmlFor="status"
-                  >
-                    Status
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">InActive</option>
-                  </select>
-                </div>
+                {adminUser.role === "superadmin" && (
+                  <div className="mb-4">
+                    <label
+                      className="block text-gray-700 font-bold mb-2"
+                      htmlFor="status"
+                    >
+                      Status
+                    </label>
+                    <select
+                      id="status"
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">InActive</option>
+                    </select>
+                  </div>
+                )}
                 <div className="mb-4">
                   <label
                     className="block text-gray-700 font-bold mb-2"
