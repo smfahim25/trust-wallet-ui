@@ -10,6 +10,7 @@ import { ImAttachment } from "react-icons/im";
 import useConversation from "../../../zustand/useConversion";
 import useGetMessages from "../../../hooks/useGetMessages";
 import useListenMessages from "../../../hooks/useListenMessages";
+import { toast } from "react-toastify";
 
 const SupportInbox = () => {
   const { adminUser } = useUser();
@@ -148,6 +149,43 @@ const SupportInbox = () => {
     setSelectedImage(null);
   };
 
+  // delete conversations
+  const handleDelete = async (convID) => {
+    try {
+      const response = await axios.delete(
+        `${API_BASE_URL}/conversation/${convID}`
+      );
+      console.log("Delete response: ", response);
+      setConversations((prevConversations) =>
+        prevConversations.filter((conv) => conv.conversation_id !== convID)
+      );
+      toast.success("Delete Successful");
+    } catch (error) {
+      console.error("There was an error deleting the deposit: ", error);
+      toast.error("Delete Failed");
+    }
+  };
+
+  const handleProfitUpdate = async (user) => {
+    const updatedUser = {
+      message_status: user.message_status === 1 ? 0 : 1,
+    };
+
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/users/${user.user1_id}`,
+        updatedUser
+      );
+      toast.success("User updated successfully");
+      console.log("Data successfully submitted:", response);
+      // setIsUpdateSuccess(!updateSuccess);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      toast.error("Failed to update user.");
+    }
+  };
+
   return (
     <div className="flex">
       <div className="w-1/3 bg-white shadow-lg p-4 h-[90vh] overflow-y-auto">
@@ -173,8 +211,24 @@ const SupportInbox = () => {
                     checkOnlineStatus(conv.user1_id)
                       ? "text-green-500"
                       : "text-red-500"
-                  }`}
+                  } flex items-center`}
                 >
+                  <span
+                    onClick={() => handleDelete(conv.conversation_id)}
+                    className="inline-flex items-center justify-center p-1 ms-2 text-xs font-bold text-white bg-red-500 hover:bg-red-600 rounded"
+                  >
+                    Delete
+                  </span>
+                  <span
+                    onClick={() => handleProfitUpdate(conv)}
+                    className={`text-xs text-white py-1 px-2 ms-2 rounded mr-2 ${
+                      conv.message_status === 1
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-green-600 hover:bg-green-500"
+                    }`}
+                  >
+                    {conv.message_status === 1 ? "Block" : "Unblock"}
+                  </span>
                   {checkOnlineStatus(conv.user1_id) ? "Online" : "Offline"}
                 </p>
               </div>
@@ -208,7 +262,7 @@ const SupportInbox = () => {
                           {msg?.message_image && (
                             <div className="justify-end items-center inline-flex">
                               <img
-                                className="w-[50%] h-[80%] mt-1"
+                                className="w-[50%] h-[50%] mt-1"
                                 src={`${API_BASE_URL}/${msg?.message_image}`}
                                 alt=""
                                 onClick={() =>
@@ -240,7 +294,7 @@ const SupportInbox = () => {
                             )}
                             {msg?.message_image && (
                               <img
-                                className="w-[50%] h-[80%] mt-1"
+                                className="w-[50%] h-[50%] mt-1"
                                 src={`${API_BASE_URL}/${msg?.message_image}`}
                                 alt=""
                                 onClick={() =>
@@ -264,57 +318,63 @@ const SupportInbox = () => {
               })}
               <div ref={chatEndRef} />
             </div>
-            <div className="relative w-full pl-3 pr-1 py-1 px-2 rounded-3xl border border-gray-200 items-center gap-2 inline-flex">
-              {/* Floating Image Preview */}
-              {filePreview && (
-                <div className="absolute top-[-152px] left-0 right-0 flex justify-center">
-                  <div className="relative w-[150px] h-[150px] bg-white shadow-lg rounded-lg p-3">
-                    <span
-                      className="absolute top-1 right-1 text-gray-600 cursor-pointer"
-                      onClick={removeSelectedImage}
-                    >
-                      <IoClose size={16} />
-                    </span>
-                    <img
-                      src={filePreview}
-                      alt="Preview"
-                      className="w-full h-full object-cover rounded-md"
-                    />
+            {selectedConversation.message_status === 1 ? (
+              <div className="relative w-full pl-3 pr-1 py-1 px-2 rounded-3xl border border-gray-200 items-center gap-2 inline-flex">
+                {/* Floating Image Preview */}
+                {filePreview && (
+                  <div className="absolute top-[-152px] left-0 right-0 flex justify-center">
+                    <div className="relative w-[150px] h-[150px] bg-white shadow-lg rounded-lg p-3">
+                      <span
+                        className="absolute top-1 right-1 text-gray-600 cursor-pointer"
+                        onClick={removeSelectedImage}
+                      >
+                        <IoClose size={16} />
+                      </span>
+                      <img
+                        src={filePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                    </div>
                   </div>
+                )}
+
+                <div className="w-full">
+                  <input
+                    type="text"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type your reply here..."
+                    className="w-full grow shrink basis-0 text-black text-xs font-medium leading-4 focus:outline-none h-[20px]"
+                  />
                 </div>
-              )}
 
-              <div className="w-full">
-                <input
-                  type="text"
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your reply here..."
-                  className="w-full grow shrink basis-0 text-black text-xs font-medium leading-4 focus:outline-none h-[20px]"
-                />
+                <div className="flex items-center gap-2">
+                  <ImAttachment
+                    size={20}
+                    onClick={handleAttachmentClick}
+                    className="cursor-pointer"
+                  />
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    style={{ display: "none" }} // Hide the file input
+                  />
+                  <button
+                    onClick={sendReply}
+                    className="ml-2 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex"
+                  >
+                    <FaReply title="reply" />
+                  </button>
+                </div>
               </div>
-
-              <div className="flex items-center gap-2">
-                <ImAttachment
-                  size={20}
-                  onClick={handleAttachmentClick}
-                  className="cursor-pointer"
-                />
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  style={{ display: "none" }} // Hide the file input
-                />
-                <button
-                  onClick={sendReply}
-                  className="ml-2 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex"
-                >
-                  <FaReply title="reply" />
-                </button>
-              </div>
-            </div>
+            ) : (
+              <p className="text-center text-lg font-bold text-red-500">
+                You can't reply this conversion
+              </p>
+            )}
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-500">

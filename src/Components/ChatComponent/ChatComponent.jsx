@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import Header from "../Header/Header";
 import axios from "axios";
-import { useUser } from "../../context/UserContext";
-import useGetAllConversation from "../../hooks/useGetAllConversion";
 import { API_BASE_URL } from "../../api/getApiURL";
 import { IoSend, IoClose } from "react-icons/io5";
 import { ImAttachment } from "react-icons/im";
 import debounce from "lodash.debounce";
 import { differenceInHours, format, formatDistanceToNow } from "date-fns";
-import useConversation from "../../zustand/useConversion";
+import { useUser } from "../../context/UserContext";
+import useGetAllConversation from "../../hooks/useGetAllConversion";
 import useGetMessages from "../../hooks/useGetMessages";
+import useConversation from "../../zustand/useConversion";
 import useListenMessages from "../../hooks/useListenMessages";
 
 const ChatComponent = () => {
@@ -53,7 +53,6 @@ const ChatComponent = () => {
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   useEffect(() => {
     if (data) {
       setSelectedConversation(data[0]);
@@ -67,6 +66,28 @@ const ChatComponent = () => {
   const handleInputChange = (e) => {
     setMessage(e.target.value);
   };
+  const [messageStatus, setMessageStatus] = useState(1);
+  const [refreshStatus, setRefreshStatus] = useState(false);
+  // checking message status blocked or unblocked
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/${user.id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setMessageStatus(data.message_status);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+
+    fetchUserInfo();
+    if (refreshStatus) {
+      fetchUserInfo();
+    }
+  }, [user, refreshStatus]);
 
   const sendMessage = async () => {
     if (message.trim() === "" && !file) return;
@@ -90,6 +111,7 @@ const ChatComponent = () => {
       setMessage("");
       setFile(null);
       setFilePreview("");
+      setRefreshStatus(!refreshStatus);
     } catch (err) {
       console.error("Failed to send message:", err);
     }
@@ -244,54 +266,60 @@ const ChatComponent = () => {
         <div ref={chatEndRef} />
       </div>
 
-      <div className="relative w-full pl-3 pr-1 py-1 px-2 rounded-3xl border border-gray-200 items-center gap-2 inline-flex">
-        {/* Floating Image Preview */}
-        {filePreview && (
-          <div className="absolute top-[-152px] left-0 right-0 flex justify-center">
-            <div className="relative w-[150px] h-[150px] bg-white shadow-lg rounded-lg p-3 py-5">
-              <span
-                className="absolute top-1 right-1 text-gray-600 cursor-pointer"
-                onClick={removeSelectedImage}
-              >
-                <IoClose size={16} />
-              </span>
-              <img
-                src={filePreview}
-                alt="Preview"
-                className="w-full h-full object-cover rounded-md"
-              />
+      {messageStatus !== 0 ? (
+        <div className="relative w-full pl-3 pr-1 py-1 px-2 rounded-3xl border border-gray-200 items-center gap-2 inline-flex">
+          {/* Floating Image Preview */}
+          {filePreview && (
+            <div className="absolute top-[-138px] left-0 right-0 flex justify-center">
+              <div className="relative w-[120px] h-[120px] bg-white shadow-lg rounded-lg p-2">
+                <span
+                  className="absolute top-1 right-1 text-gray-600 cursor-pointer"
+                  onClick={removeSelectedImage}
+                >
+                  <IoClose size={16} />
+                </span>
+                <img
+                  src={filePreview}
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <span
-          className="cursor-pointer mr-1 text-xl text-gray-700"
-          onClick={handleAttachmentClick}
-        >
-          <ImAttachment />
-        </span>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <input
-          type="text"
-          placeholder="Message"
-          value={message}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          className="w-full px-2 py-1 border-none outline-none bg-transparent text-sm font-normal"
-        />
-        <button
-          onClick={handleSendMessage}
-          className="h-[40px] rounded-full flex justify-center items-center "
-        >
-          <IoSend className="text-white" />
-        </button>
-      </div>
+          <span
+            className="cursor-pointer mr-1 text-xl text-gray-700"
+            onClick={handleAttachmentClick}
+          >
+            <ImAttachment />
+          </span>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <input
+            type="text"
+            placeholder="Message"
+            value={message}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            className="w-full px-2 py-1 border-none outline-none bg-transparent text-sm font-normal"
+          />
+          <button
+            onClick={handleSendMessage}
+            className="h-[40px] rounded-full flex justify-center items-center "
+          >
+            <IoSend className="text-white" />
+          </button>
+        </div>
+      ) : (
+        <p className="text-center text-lg font-bold text-red-500">
+          You can't reply this conversion, sorry!!!
+        </p>
+      )}
 
       {/* Full-Screen Image Modal */}
       {selectedImage && (
