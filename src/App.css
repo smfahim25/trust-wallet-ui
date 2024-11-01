@@ -31,7 +31,7 @@ h1 {
 button {
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #007bff;
+  background-color: #3ad974;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -88,7 +88,7 @@ a:active {
 }
 
 .text-primary {
-  color: #1761fd !important;
+  color: #000000 !important;
 }
 
 .spinner-border {
@@ -214,7 +214,7 @@ a:active {
 }
 
 .fc-1652F0 {
-  color: #1652f0;
+  color: #000000;
 }
 
 .fc-353F52 {
@@ -402,11 +402,12 @@ input[type="number"]::-webkit-outer-spin-button {
 .user-panel .top-wrapper .top_container {
   padding-bottom: 16.66667vw;
   position: relative;
-  background: #1652f0;
+  background: #2de956;
   background-repeat: no-repeat;
   background-position: top;
   border-radius: 0 0 8vw 8vw;
   overflow: hidden;
+  color: black !important;
 }
 
 .user-panel .top-wrapper .top_container .header {
@@ -514,9 +515,9 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .user-panel .market_container .market_tabs .tab_item.active {
-  background: #1652f0;
-  border-color: #1652f0;
-  color: #fff;
+  background: #16f04d;
+  border-color: #24e84b;
+  color: black;
 }
 
 .market_pro_list {
@@ -663,9 +664,9 @@ input[type="number"]::-webkit-outer-spin-button {
   height: 13.33333vw;
   font-weight: 700;
   line-height: 13.33333vw;
-  background: #1652f0;
+  background: #16f045;
   border-radius: 0.14rem;
-  color: #fff;
+  color: #000000;
   font-size: 4.8vw;
   text-align: center;
 }
@@ -1015,7 +1016,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .deal .submit_container .submit {
   width: 100%;
   height: 13.86667vw;
-  background: #13b26f;
+  background: #0aaeef;
   border-radius: 1.86667vw;
   margin: 0 auto;
   color: #fff;
@@ -1980,12 +1981,12 @@ table.dataTable {
   width: 84vw;
   height: 12vw;
   border-radius: 6vw;
-  background: #2654ff;
+  background: #26ff8f;
   margin: 0 auto;
-  color: #fff;
+  color: #000000;
   display: block;
   margin-bottom: 6.4vw;
-  color: #fcfcfc;
+  color: #000000;
   text-align: center;
   font-size: 4.8vw;
   font-style: normal;
@@ -2254,8 +2255,8 @@ table.dataTable {
   margin: 5.33333vw auto;
   width: 48vw;
   border-radius: 2.66667vw;
-  background: #1652f0;
-  color: #fff;
+  background: #16f050;
+  color: black;
   padding: 2.66667vw;
 }
 
@@ -2944,7 +2945,7 @@ table.dataTable {
   justify-content: center;
   margin-left: auto;
   position: relative;
-  background: #2000f0;
+  background: #26ea64;
   color: #fff;
 }
 

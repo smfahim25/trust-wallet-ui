@@ -5,7 +5,7 @@ import { SiConvertio } from "react-icons/si";
 import useSettings from "../../../hooks/useSettings";
 
 // Mock data
-const appName = "TrustPro";
+const appName = "Meta-Trade";
 
 const SideNav = (props) => {
   const { settings } = useSettings();

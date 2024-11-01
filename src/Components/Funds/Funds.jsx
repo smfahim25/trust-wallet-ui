@@ -632,7 +632,7 @@ const Funds = () => {
                     USD
                     <span
                       className="all"
-                      onClick={() => setWithdrawAmount(availableBalance)}
+                      onClick={() => setWithdrawAmount(balance?.coin_amount)}
                     >
                       {" "}
                       | Max

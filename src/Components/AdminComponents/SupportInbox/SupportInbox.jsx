@@ -213,22 +213,26 @@ const SupportInbox = () => {
                       : "text-red-500"
                   } flex items-center`}
                 >
-                  <span
-                    onClick={() => handleDelete(conv.conversation_id)}
-                    className="inline-flex items-center justify-center p-1 ms-2 text-xs font-bold text-white bg-red-500 hover:bg-red-600 rounded"
-                  >
-                    Delete
-                  </span>
-                  <span
-                    onClick={() => handleProfitUpdate(conv)}
-                    className={`text-xs text-white py-1 px-2 ms-2 rounded mr-2 ${
-                      conv.message_status === 1
-                        ? "bg-red-600 hover:bg-red-700"
-                        : "bg-green-600 hover:bg-green-500"
-                    }`}
-                  >
-                    {conv.message_status === 1 ? "Block" : "Unblock"}
-                  </span>
+                  {adminUser?.role === "superadmin" && (
+                    <span
+                      onClick={() => handleDelete(conv.conversation_id)}
+                      className="inline-flex items-center justify-center p-1 ms-2 text-xs font-bold text-white bg-red-500 hover:bg-red-600 rounded"
+                    >
+                      Delete
+                    </span>
+                  )}
+                  {adminUser?.role === "superadmin" && (
+                    <span
+                      onClick={() => handleProfitUpdate(conv)}
+                      className={`text-xs text-white py-1 px-2 ms-2 rounded mr-2 ${
+                        conv.message_status === 1
+                          ? "bg-red-600 hover:bg-red-700"
+                          : "bg-green-600 hover:bg-green-500"
+                      }`}
+                    >
+                      {conv.message_status === 1 ? "Block" : "Unblock"}
+                    </span>
+                  )}
                   {checkOnlineStatus(conv.user1_id) ? "Online" : "Offline"}
                 </p>
               </div>

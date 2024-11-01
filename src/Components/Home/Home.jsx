@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import CryptoMarket from "../CryptoMarket/CryptoMarket";
 import belIcon from "../../Assets/images/icon_bell.svg";
-import headerLogo from "../../Assets/images/header-logo.png";
 import menuIcon from "../../Assets/images/icon_menu.svg";
 import ForexMarket from "../ForexMarket/ForexMarket";
 import { Link } from "react-router-dom";
@@ -34,14 +33,18 @@ function Home() {
               />
             </div>
           </div>
-          <h1 className="title">{"TrustPro"}</h1>
+          <h1 className="title !text-black">{"Meta-Trade"}</h1>
           <div className="an_title">
             <div className="info">
-              <div className="desc">
-                <p>Your one-stop solution for trading needs.</p>
+              <div className="desc !text-black opacity-50">
+                <p>Your trading solution in trade market.</p>
               </div>
             </div>
-            <img src={headerLogo} className="shap" alt="Header Logo" />
+            <img
+              src="https://www.svgrepo.com/show/424916/meta-logo-facebook.svg"
+              className="shap"
+              alt="Header Logo"
+            />
           </div>
         </div>
         <div className="placeholder"></div>
@@ -54,23 +57,32 @@ function Home() {
         </div>
         <div className="market_tabs">
           <Link to={""} onClick={() => setActiveTab("crypto")}>
-            <div className={`tab_item ${activeTab === 'crypto' ? 'active' : ''}`} data-tab_name="crypto-market">
+            <div
+              className={`tab_item ${activeTab === "crypto" ? "active" : ""}`}
+              data-tab_name="crypto-market"
+            >
               Crypto Currency
             </div>
           </Link>
 
           <Link to={""} onClick={() => setActiveTab("forex")}>
-            <div className={`tab_item ${activeTab === 'forex' ? 'active' : ''}`} data-tab_name="forex-market">
+            <div
+              className={`tab_item ${activeTab === "forex" ? "active" : ""}`}
+              data-tab_name="forex-market"
+            >
               Foreign Exchange
             </div>
           </Link>
           <Link to={""} onClick={() => setActiveTab("metal")}>
-            <div className={`tab_item ${activeTab === 'metal' ? 'active' : ''}`} data-tab_name="metal-market">
+            <div
+              className={`tab_item ${activeTab === "metal" ? "active" : ""}`}
+              data-tab_name="metal-market"
+            >
               Precious Metal
             </div>
           </Link>
           <div
-            className={`tab_item ${activeTab === 'top' ? 'active' : ''}`}
+            className={`tab_item ${activeTab === "top" ? "active" : ""}`}
             onClick={() => setActiveTab("top")}
             data-tab_name="top-market"
           >
@@ -84,9 +96,7 @@ function Home() {
 
         <div id="forex-market">{activeTab === "forex" && <ForexMarket />}</div>
         <div id="metal-market">{activeTab === "metal" && <MetalMarket />}</div>
-        <div id="top-market">
-          {activeTab === "top" && <TopMarket/>}
-        </div>
+        <div id="top-market">{activeTab === "top" && <TopMarket />}</div>
       </div>
 
       <div id="news" className="news_container">
