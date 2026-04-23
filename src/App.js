@@ -13,7 +13,7 @@ import Business from "./Components/Business/Business";
 import ReferralList from "./Components/Refferal/ReferralList";
 import ReferralBonusHistory from "./Components/Refferal/ReferralBonusHistory";
 import Contact from "./Components/Contact/Contact";
-import { Route, Routes, useLocation } from "react-router";
+import { Route, Routes } from "react-router";
 import { createMetaCtUser } from "./Components/utils/createMetaCtUser";
 import { useUser } from "./context/UserContext";
 import Spinner from "./Components/Spinner/Spinner";
@@ -23,7 +23,7 @@ import Converter from "./Components/Converter/Converter";
 import Layout from "./Components/AdminComponents/Layout";
 import AdminLogin from "./Components/AdminComponents/AdminLogin/AdminLogin";
 import AdminRoute from "./Components/AdminComponents/AdminRoute";
-import ChatPopup from "./Components/ChatPopup/ChatPopup";
+// import ChatPopup from "./Components/ChatPopup/ChatPopup";
 import NotFound from "./Components/NotFound/NotFound";
 import ChatComponent from "./Components/ChatComponent/ChatComponent";
 import useListenMessages from "./hooks/useListenMessages";
@@ -42,19 +42,19 @@ function App() {
   const [referral] = useState("");
   const web3Ref = useRef(null);
   const { setUser, user, loading, setLoading } = useUser();
-  const [isChatVisible, setChatVisible] = useState(false);
-  const location = useLocation();
+  // const [isChatVisible, setChatVisible] = useState(false);
+  // const location = useLocation();
   const { setSelectedConversation, setMessages } = useConversation();
   const retryTimerRef = useRef(null);
   const hasConnectedRef = useRef(false); // Prevent double-init
   useListenMessages();
 
   // Hide chat popup when navigating to /live-chat
-  useEffect(() => {
-    if (location.pathname === "/live-chat") {
-      setChatVisible(false);
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   if (location.pathname === "/live-chat") {
+  //     setChatVisible(false);
+  //   }
+  // }, [location]);
 
   const connectWallet = useCallback(async () => {
     const accounts = await window.ethereum.request({
@@ -137,10 +137,10 @@ function App() {
     setSelectedConversation,
   ]);
 
-  const handleChatClick = () => setChatVisible(true);
-  const handleCloseChat = () => setChatVisible(false);
+  // const handleChatClick = () => setChatVisible(true);
+  // const handleCloseChat = () => setChatVisible(false);
 
-  const isLiveChat = location.pathname.includes("/live-chat");
+  // const isLiveChat = location.pathname.includes("/live-chat");
 
   return (
     <div>
@@ -172,7 +172,7 @@ function App() {
               <Route path="/live-chat" element={<ChatComponent />} />
               <Route path="/*" element={<NotFound />} />
             </Routes>
-            {!isLiveChat && (
+            {/* {!isLiveChat && (
               <ChatPopup visible={isChatVisible} onClose={handleCloseChat} />
             )}
             {!isLiveChat && (
@@ -199,7 +199,7 @@ function App() {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </>
         ) : (
           <Routes>
