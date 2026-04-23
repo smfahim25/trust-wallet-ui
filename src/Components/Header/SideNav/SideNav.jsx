@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useUser } from "../../../context/UserContext";
 // import { SiConvertio } from "react-icons/si";
 import useSettings from "../../../hooks/useSettings";
+import { FaWallet } from "react-icons/fa";
 
 const appName = "Metaverse";
 
@@ -97,18 +98,10 @@ const SideNav = (props) => {
                 {/* Wallet button */}
                 <Link
                   to={"/account"}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md hover:opacity-90 active:scale-95 transition-all duration-150"
+                  className="flex items-center justify-center gap-2 px-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold rounded-xl shadow-md hover:opacity-90 active:scale-95 transition-all duration-150"
                   // onClick={() => navigate("/account")}
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M21 7H3a1 1 0 00-1 1v10a2 2 0 002 2h16a2 2 0 002-2V8a1 1 0 00-1-1zm-1 11H4V9h16v9z" />
-                    <path d="M16 13a1 1 0 100 2 1 1 0 000-2z" />
-                    <path d="M3 7h18V5a2 2 0 00-2-2H5a2 2 0 00-2 2v2z" />
-                  </svg>
+                  <FaWallet />
                   Wallet
                 </Link>
 

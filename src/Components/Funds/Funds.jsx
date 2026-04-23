@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import Header from "../Header/Header";
 import axios from "axios";
 import { useUser } from "../../context/UserContext";
@@ -6,21 +6,21 @@ import { useLocation } from "react-router";
 import { API_BASE_URL } from "../../api/getApiURL";
 import useFetchLatestDeposit from "../../hooks/useFetchLatestDeposit";
 import { useFetchUserBalance } from "../../hooks/useFetchUserBalance";
-import { FaRegCopy } from "react-icons/fa";
-import { MdOutlineWatchLater } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useUpdateUserBalance } from "../../hooks/useUpdateUserBalance";
 import useCryptoTradeConverter from "../../hooks/userCryptoTradeConverter";
 import useSettings from "../../hooks/useSettings";
 import Decimal from "decimal.js";
 import { useSocketContext } from "../../context/SocketContext";
+import useWallets from "../../hooks/useWallets";
+import { MdOutlineWatchLater } from "react-icons/md";
 
 const Funds = () => {
   const location = useLocation();
   const wallet = location.state?.wallet;
   const { settings } = useSettings();
   const { user, setLoading } = useUser();
-  const [activeTab, setActiveTab] = useState("deposit");
+  const [activeTab, setActiveTab] = useState("receive");
   const [timeLeft, setTimeLeft] = useState(null);
   const [rechargeModal, setRechargeModal] = useState(false);
   const [amount, setAmount] = useState("");
@@ -31,66 +31,135 @@ const Funds = () => {
   const [availableBalance, setAvailableBalance] = useState("");
   const { socket } = useSocketContext();
   const { updateUserBalance, success } = useUpdateUserBalance();
+  const { wallets } = useWallets(user?.id);
+  const [convertAmount, setConvertAmount] = useState("");
+  const [convertedResult, setConvertedResult] = useState("0.00");
+
   const {
     data: latestDeposit,
     loading,
     refetch,
   } = useFetchLatestDeposit(user?.id, wallet?.coin_id);
+
   const { balance, refetch: refetchUserBalance } = useFetchUserBalance(
     user?.id,
-    wallet?.coin_id
+    wallet?.coin_id,
   );
+
   const { convertUSDTToCoin } = useCryptoTradeConverter();
 
-  useEffect(() => {
-    const getConvertedAmount = async () => {
-      let convertB;
-      try {
-        convertB = await convertUSDTToCoin(
-          balance?.coin_amount,
-          wallet.coin_id
-        );
-      } catch (error) {
-        console.error("Error converting USDT to coin:", error);
-      }
-      setAvailableBalance(convertB);
-    };
-    if (!availableBalance) {
-      getConvertedAmount();
-    }
-  }, [
-    balance?.coin_amount,
-    wallet.coin_id,
-    convertUSDTToCoin,
-    availableBalance,
-  ]);
+  // USDT wallet as convert target
+  const usdtWallet = wallets?.find((w) => w.coin_symbol === "USDT");
 
-  // console.log(avilable);
-  const handleSwitchTab = (tab) => {
-    setActiveTab(tab);
+  // ── Fetch available coin balance display ──
+  const getConvertedAmount = useCallback(async () => {
+    if (!balance?.coin_amount || !wallet?.coin_id) return;
+    try {
+      const convertB = await convertUSDTToCoin(
+        balance.coin_amount,
+        wallet.coin_id,
+      );
+      setAvailableBalance(convertB);
+    } catch (error) {
+      console.error("Error converting USDT to coin:", error);
+    }
+  }, [balance?.coin_amount, wallet?.coin_id, convertUSDTToCoin]);
+
+  useEffect(() => {
+    getConvertedAmount();
+  }, [getConvertedAmount]);
+
+  // ── Cache coin ID so we only search once per coin ──
+  const coinGeckoIdRef = useRef(null);
+  const coinPriceRef = useRef(null);
+
+  useEffect(() => {
+    // Reset cache when wallet changes
+    coinGeckoIdRef.current = null;
+  }, [wallet?.coin_symbol]);
+
+  const getCoinGeckoId = async (symbol) => {
+    if (!symbol) return null;
+    if (symbol.toUpperCase() === "USDT") return "tether";
+
+    try {
+      const res = await fetch(
+        `https://api.coingecko.com/api/v3/search?query=${symbol}`,
+      );
+      const data = await res.json();
+
+      // Find exact symbol match from results
+      const match = data.coins?.find(
+        (coin) => coin.symbol.toUpperCase() === symbol.toUpperCase(),
+      );
+
+      return match?.id || null;
+    } catch {
+      return null;
+    }
   };
-  const handleSwitchRechargeModal = () => {
-    setRechargeModal(!rechargeModal);
-  };
+
+  useEffect(() => {
+    coinGeckoIdRef.current = null;
+    coinPriceRef.current = null;
+  }, [wallet?.coin_symbol]);
+
+  // ── Fetch price once when tab opens or coin changes ──
+  useEffect(() => {
+    const fetchPrice = async () => {
+      const symbol = wallet?.coin_symbol?.toUpperCase();
+      if (!symbol || symbol === "USDT") {
+        coinPriceRef.current = 1; // USDT = 1:1
+        return;
+      }
+      try {
+        if (!coinGeckoIdRef.current) {
+          coinGeckoIdRef.current = await getCoinGeckoId(symbol);
+        }
+        const coinId = coinGeckoIdRef.current;
+        if (!coinId) return;
+
+        const res = await fetch(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`,
+        );
+        const data = await res.json();
+        coinPriceRef.current = data[coinId]?.usd || null;
+      } catch {
+        coinPriceRef.current = null;
+      }
+    };
+
+    if (activeTab === "convert") fetchPrice();
+  }, [wallet?.coin_symbol, activeTab]); // ← fetch when tab opens
+
+  // ── Calculate result instantly from cached price ──
+  useEffect(() => {
+    if (!convertAmount || parseFloat(convertAmount) <= 0) {
+      setConvertedResult("0.00");
+      return;
+    }
+
+    const price = coinPriceRef.current;
+    if (!price) {
+      setConvertedResult("0.00");
+      return;
+    }
+
+    // Instant calculation — no API call here
+    const result = parseFloat(convertAmount) * price;
+    setConvertedResult(result.toFixed(2));
+  }, [convertAmount]);
 
   useEffect(() => {
     setLoading(loading);
-    if (success) {
-      window.location.reload();
-    }
-  }, [loading, setLoading, success]);
-  const withdrawalFee = 0.001; // 0.1%
+    if (success) window.location.reload();
+  }, [loading, success, setLoading]);
 
-  const handleAmountChange = (e) => {
-    setAmount(e.target.value);
-  };
-
-  const handleWithdrawChange = async (e) => {
-    if (e.target.name === "withdrawAddress") {
-      setWithdrawAddress(e.target.value);
-    } else if (e.target.name === "withdrawAmount") {
-      setWithdrawAmount(e.target.value);
-    }
+  const handleCopyAddress = () => {
+    navigator.clipboard
+      .writeText(wallet?.wallet_address)
+      .then(() => toast.success("Copied to clipboard!"))
+      .catch(() => toast.error("Failed to copy"));
   };
 
   const handleFileChange = (e) => {
@@ -103,11 +172,10 @@ const Funds = () => {
     e.preventDefault();
     setLoading(true);
     if (!amount) {
-      toast.error("Please provide  amount");
+      toast.error("Please provide amount");
       setLoading(false);
       return;
     }
-
     const formData = new FormData();
     formData.append("user_id", user.id);
     formData.append("wallet_to", wallet?.wallet_address);
@@ -116,14 +184,10 @@ const Funds = () => {
     formData.append("trans_hash", "#ex3j3h2sh");
     formData.append("amount", amount);
     formData.append("documents", screenshot);
-
     try {
-      const response = await axios.post(`${API_BASE_URL}/deposits`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      await axios.post(`${API_BASE_URL}/deposits`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log(response.data);
       setLoading(false);
       setAmount("");
       setScreenshot(null);
@@ -139,32 +203,29 @@ const Funds = () => {
   const handleWithdrawSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Validate inputs
     if (!withdrawAmount || !withdrawAddress) {
       toast.error("Please provide both amount and address");
       setLoading(false);
       return;
-    } else if (parseFloat(withdrawAmount) > parseFloat(balance?.coin_amount)) {
-      toast.error("Withdraw amount can not greater than available balance");
+    }
+    if (parseFloat(withdrawAmount) > parseFloat(balance?.coin_amount)) {
+      toast.error("Withdraw amount cannot be greater than available balance");
       setLoading(false);
       return;
     }
-    const data = {
-      user_id: user.id,
-      wallet_to: withdrawAddress,
-      wallet_from: user?.user_wallet,
-      coin_id: wallet?.coin_id,
-      trans_hash: "",
-      amount: withdrawAmount,
-    };
-
     try {
-      const response = await axios.post(`${API_BASE_URL}/withdraws`, data, {
-        headers: {
-          "Content-Type": "application/json",
+      await axios.post(
+        `${API_BASE_URL}/withdraws`,
+        {
+          user_id: user.id,
+          wallet_to: withdrawAddress,
+          wallet_from: user?.user_wallet,
+          coin_id: wallet?.coin_id,
+          trans_hash: "",
+          amount: withdrawAmount,
         },
-      });
-      console.log(response.data);
+        { headers: { "Content-Type": "application/json" } },
+      );
       setLoading(false);
       setWithdrawAmount("");
       setWithdrawAddress("");
@@ -174,92 +235,84 @@ const Funds = () => {
       updateUserBalance(user?.id, wallet?.coin_id, new_balance);
     } catch (error) {
       setLoading(false);
-      console.error("Error sending data:", error);
+      console.error(error);
     }
   };
 
-  const handleCopyAddress = () => {
-    navigator.clipboard
-      .writeText(wallet?.wallet_address)
-      .then(() => {
-        toast.success("Copied to clipboard!");
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-      });
+  const handleConvertSubmit = async () => {
+    if (!convertAmount || parseFloat(convertAmount) <= 0) {
+      toast.error("Enter a valid amount");
+      return;
+    }
+    if (parseFloat(convertAmount) > parseFloat(balance?.coin_amount)) {
+      toast.error("Amount exceeds available balance");
+      return;
+    }
+    const newCoinBalance =
+      parseFloat(balance?.coin_amount) - parseFloat(convertAmount);
+    const newUSDTBalance =
+      parseFloat(usdtWallet?.coin_amount || 0) + parseFloat(convertAmount);
+    try {
+      await updateUserBalance(user.id, wallet?.coin_id, newCoinBalance);
+      if (usdtWallet) {
+        await updateUserBalance(user.id, usdtWallet.coin_id, newUSDTBalance);
+      }
+      setConvertAmount("");
+      setConvertedResult("0.00");
+      toast.success("Converted to USDT successfully");
+    } catch {
+      toast.error("Conversion failed");
+    }
   };
+
   const getFormattedDeliveryTime = (createdAt) => {
-    const date = new Date(createdAt);
-
-    // Convert date to local time string
-    const localDateTime = date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    });
-
-    return localDateTime.replace(",", "");
+    return new Date(createdAt)
+      .toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      })
+      .replace(",", "");
   };
 
   useEffect(() => {
-    if (!latestDeposit || !latestDeposit?.created_at) {
-      return;
-    }
-    let timerInterval;
+    if (!latestDeposit?.created_at) return;
     const createdAt = new Date(
-      getFormattedDeliveryTime(latestDeposit?.created_at)
+      getFormattedDeliveryTime(latestDeposit?.created_at),
     );
-    const countdownEnd = new Date(createdAt.getTime() + 60 * 60 * 1000); // Add 1 hour to the created_at time
-
+    const countdownEnd = new Date(createdAt.getTime() + 60 * 60 * 1000);
     const updateTimer = () => {
       if (
         latestDeposit?.status === "approved" ||
         latestDeposit?.status === "rejected"
       ) {
-        clearInterval(timerInterval);
         setTimeLeft("");
         return;
       }
-
-      const now = new Date();
-      const diff = countdownEnd - now;
-
+      const diff = countdownEnd - new Date();
       if (diff <= 0) {
         setTimeLeft("");
         return;
       }
-
-      const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(
-        2,
-        "0"
-      );
-      const minutes = String(
-        Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-      ).padStart(2, "0");
-      const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(
-        2,
-        "0"
-      );
-
-      setTimeLeft(`${hours}:${minutes}:${seconds}`);
+      const h = String(Math.floor(diff / 3600000)).padStart(2, "0");
+      const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
+      const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+      setTimeLeft(`${h}:${m}:${s}`);
     };
-
     updateTimer();
-    timerInterval = setInterval(updateTimer, 1000);
+    const timerInterval = setInterval(updateTimer, 1000);
     return () => clearInterval(timerInterval);
   }, [latestDeposit]);
 
   useEffect(() => {
     const handleUpdateDeposit = (data) => {
-      if (data?.deposit.status === "approved") {
+      if (data?.deposit.status === "approved")
         toast.success("Deposit accepted");
-      } else {
-        toast.error("Deposit rejected");
-      }
+      else toast.error("Deposit rejected");
       if (
         data?.deposit.status === "approved" ||
         data?.deposit.status === "rejected"
@@ -268,410 +321,451 @@ const Funds = () => {
         refetchUserBalance();
       }
     };
-
     socket?.on("updateDeposit", handleUpdateDeposit);
-
     return () => socket?.off("updateDeposit", handleUpdateDeposit);
   }, [socket, refetch, refetchUserBalance]);
 
+  const coinSymbol = wallet?.coin_symbol || "BTC";
+  const coinColor =
+    coinSymbol === "BTC"
+      ? "#f7931a"
+      : coinSymbol === "ETH"
+        ? "#627eea"
+        : "#26a17b";
+
   return (
-    <div className="recharge">
-      <Header pageTitle={`${wallet?.coin_symbol} wallet`} />
+    <div className="min-h-screen bg-gray-50">
+      <Header pageTitle={`${coinSymbol} wallet`} />
 
-      <div className="amount">
-        <div className="money_symbol ff_InterSemiBold"></div>
-        <div className="us_num ff_InterSemiBold">
-          US$
-          {parseFloat(balance?.coin_amount).toFixed(2)}
+      {/* ── Gradient balance header ── */}
+      <div
+        className="relative overflow-hidden px-5 pt-6 pb-10 text-center"
+        style={{
+          background:
+            "linear-gradient(135deg,#7c9ef8 0%,#a78bfa 40%,#c084fc 70%,#e879f9 100%)",
+        }}
+      >
+        <div
+          className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-30"
+          style={{
+            background: "#f0abfc",
+            filter: "blur(48px)",
+            transform: "translate(20%,-20%)",
+          }}
+        />
+        <p className="text-white font-extrabold text-4xl mb-2 relative z-10">
+          US$ {parseFloat(balance?.coin_amount || 0).toFixed(4)}
+        </p>
+        <div className="flex items-center justify-center gap-2 relative z-10">
+          <img
+            className="w-7 h-7 rounded-full"
+            src={`/assets/images/coins/${coinSymbol.toLowerCase()}-logo.png`}
+            alt={coinSymbol}
+          />
+          <div className="text-left">
+            <p className="text-white text-sm font-medium">
+              Available: {availableBalance || "0.00000000"} {coinSymbol}
+            </p>
+            <p className="text-sm font-medium" style={{ color: "#fcd34d" }}>
+              Frozen: 0.00000000 {coinSymbol}
+            </p>
+          </div>
         </div>
-        <div className="coin_num flex align-center">
-          {wallet?.coin_symbol ? (
-            <img
-              className="coin_icon"
-              src={`assets/images/coins/${wallet.coin_symbol.toLowerCase()}-logo.png`}
-              alt={wallet?.coin_name}
-            />
-          ) : (
-            <img src="" alt="" className="coin_icon" />
-          )}
-          <div className="tl">
-            <span>
-              Available:
-              {availableBalance} {wallet?.coin_symbol}
-            </span>
-            <div className="fc-5F6775 fs12 m-t-5">
-              <span>Frozen: 0.0000000 {wallet?.coin_symbol}</span>
+      </div>
+
+      {/* ── 3 Tabs ── */}
+      <div className="px-4 -mt-5 relative z-10">
+        <div className="bg-white rounded-2xl shadow-sm flex items-center p-1">
+          {["receive", "send", "convert"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className="flex-1 py-2.5 rounded-xl text-sm font-bold capitalize transition-all"
+              style={{
+                background:
+                  activeTab === tab
+                    ? "linear-gradient(90deg,#6366f1,#8b5cf6)"
+                    : "transparent",
+                color: activeTab === tab ? "#fff" : "#6366f1",
+              }}
+            >
+              {tab === "receive"
+                ? "Receive"
+                : tab === "send"
+                  ? "Send"
+                  : "Convert"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="px-4 pt-4 pb-8">
+        {/* ══ RECEIVE TAB ══ */}
+        {activeTab === "receive" && (
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-5 pt-5 pb-3 flex items-center justify-between border-b border-gray-100">
+              <p className="font-bold text-gray-900 text-base">Deposit funds</p>
+              {!timeLeft && (
+                <button
+                  onClick={() => setRechargeModal(true)}
+                  className="text-indigo-500 font-bold text-sm"
+                >
+                  Recharge
+                </button>
+              )}
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="switch_container">
-        <div className="switch_content">
-          <div
-            className={`switch_item ${activeTab === "deposit" ? "active" : ""}`}
-            onClick={() => handleSwitchTab("deposit")}
-          >
-            Deposit
-          </div>
-          <div
-            className={`switch_item ${
-              activeTab === "withdraw" ? "active" : ""
-            }`}
-            onClick={() => handleSwitchTab("withdraw")}
-          >
-            Withdraw
-          </div>
-        </div>
-      </div>
-
-      {activeTab === "deposit" ? (
-        //   Deposit Section
-        <div id="recharge-receive">
-          <div className="main_container">
-            <div className="main_content">
-              <div className="title title-recharge">
-                <div className="left">
-                  <span className="left_icon"></span>
-                  <span>Deposit funds</span>
-                </div>
-                <div className="right">
-                  <div className="recharge-modal">
-                    {!timeLeft && (
-                      <span
-                        onClick={handleSwitchRechargeModal}
-                        className="recharge-btn"
-                      >
-                        Recharge
-                      </span>
-                    )}
-                    {rechargeModal && (
-                      <form id="recharge-form" onSubmit={handleRechargeSubmit}>
-                        <div className="ssb-overlay"></div>
-                        <div
-                          className="ssb-popup ssb-popup--round ssb-popup--bottom"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            zIndex: 2016,
-                          }}
-                        >
-                          <div className="pop-box">
-                            <div className="modal-title">
-                              <span>Submit Recharge Order</span>
-                            </div>
-                            <div className="content-wrapper">
-                              <div className="info-box">
-                                <div className="line">
-                                  <div className="title">Coin Name</div>
-                                  <div className="label">
-                                    {wallet?.coin_name}
-                                  </div>
-                                </div>
-                                <div className="line">
-                                  <div className="title">Currency</div>
-                                  <div className="label">
-                                    {wallet?.coin_symbol}
-                                  </div>
-                                </div>
-                                <div className="line">
-                                  <div className="title">Network</div>
-                                  <div className="label">
-                                    {wallet?.wallet_network}
-                                  </div>
-                                </div>
-                                <div className="line">
-                                  <div className="title">Address</div>
-                                  <div className="address-label">
-                                    <span>{wallet?.wallet_address}</span>
-                                  </div>
-                                </div>
-
-                                <div className="line">
-                                  <div className="title">
-                                    Amount <br /> <span>(USD)</span>
-                                  </div>
-                                  <div>
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                      }}
-                                    >
-                                      <input
-                                        value={amount}
-                                        onChange={handleAmountChange}
-                                        type="number"
-                                        inputMode="numeric"
-                                        name="amount"
-                                        placeholder="0.00"
-                                        required
-                                      />
-                                    </div>
-                                    <div className="input_warning">
-                                      <span>Minimum Deposit Amount: </span>
-                                      <div
-                                        id="deposit_limit_coin"
-                                        style={{ display: "none" }}
-                                      >
-                                        {settings?.deposit_limit}
-                                      </div>
-                                      <span>
-                                        {" "}
-                                        (US$ {settings?.deposit_limit})
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="upload-title">
-                                  Upload Screenshot
-                                </div>
-                                <div className="upload">
-                                  <div className="upload_wrap">
-                                    <div className="ssb-uploader">
-                                      <div className="ssb-uploader__wrapper">
-                                        <div className="ssb-uploader__upload">
-                                          <img
-                                            className="ssb-uploader__upload_img"
-                                            src={
-                                              preview ||
-                                              "/assets/images/icon_camera.svg"
-                                            }
-                                            alt="Preview"
-                                          />
-                                          <input
-                                            type="file"
-                                            name="documents"
-                                            accept="image/*"
-                                            onChange={handleFileChange}
-                                            className="ssb-uploader__input"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="tip">
-                                  Please upload a screenshot of your successful
-                                  transfer
-                                </div>
-                                <button
-                                  type="submit"
-                                  className="submit ssb-button ssb-button--default ssb-button--normal"
-                                >
-                                  <div className="ssb-button__content">
-                                    <span className="ssb-button__text">
-                                      Submit
-                                    </span>
-                                  </div>
-                                </button>
-                              </div>
-                              <div
-                                className="list-box"
-                                style={{ display: "none" }}
-                              ></div>
-                            </div>
-                          </div>
-                          <div
-                            onClick={handleSwitchRechargeModal}
-                            role="button"
-                            tabIndex="0"
-                            className="ssb-icon ssb-popup__close-icon ssb-popup__close-icon--top-right"
-                          >
-                            <img
-                              src="/assets/images/icon_close.svg"
-                              className="ssb-icon__image"
-                              alt="Close"
-                            />
-                          </div>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                </div>
+            <div className="px-5 py-4">
+              <div
+                className="inline-block px-3 py-1 rounded-full text-xs font-bold text-white mb-4"
+                style={{ background: coinColor }}
+              >
+                {coinSymbol}
               </div>
-              <div>
-                <div style={{ marginTop: "10px" }}>
-                  <span style={{ fontSize: "15px", marginBottom: "5px" }}>
-                    Recipient's Wallet Address
-                  </span>
-                  <div
-                    className="address text-color ff_NunitoRegular flex items-center"
-                    id="wallet_address"
-                    style={{
-                      marginTop: "5px",
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {wallet?.wallet_address.slice(0, 20)}...
-                    <div
-                      className="flex items-center gap-2 cursor-pointer"
-                      onClick={handleCopyAddress}
-                    >
-                      <span style={{ marginLeft: "5px", cursor: "pointer" }}>
-                        <FaRegCopy />
-                      </span>
-                      <span className="text-blue-500 mt-[-2px]">
-                        Copy Address
-                      </span>
-                    </div>
+              {timeLeft && (
+                <div className="flex items-center gap-3 mb-4 p-3 bg-green-50 rounded-2xl">
+                  <MdOutlineWatchLater size={28} style={{ color: "#16a34a" }} />
+                  <div>
+                    <p className="text-sm text-gray-600">Time to accept</p>
+                    <p className="text-green-600 font-bold text-lg">
+                      {timeLeft}
+                    </p>
                   </div>
                 </div>
-                {timeLeft && (
-                  <div
-                    className=" m-t-5"
-                    style={{ fontSize: "20px", marginTop: "10px" }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <MdOutlineWatchLater
-                        size={50}
-                        style={{ color: "green" }}
-                      />
-                      <div style={{ marginLeft: "5px" }}>
-                        <span>Time to accept</span>
-                        <div
-                          style={{
-                            fontSize: "25px",
-                            color: "green",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          <span>{timeLeft}</span>
-                        </div>
-                      </div>
-                    </div>
+              )}
+              <div className="flex justify-center my-4">
+                {wallet?.wallet_qr ? (
+                  <img
+                    className="w-48 h-48 object-contain rounded-xl"
+                    src={`${API_BASE_URL}/${wallet.wallet_qr}`}
+                    alt={coinSymbol}
+                  />
+                ) : (
+                  <div className="w-48 h-48 bg-gray-100 rounded-xl flex items-center justify-center">
+                    <p className="text-gray-400 text-sm">No QR code</p>
                   </div>
                 )}
-                <div className="qr_content">
-                  {wallet.wallet_qr ? (
-                    <img
-                      className="qr_code"
-                      src={`${API_BASE_URL}/${wallet.wallet_qr}`}
-                      alt={wallet?.coin_name}
-                    />
-                  ) : (
-                    <img src="" alt="" className="qr_code" />
-                  )}
-                </div>
               </div>
+              <p className="text-center text-gray-700 text-sm font-medium mb-2">
+                {wallet?.wallet_address
+                  ? `${wallet.wallet_address.slice(0, 14)}...${wallet.wallet_address.slice(-12)}`
+                  : ""}
+              </p>
+              <button
+                onClick={handleCopyAddress}
+                className="w-full text-center text-indigo-500 font-bold text-sm py-2"
+              >
+                Copy address
+              </button>
             </div>
-            <div className="tips">
-              <div className="tips_title h3-color ff_NunitoSemiBold">
-                Do you know?
-              </div>
-              <div className="tips_content">
-                <div>
-                  Please do not send other types of assets to the above address.
-                  This operation may cause the loss of your assets. After the
-                  sending is successful, the network node needs to confirm to
-                  receive the corresponding assets. So when you complete the
-                  transfer, please contact the online customer service in time
-                  to verify the arrival.
-                </div>
-              </div>
+            <div className="mx-4 mb-5 p-4 bg-gray-50 rounded-2xl">
+              <p className="text-gray-500 text-xs leading-relaxed">
+                After the sending is successful, the network node needs to
+                confirm to receive the corresponding assets. So when you
+                complete the transfer, please contact the online customer
+                service in time to verify the arrival.
+              </p>
             </div>
           </div>
-        </div>
-      ) : (
-        //  Withdraw Section
-        <div id="recharge-send">
-          <div className="main_container">
-            <div className="main_content">
-              <div className="title title-recharge">
-                <div className="left">
-                  <span className="left_icon"></span>
-                  <span>Withdrawal</span>
-                </div>
-              </div>
-              <div className="coin_type">
-                <div className="coin_item active">{wallet?.coin_symbol}</div>
-              </div>
-              <div className="input_content ff_NunitoSemiBold">
-                <div className="address">
-                  <input
-                    onChange={handleWithdrawChange}
-                    name="withdrawAddress"
-                    type="text"
-                    value={withdrawAddress}
-                    id="receiver_account"
-                    placeholder="Receiving Address"
-                    className="address_input"
-                  />
-                  <span onClick={() => setWithdrawAddress("")}>
-                    <img
-                      src="/assets/images/icon_delete.svg"
-                      className="icon_delete"
-                      alt="Delete"
-                    />
-                  </span>
-                </div>
-                <div className="address">
-                  <img
-                    className="coin_icon receiver_amount_input"
-                    src={`assets/images/coins/${wallet?.coin_symbol?.toLowerCase()}-logo.png`}
-                    alt={wallet?.coin_name}
-                  />
+        )}
 
-                  <input
-                    onChange={handleWithdrawChange}
-                    name="withdrawAmount"
-                    type="number"
-                    value={withdrawAmount}
-                    inputMode="numeric"
-                    id="receiver_amount"
-                    placeholder="0.00"
-                    className="send-am-input"
-                  />
-                  <span className="coin_symbol receiver_amount_input">
-                    USD
-                    <span
-                      className="all"
-                      onClick={() => setWithdrawAmount(balance?.coin_amount)}
-                    >
-                      {" "}
-                      | Max
-                    </span>
-                  </span>
-                </div>
-                <div className="input_warning">
-                  <span>Minimum Withdrawal Amount: </span>
-                  <div id="withdraw_limit_coin" style={{ display: "none" }}>
-                    {settings?.withdrawal_limit}
-                  </div>
-                  <span>
-                    {settings?.withdrawal_limit} USD
-                    <span> (US$ {settings?.withdrawal_limit}) </span>
-                  </span>
-                </div>
+        {/* ══ SEND TAB ══ */}
+        {activeTab === "send" && (
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+              <p className="font-bold text-gray-900 text-base">Withdrawal</p>
+            </div>
+            <div className="px-5 py-4 flex flex-col gap-4">
+              <div
+                className="inline-block px-3 py-1 rounded-full text-xs font-bold text-white self-start"
+                style={{ background: coinColor }}
+              >
+                {coinSymbol}
               </div>
-              <div className="flex justify-center">
+
+              {/* Address input */}
+              <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50">
+                <input
+                  type="text"
+                  placeholder="Receiving Address"
+                  value={withdrawAddress}
+                  onChange={(e) => setWithdrawAddress(e.target.value)}
+                  className="flex-1 min-w-0 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400"
+                />
+                {withdrawAddress && (
+                  <button
+                    onClick={() => setWithdrawAddress("")}
+                    className="flex-shrink-0"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path
+                        d="M6 2h4l1 1H5L6 2zm-2 2h8l-.8 9H4.8L3 4zm3 2v5m2-5v5"
+                        stroke="#9ca3af"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* Amount input — fixed Max overflow */}
+              <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50">
+                <img
+                  className="w-6 h-6 rounded-full flex-shrink-0"
+                  src={`/assets/images/coins/${coinSymbol.toLowerCase()}-logo.png`}
+                  alt={coinSymbol}
+                />
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  className="flex-1 min-w-0 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400"
+                />
+                <span className="flex-shrink-0 text-gray-400 text-xs font-medium">
+                  {coinSymbol}
+                </span>
+                <span className="flex-shrink-0 text-gray-300 text-sm">|</span>
                 <button
-                  type="button"
-                  className="send_action fs-16 ff_NunitoBold"
-                  onClick={handleWithdrawSubmit}
+                  onClick={() => setWithdrawAmount(balance?.coin_amount)}
+                  className="flex-shrink-0 text-indigo-500 font-bold text-sm"
                 >
-                  Send now
+                  Max
                 </button>
               </div>
-              <div className="send_tips ff_NunitoRegular">
-                <div>
-                  Please check if your receiving address is correct before
-                  sending, so as not to cause loss of assets
+
+              <p className="text-gray-400 text-xs">
+                Minimum Withdrawal: {settings?.withdrawal_limit} USD (US${" "}
+                {settings?.withdrawal_limit})
+              </p>
+
+              <button
+                onClick={handleWithdrawSubmit}
+                className="w-full py-4 rounded-2xl text-white font-extrabold text-base mt-2"
+                style={{
+                  background: "linear-gradient(90deg,#f472b6,#a855f7)",
+                  boxShadow: "0 8px 24px rgba(168,85,247,0.35)",
+                }}
+              >
+                Send now
+              </button>
+              <p className="text-gray-400 text-xs text-center">
+                Please do not transfer funds to strangers
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ══ CONVERT TAB ══ */}
+        {activeTab === "convert" && (
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+              <p className="font-bold text-gray-900 text-base">Convert</p>
+            </div>
+            <div className="px-5 py-4 flex flex-col gap-4">
+              {/* From — selected coin */}
+              <div>
+                <p className="text-gray-500 text-xs font-semibold mb-2">From</p>
+                <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50">
+                  <img
+                    className="w-7 h-7 rounded-full flex-shrink-0"
+                    src={`/assets/images/coins/${coinSymbol.toLowerCase()}-logo.png`}
+                    alt={coinSymbol}
+                  />
+                  <span className="text-gray-900 font-bold text-base flex-shrink-0">
+                    {coinSymbol}
+                  </span>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    value={convertAmount}
+                    onChange={(e) => setConvertAmount(e.target.value)}
+                    className="flex-1 min-w-0 bg-transparent text-right text-gray-800 font-bold text-base outline-none"
+                  />
+                  <button
+                    onClick={() => setConvertAmount(balance?.coin_amount)}
+                    className="flex-shrink-0 text-indigo-500 font-bold text-sm"
+                  >
+                    Max
+                  </button>
                 </div>
-                <div>Withdrawal fee is {withdrawalFee * 100}%</div>
+                <p className="text-gray-400 text-xs mt-1.5 px-1">
+                  Balance: {parseFloat(balance?.coin_amount || 0).toFixed(4)}{" "}
+                  USDT
+                </p>
               </div>
-            </div>
-            <div className="tips" style={{ textAlign: "center" }}>
-              <div className="tips_content">
-                <p>Please do not transfer funds to strangers</p>
+
+              {/* Down arrow */}
+              <div className="flex justify-center">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center"
+                  style={{
+                    background: "linear-gradient(135deg,#6366f1,#a855f7)",
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M8 3v10M5 10l3 3 3-3"
+                      stroke="white"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               </div>
+
+              {/* To — always USDT, shows real converted amount */}
+              <div>
+                <p className="text-gray-500 text-xs font-semibold mb-2">To</p>
+                <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50">
+                  <img
+                    className="w-7 h-7 rounded-full flex-shrink-0"
+                    src="/assets/images/coins/usdt-logo.png"
+                    alt="USDT"
+                  />
+                  <span className="text-gray-900 font-bold text-base flex-shrink-0">
+                    USDT
+                  </span>
+                  {/* Auto-calculated USDT amount */}
+                  <span className="flex-1 text-right text-gray-800 font-bold text-base">
+                    {convertedResult}
+                  </span>
+                </div>
+                <p className="text-gray-400 text-xs mt-1.5 px-1">
+                  Fee: 0.3% &nbsp;·&nbsp; You receive:{" "}
+                  {convertAmount
+                    ? (parseFloat(convertAmount) * 0.997).toFixed(4)
+                    : "0.0000"}{" "}
+                  USDT
+                </p>
+              </div>
+
+              <button
+                onClick={handleConvertSubmit}
+                className="w-full py-4 rounded-2xl text-white font-extrabold text-base mt-2"
+                style={{
+                  background: "linear-gradient(90deg,#f472b6,#a855f7)",
+                  boxShadow: "0 8px 24px rgba(168,85,247,0.35)",
+                }}
+              >
+                Convert
+              </button>
+              <p className="text-gray-400 text-xs text-center leading-relaxed">
+                You can not trade between two cryptocurrencies directly.
+                Exchange to USDT first, then to any other cryptocurrency.
+              </p>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* ══ RECHARGE MODAL ══ */}
+      {rechargeModal && (
+        <div className="fixed inset-0 z-50 flex items-end">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setRechargeModal(false)}
+          />
+          <div className="relative w-full bg-white rounded-t-3xl px-5 pt-6 pb-10 z-10 max-h-screen overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-extrabold text-gray-900 text-lg">
+                Submit Recharge Order
+              </h3>
+              <button
+                onClick={() => setRechargeModal(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M2 2l10 10M12 2L2 12"
+                    stroke="#374151"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+            {[
+              { label: "Currency", value: wallet?.coin_symbol },
+              { label: "Network", value: wallet?.wallet_network },
+              { label: "Address", value: wallet?.wallet_address },
+            ].map((row) => (
+              <div
+                key={row.label}
+                className="flex items-start justify-between px-4 py-3 rounded-2xl border border-gray-100 bg-gray-50 mb-3"
+              >
+                <span className="text-gray-500 text-sm flex-shrink-0">
+                  {row.label}
+                </span>
+                <span className="text-gray-800 text-sm font-medium text-right break-all ml-4">
+                  {row.value}
+                </span>
+              </div>
+            ))}
+            <div className="flex items-center justify-between px-4 py-3 rounded-2xl border border-gray-200 bg-gray-50 mb-3">
+              <span className="text-gray-500 text-sm flex-shrink-0">
+                Amount (USD)
+              </span>
+              <input
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                type="number"
+                placeholder="Please enter the amount"
+                className="bg-transparent text-right text-gray-800 text-sm outline-none placeholder-gray-400 flex-1 min-w-0 ml-4"
+              />
+            </div>
+            <p className="text-gray-400 text-xs mb-5 px-1">
+              Minimum Deposit Amount: US$ {settings?.deposit_limit}
+            </p>
+            <p className="text-gray-700 font-semibold text-sm mb-3">
+              Upload Screenshot
+            </p>
+            <label className="relative flex items-center justify-center w-36 h-36 rounded-2xl bg-indigo-50 border-2 border-dashed border-indigo-200 cursor-pointer mb-2 overflow-hidden mx-auto">
+              {preview ? (
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"
+                    stroke="#a5b4fc"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <circle
+                    cx="12"
+                    cy="13"
+                    r="4"
+                    stroke="#a5b4fc"
+                    strokeWidth="1.5"
+                  />
+                </svg>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </label>
+            <p className="text-gray-400 text-xs text-center mb-6">
+              Please upload a screenshot of your successful transfer
+            </p>
+            <button
+              onClick={handleRechargeSubmit}
+              className="w-full py-4 rounded-2xl text-white font-extrabold text-base"
+              style={{
+                background: "linear-gradient(90deg,#f472b6,#a855f7)",
+                boxShadow: "0 8px 24px rgba(168,85,247,0.35)",
+              }}
+            >
+              Submit
+            </button>
           </div>
         </div>
       )}
