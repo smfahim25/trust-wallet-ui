@@ -1,35 +1,46 @@
 import React, { useState } from "react";
 
-/* ── Coin icon pills ─────────────────────────────────────────── */
-const USDT = () => (
-  <div
-    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-    style={{ background: "linear-gradient(135deg,#26a17b,#1a7a5e)" }}
-  >
-    T
-  </div>
-);
-const BTC = () => (
-  <div
-    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-    style={{ background: "linear-gradient(135deg,#f7931a,#e07c10)" }}
-  >
-    ₿
-  </div>
-);
-const ETH = () => (
-  <div
-    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+/* ── Coin config ─────────────────────────────────────────────── */
+const COINS = [
+  { symbol: "USDT", label: "USDT", color: "#26a17b" },
+  { symbol: "BTC", label: "BTC", color: "#f7931a" },
+  { symbol: "ETH", label: "ETH", color: "#627eea" },
+];
+
+/* ── Coin Logo using your real image assets ──────────────────── */
+const CoinLogo = ({ symbol, size = 36, selected = false, onClick }) => (
+  <button
+    onClick={onClick}
     style={{
-      background: "linear-gradient(135deg,#e8eaf6,#c5cae9)",
-      border: "1.5px solid #9fa8da",
+      width: size,
+      height: size,
+      borderRadius: "50%",
+      padding: 0,
+      border: selected ? "2.5px solid #7c3aed" : "2.5px solid transparent",
+      boxShadow: selected ? "0 0 0 2px #ede9fe" : "none",
+      background: "none",
+      cursor: onClick ? "pointer" : "default",
+      flexShrink: 0,
+      transition: "border 0.2s, box-shadow 0.2s",
     }}
   >
-    <svg width="14" height="20" viewBox="0 0 14 20" fill="none">
-      <path d="M7 0L0 10.2l7 4.1 7-4.1L7 0z" fill="#627eea" opacity=".6" />
-      <path d="M0 10.2L7 14.3l7-4.1L7 20 0 10.2z" fill="#627eea" />
-    </svg>
-  </div>
+    <img
+      src={`/assets/images/coins/${symbol.toLowerCase()}-logo.png`}
+      alt={symbol}
+      style={{
+        width: "100%",
+        height: "100%",
+        borderRadius: "50%",
+        display: "block",
+      }}
+      onError={(e) => {
+        // Fallback to colored circle if image missing
+        e.target.style.display = "none";
+        e.target.parentNode.style.background =
+          COINS.find((c) => c.symbol === symbol)?.color || "#ccc";
+      }}
+    />
+  </button>
 );
 
 /* ── Shield icon ─────────────────────────────────────────────── */
@@ -322,9 +333,9 @@ const HostingWorkPage = ({ onGoToArbitrage, onBack }) => (
             <div>
               <p className="text-gray-400 text-xs mb-2">Arbitrage coin types</p>
               <div className="flex items-center gap-1.5">
-                <USDT />
-                <BTC />
-                <ETH />
+                {COINS.map((coin) => (
+                  <CoinLogo key={coin.symbol} symbol={coin.symbol} size={36} />
+                ))}
               </div>
             </div>
             <button
@@ -350,9 +361,10 @@ const HostingWorkPage = ({ onGoToArbitrage, onBack }) => (
 const ArbitragePage = ({ onBack }) => {
   const [amount, setAmount] = useState(0);
   const [sliderVal, setSliderVal] = useState(0);
-  const maxBalance = 0; // user balance
+  const [selectedCoin, setSelectedCoin] = useState("BTC");
+  const maxBalance = 0;
 
-  const expectedEarnings = (amount * 0.02).toFixed(2); // 2% mid-range daily
+  const expectedEarnings = (amount * 0.02).toFixed(2);
 
   const benefits = [
     "Daily income is sent to your USDT, BTC, ETH wallet",
@@ -405,7 +417,7 @@ const ArbitragePage = ({ onBack }) => {
         </div>
       </div>
 
-      {/* ── Hero banner card (overlapping header) ── */}
+      {/* ── Hero banner card ── */}
       <div className="mx-4 -mt-8 relative z-10">
         <div
           className="rounded-3xl overflow-hidden shadow-xl"
@@ -424,10 +436,8 @@ const ArbitragePage = ({ onBack }) => {
               </p>
               <p className="text-indigo-200 text-sm">Zero risk, fast return</p>
             </div>
-            {/* Robot illustration */}
             <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center">
               <div className="relative">
-                {/* Robot body */}
                 <div
                   className="w-12 h-14 rounded-2xl flex flex-col items-center justify-center gap-1"
                   style={{
@@ -435,16 +445,13 @@ const ArbitragePage = ({ onBack }) => {
                     boxShadow: "0 4px 16px rgba(99,102,241,0.4)",
                   }}
                 >
-                  {/* Eyes */}
                   <div className="flex gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
                     <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
                   </div>
-                  {/* Mouth */}
                   <div className="w-6 h-1.5 rounded-full bg-cyan-400" />
                   <p className="text-indigo-600 text-xs font-bold">HI!</p>
                 </div>
-                {/* Glow base */}
                 <div
                   className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-14 h-3 rounded-full opacity-40"
                   style={{ background: "#6366f1", filter: "blur(6px)" }}
@@ -499,7 +506,9 @@ const ArbitragePage = ({ onBack }) => {
               </p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs mb-1">Balance (BTC)</p>
+              <p className="text-gray-400 text-xs mb-1">
+                Balance ({selectedCoin})
+              </p>
               <p className="text-gray-800 font-semibold text-sm">0</p>
             </div>
             <div>
@@ -513,15 +522,34 @@ const ArbitragePage = ({ onBack }) => {
             </div>
           </div>
 
-          {/* Coin types */}
+          {/* ── Coin selector (clickable) ── */}
           <div className="mb-5 pb-5 border-b border-gray-100">
             <p className="text-gray-500 text-xs font-medium mb-3">
               Arbitrage coin types
             </p>
-            <div className="flex items-center gap-2">
-              <USDT />
-              <BTC />
-              <ETH />
+            <div className="flex items-center gap-3">
+              {COINS.map((coin) => (
+                <div
+                  key={coin.symbol}
+                  className="flex flex-col items-center gap-1"
+                >
+                  <CoinLogo
+                    symbol={coin.symbol}
+                    size={40}
+                    selected={selectedCoin === coin.symbol}
+                    onClick={() => setSelectedCoin(coin.symbol)}
+                  />
+                  <span
+                    className="text-xs font-semibold"
+                    style={{
+                      color:
+                        selectedCoin === coin.symbol ? "#7c3aed" : "#9ca3af",
+                    }}
+                  >
+                    {coin.label}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -537,7 +565,8 @@ const ArbitragePage = ({ onBack }) => {
                 background: "#fafafa",
               }}
             >
-              <BTC />
+              {/* Show selected coin logo in input */}
+              <CoinLogo symbol={selectedCoin} size={36} />
               <div className="flex items-center gap-1 text-indigo-400">
                 <ArrowsUpDown />
               </div>
@@ -549,7 +578,10 @@ const ArbitragePage = ({ onBack }) => {
                 className="flex-1 bg-transparent text-gray-800 font-bold text-lg outline-none"
                 style={{ fontFamily: "'DM Sans', sans-serif" }}
               />
-              <span className="text-gray-400 text-sm font-medium">BTC</span>
+              {/* Show selected coin symbol label */}
+              <span className="text-gray-400 text-sm font-medium">
+                {selectedCoin}
+              </span>
             </div>
           </div>
 
@@ -586,10 +618,7 @@ const ArbitragePage = ({ onBack }) => {
           <button
             className="w-full py-4 rounded-2xl text-white font-extrabold text-base transition-transform active:scale-98"
             style={{
-              background:
-                amount > 0
-                  ? "linear-gradient(90deg,#f472b6,#a855f7)"
-                  : "linear-gradient(90deg,#f472b6,#a855f7)",
+              background: "linear-gradient(90deg,#f472b6,#a855f7)",
               boxShadow: "0 8px 24px rgba(168,85,247,0.4)",
               fontFamily: "'DM Sans', sans-serif",
               letterSpacing: "0.3px",

@@ -1,10 +1,11 @@
 import React from "react";
 import "./GuestHome.css";
 import backGroundImg from "../../Assets/images/background.png";
-
-import introImg from "../../Assets/images/front_image.png";
+import introImg from "../../Assets/images/phone.png";
 import google_play from "../../Assets/images/google_play.png";
 import appleLogo from "../../Assets/images/apple_store.png";
+import trust from "../../Assets/images/trust.png";
+import { IoMdCheckmark } from "react-icons/io";
 
 const GuestHome = () => {
   return (
@@ -27,38 +28,44 @@ const GuestHome = () => {
             <img
               width="56"
               height="56"
-              src="https://www.svgrepo.com/show/424916/meta-logo-facebook.svg"
+              src={trust}
               className="custom-logo"
               alt="MetaTrade"
               decoding="async"
             />
           </a>
           <div className="theme-title ">
-            <span className="text-black">Meta-Trade</span>
+            <span className="text-white">Trust Walletr</span>
           </div>
         </div>
-        <div className="content-title">
+        <div className="content-title ">
           <span>Get Trust Wallet</span>
         </div>
-        <div className="content-subtitle !text-black">
+        <div className="content-subtitle">
           The easiest and most secure crypto wallet
         </div>
         <div className="intro_list">
           <div className="intro_item">
-            <i className="icon_select dashicons dashicons-yes "></i>
-            <span className="!text-black">
+            <i className="icon_select dashicons dashicons-yes !text-white">
+              <IoMdCheckmark size={20} />
+            </i>
+            <span className="">
               Store all your crypto and NFTs in one place
             </span>
           </div>
           <div className="intro_item">
-            <i className="icon_select dashicons dashicons-yes"></i>
-            <span className="!text-black">
+            <i className="icon_select dashicons dashicons-yes !text-white">
+              <IoMdCheckmark size={20} />
+            </i>
+            <span className="">
               Trade 500+ assets on DEXes and earn interest
             </span>
           </div>
           <div className="intro_item">
-            <i className="icon_select dashicons dashicons-yes"></i>
-            <span className="!text-black">No Coinbase account required</span>
+            <i className="icon_select dashicons dashicons-yes !text-white">
+              <IoMdCheckmark size={20} />
+            </i>
+            <span className="">No Coinbase account required</span>
           </div>
         </div>
 

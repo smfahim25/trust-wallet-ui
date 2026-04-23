@@ -33,7 +33,7 @@
   font-weight: 600;
   font-size: 8.53333vw;
   text-align: center;
-  color: black;
+  color: white;
 }
 
 a:focus,
@@ -63,7 +63,7 @@ a {
 
 .main .content-subtitle {
   margin-top: 6.13333vw;
-  color: #fff;
+  color: white;
   font-family: "Poppins", sans-serif !important;
   font-weight: 600;
   font-size: 4.26667vw;
