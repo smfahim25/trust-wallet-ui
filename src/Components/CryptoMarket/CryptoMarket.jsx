@@ -62,9 +62,14 @@ function CryptoMarket() {
               >
                 <div className="chart-wrapper">
                   <Chart
+                    color={
+                      Number(coin.percent_change_24h) >= 0
+                        ? "#10b981"
+                        : "#ef4444"
+                    }
                     one={coin?.percent_change_1h}
-                    seven={coin?.percent_change_7d}
                     four={coin?.percent_change_24h}
+                    seven={coin?.percent_change_7d}
                   />
                 </div>
               </div>

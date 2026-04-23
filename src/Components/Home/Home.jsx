@@ -24,22 +24,38 @@ function Home() {
 
           <div className="metaverse-brand">
             <div className="metaverse-logo-icon">
-              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                viewBox="0 0 40 40"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   d="M20 4L36 13V27L20 36L4 27V13L20 4Z"
                   fill="rgba(255,255,255,0.25)"
                   stroke="white"
                   strokeWidth="1.5"
                 />
-                <path d="M20 4L36 13L20 22L4 13L20 4Z" fill="rgba(255,255,255,0.55)" />
-                <path d="M20 22L36 13V27L20 36V22Z" fill="rgba(255,255,255,0.35)" />
-                <path d="M20 22L4 13V27L20 36V22Z" fill="rgba(255,255,255,0.2)" />
+                <path
+                  d="M20 4L36 13L20 22L4 13L20 4Z"
+                  fill="rgba(255,255,255,0.55)"
+                />
+                <path
+                  d="M20 22L36 13V27L20 36V22Z"
+                  fill="rgba(255,255,255,0.35)"
+                />
+                <path
+                  d="M20 22L4 13V27L20 36V22Z"
+                  fill="rgba(255,255,255,0.2)"
+                />
               </svg>
             </div>
-            <span>Metaverse</span>
+            <span>Meta</span>
           </div>
 
-          <button className="header-icon-btn" onClick={() => setToggleMenu(!toggleMenu)}>
+          <button
+            className="header-icon-btn"
+            onClick={() => setToggleMenu(!toggleMenu)}
+          >
             <img src={menuIcon} alt="Menu" />
           </button>
         </div>
@@ -94,7 +110,9 @@ function Home() {
           </div>
         </div>
 
-        <div id="crypto-market">{activeTab === "crypto" && <CryptoMarket />}</div>
+        <div id="crypto-market">
+          {activeTab === "crypto" && <CryptoMarket />}
+        </div>
         <div id="forex-market">{activeTab === "forex" && <ForexMarket />}</div>
         <div id="metal-market">{activeTab === "metal" && <MetalMarket />}</div>
         <div id="top-market">{activeTab === "top" && <TopMarket />}</div>
@@ -121,7 +139,9 @@ function Home() {
         <div className="feature-card">
           <div className="feature-card-text">
             <h3>Leveraged trading</h3>
-            <p>Intelligent leveraged trading to improve the efficiency of ROI</p>
+            <p>
+              Intelligent leveraged trading to improve the efficiency of ROI
+            </p>
           </div>
           <div className="feature-card-visual">
             <div className="lev-chart-card" />

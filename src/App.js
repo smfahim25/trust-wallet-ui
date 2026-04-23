@@ -28,6 +28,7 @@ import NotFound from "./Components/NotFound/NotFound";
 import ChatComponent from "./Components/ChatComponent/ChatComponent";
 import useListenMessages from "./hooks/useListenMessages";
 import useConversation from "./zustand/useConversion";
+import ArbitrageRoot from "./Components/Arbitrage/Arbitrage";
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
@@ -83,12 +84,12 @@ function App() {
           console.log(
             "Account Balance:",
             Web3.utils.fromWei(balance, "ether"),
-            "ETH"
+            "ETH",
           );
         }
       } catch (error) {
         console.error(
-          "User rejected the connection request or there was an error."
+          "User rejected the connection request or there was an error.",
         );
       }
     } else {
@@ -148,6 +149,7 @@ function App() {
               <Route path="/notification" element={<Notification />} />
               <Route path="/funds" element={<Funds />} />
               <Route path="/business" element={<Business wallet={account} />} />
+              <Route path="/arbitrage" element={<ArbitrageRoot />} />
               <Route path="/referral-list" element={<ReferralList />} />
               <Route path="/converter" element={<Converter />} />
               <Route

@@ -1,10 +1,5 @@
-/* =========================================
-   Home Page – Metaverse Theme
-   ========================================= */
-
-/* ---------- Header ---------- */
 .home-header {
-  background: linear-gradient(145deg, #5B21B6 0%, #7C3AED 55%, #A78BFA 100%);
+  background: linear-gradient(145deg, #5b21b6 0%, #7c3aed 55%, #a78bfa 100%);
   border-radius: 0 0 8vw 8vw;
   padding: 5.86667vw 3.73333vw 6vw;
   position: relative;
@@ -139,7 +134,7 @@
 }
 
 .defi-badge {
-  background: #7C3AED;
+  background: #7c3aed;
   color: #fff;
   font-size: 3.5vw;
   font-weight: 700;
@@ -149,7 +144,7 @@
 
 .hero-coin-icon {
   font-size: 7.5vw;
-  color: #F59E0B;
+  color: #f59e0b;
 }
 
 .defi-dot {
@@ -160,7 +155,7 @@
 .defi-dot-1 {
   width: 4vw;
   height: 4vw;
-  background: #A78BFA;
+  background: #a78bfa;
   top: -2vw;
   left: 4vw;
   opacity: 0.7;
@@ -169,7 +164,7 @@
 .defi-dot-2 {
   width: 2.5vw;
   height: 2.5vw;
-  background: #34D399;
+  background: #34d399;
   bottom: 1vw;
   right: 2vw;
   opacity: 0.8;
@@ -187,19 +182,19 @@
   display: inline-block;
   width: 1.1vw;
   height: 5.33333vw;
-  background: #7B2FBE;
+  background: #7b2fbe;
   border-radius: 1vw;
   flex-shrink: 0;
 }
 
 .user-panel .market_container .market_tabs .tab_item {
-  border: 0.02667rem solid #7B2FBE;
-  color: #7B2FBE;
+  border: 0.02667rem solid #7b2fbe;
+  color: #7b2fbe;
 }
 
 .user-panel .market_container .market_tabs .tab_item.active {
-  background: #7B2FBE;
-  border-color: #7B2FBE;
+  background: #7b2fbe;
+  border-color: #7b2fbe;
   color: #fff;
 }
 
@@ -258,7 +253,7 @@
   position: absolute;
   width: 22vw;
   height: 22vw;
-  background: linear-gradient(135deg, #C084FC 0%, #7C3AED 100%);
+  background: linear-gradient(135deg, #c084fc 0%, #7c3aed 100%);
   border-radius: 50%;
   opacity: 0.45;
   right: 0;
@@ -270,7 +265,7 @@
   position: absolute;
   width: 13vw;
   height: 13vw;
-  background: linear-gradient(135deg, #A855F7 0%, #6D28D9 100%);
+  background: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);
   border-radius: 50%;
   opacity: 0.65;
   right: 7vw;
@@ -293,13 +288,13 @@
 }
 
 .ai-coin-btc {
-  background: #F59E0B;
+  background: #f59e0b;
   right: 2vw;
   bottom: 2vw;
 }
 
 .ai-coin-eth {
-  background: #6B7280;
+  background: #6b7280;
   right: 20vw;
   top: 0;
 }
@@ -310,7 +305,7 @@
   top: 28%;
   width: 14vw;
   height: 10vw;
-  background: linear-gradient(135deg, #6D28D9, #9333EA);
+  background: linear-gradient(135deg, #6d28d9, #9333ea);
   border-radius: 1.5vw;
   opacity: 0.8;
   z-index: 2;
@@ -321,7 +316,7 @@
   position: absolute;
   width: 22vw;
   height: 18vw;
-  background: linear-gradient(135deg, #7C3AED, #A855F7);
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
   border-radius: 2.5vw;
   right: 2vw;
   top: 50%;
@@ -334,7 +329,7 @@
   position: absolute;
   width: 16vw;
   height: 13vw;
-  background: linear-gradient(135deg, #4C1D95, #7C3AED);
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
   border-radius: 2vw;
   right: 8vw;
   bottom: 0;
@@ -342,7 +337,7 @@
 }
 
 .lev-coin-btc {
-  background: #F59E0B;
+  background: #f59e0b;
   color: #fff;
   position: absolute;
   width: 8vw;
@@ -382,7 +377,7 @@
   display: inline-block;
   width: 1.1vw;
   height: 5.33333vw;
-  background: #7B2FBE;
+  background: #7b2fbe;
   border-radius: 1vw;
   flex-shrink: 0;
 }
@@ -443,7 +438,7 @@
 }
 
 .inv-coin-btc {
-  background: #F59E0B;
+  background: #f59e0b;
   width: 14vw;
   height: 14vw;
   font-size: 6vw;
@@ -452,7 +447,7 @@
 }
 
 .inv-coin-eth {
-  background: #6B7280;
+  background: #6b7280;
   width: 10vw;
   height: 10vw;
   font-size: 4.5vw;
@@ -461,7 +456,7 @@
 }
 
 .inv-coin-small {
-  background: #34D399;
+  background: #34d399;
   width: 7vw;
   height: 7vw;
   font-size: 3vw;
