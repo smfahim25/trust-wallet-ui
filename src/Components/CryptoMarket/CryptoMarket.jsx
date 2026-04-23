@@ -46,11 +46,9 @@ function CryptoMarket() {
               />
               <div>
                 <div className="pro_title ff_NunitoBold fc-353F52">
-                  {coin.symbol} Coin
+                  {coin.symbol}
                 </div>
-                <div className="pro_subtitle fc-5F6775">
-                  {coin.symbol} Wallet
-                </div>
+                <div className="pro_subtitle fc-5F6775">USDT</div>
               </div>
             </div>
             <div className="pro_line">
