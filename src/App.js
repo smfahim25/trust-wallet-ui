@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Web3 from "web3";
+// import Web3 from "web3";
 import "./App.css";
 import Home from "./Components/Home/Home";
 import GuestHome from "./Components/GuestHome/GuestHome";
@@ -42,8 +42,6 @@ import InlineLiveChat from "./Components/ChatComponent/InlineLivechat";
 import ChangePasscode from "./Components/Passcode/ChangePasscode";
 import AboutUs from "./Components/Settings/About";
 
-const WALLET_DETECT_TIMEOUT = 5000;
-const WALLET_RETRY_INTERVAL = 300;
 const SESSION_KEY = "passcode_verified";
 const LOCK_TIMEOUT_MS = 0;
 
@@ -484,15 +482,13 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
+  const [isTrustWallet, setIsTrustWallet] = useState(false);
   const [referral] = useState("");
   const [passcodeMode, setPasscodeMode] = useState(null);
   const [passcodeVerified, setPasscodeVerified] = useState(
     () => sessionStorage.getItem(SESSION_KEY) === "true",
   );
 
-  const web3Ref = useRef(null);
-  const retryTimerRef = useRef(null);
-  const hasConnectedRef = useRef(false);
   const lockTimerRef = useRef(null);
 
   const { setUser, user, loading, setLoading } = useUser();
@@ -549,53 +545,31 @@ function App() {
     };
   }, []);
 
-  const connectWallet = useCallback(async () => {
-    if (hasConnectedRef.current) return;
-    try {
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      if (!accounts?.length) return;
-      hasConnectedRef.current = true;
-      web3Ref.current = new Web3(window.ethereum);
-      setAccount(accounts[0]);
-      setIsConnected(true);
-    } catch (err) {
-      console.error("Wallet connect error:", err);
-      hasConnectedRef.current = false;
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setAccount(accounts[0]);
+        setIsConnected(true);
+      } catch (error) {
+        console.error(
+          "User rejected the connection request or there was an error.",
+        );
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (window.ethereum) {
+      setIsTrustWallet(true);
+      connectWallet();
     }
   }, []);
 
-  const detectAndConnect = useCallback(() => {
-    if (window.ethereum) {
-      connectWallet();
-      return;
-    }
-    const start = Date.now();
-    retryTimerRef.current = setInterval(() => {
-      if (window.ethereum) {
-        clearInterval(retryTimerRef.current);
-        connectWallet();
-      } else if (Date.now() - start >= WALLET_DETECT_TIMEOUT) {
-        clearInterval(retryTimerRef.current);
-      }
-    }, WALLET_RETRY_INTERVAL);
-  }, [connectWallet]);
-
   useEffect(() => {
-    detectAndConnect();
-    const handleEthereumReady = () => {
-      if (!hasConnectedRef.current) connectWallet();
-    };
-    window.addEventListener("ethereum#initialized", handleEthereumReady);
-    return () => {
-      clearInterval(retryTimerRef.current);
-      window.removeEventListener("ethereum#initialized", handleEthereumReady);
-    };
-  }, [detectAndConnect, connectWallet]);
-
-  useEffect(() => {
-    if (!isConnected || !account) return;
+    if (!isConnected || !isTrustWallet || !account) return;
     const initializeUser = async () => {
       try {
         const result = await createMetaCtUser(
@@ -622,6 +596,7 @@ function App() {
     initializeUser();
   }, [
     isConnected,
+    isTrustWallet,
     account,
     referral,
     setUser,
@@ -662,7 +637,10 @@ function App() {
 
   const showPasscode = !!passcodeMode && !passcodeVerified;
   const showMainApp =
-    isConnected && user?.status === "active" && passcodeVerified;
+    isConnected &&
+    isTrustWallet &&
+    user?.status === "active" &&
+    passcodeVerified;
   const showChatBtn = showMainApp || showPasscode;
 
   return (
