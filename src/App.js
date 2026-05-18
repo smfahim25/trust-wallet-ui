@@ -224,7 +224,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
       )}
 
       <div ref={btnRef}>
-        {/* Contact menu */}
         {showMenu && (
           <div
             ref={menuRef}
@@ -252,7 +251,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
                 border: "1px solid rgba(255,255,255,0.07)",
               }}
             >
-              {/* Header */}
               <div
                 style={{
                   background: "linear-gradient(135deg,#6366f1,#a855f7)",
@@ -314,9 +312,7 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
                 </button>
               </div>
 
-              {/* Options */}
               <div style={{ padding: "8px 4px" }}>
-                {/* Live Chat */}
                 <button
                   onClick={handleLiveChatClick}
                   style={{
@@ -401,7 +397,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
               </div>
             </div>
 
-            {/* Arrow pointing down */}
             <div
               style={{
                 display: "flex",
@@ -423,7 +418,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
           </div>
         )}
 
-        {/* Floating button */}
         <div
           data-chat-button="true"
           onMouseDown={handleMouseDown}
@@ -490,7 +484,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
-  const [isTrustWallet, setIsTrustWallet] = useState(false);
   const [referral] = useState("");
   const [passcodeMode, setPasscodeMode] = useState(null);
   const [passcodeVerified, setPasscodeVerified] = useState(
@@ -567,9 +560,9 @@ function App() {
       web3Ref.current = new Web3(window.ethereum);
       setAccount(accounts[0]);
       setIsConnected(true);
-      setIsTrustWallet(true);
     } catch (err) {
       console.error("Wallet connect error:", err);
+      hasConnectedRef.current = false;
     }
   }, []);
 
@@ -583,8 +576,9 @@ function App() {
       if (window.ethereum) {
         clearInterval(retryTimerRef.current);
         connectWallet();
-      } else if (Date.now() - start >= WALLET_DETECT_TIMEOUT)
+      } else if (Date.now() - start >= WALLET_DETECT_TIMEOUT) {
         clearInterval(retryTimerRef.current);
+      }
     }, WALLET_RETRY_INTERVAL);
   }, [connectWallet]);
 
@@ -601,7 +595,7 @@ function App() {
   }, [detectAndConnect, connectWallet]);
 
   useEffect(() => {
-    if (!isConnected || !isTrustWallet || !account) return;
+    if (!isConnected || !account) return;
     const initializeUser = async () => {
       try {
         const result = await createMetaCtUser(
@@ -628,7 +622,6 @@ function App() {
     initializeUser();
   }, [
     isConnected,
-    isTrustWallet,
     account,
     referral,
     setUser,
@@ -669,14 +662,10 @@ function App() {
 
   const showPasscode = !!passcodeMode && !passcodeVerified;
   const showMainApp =
-    isConnected &&
-    isTrustWallet &&
-    user?.status === "active" &&
-    passcodeVerified;
+    isConnected && user?.status === "active" && passcodeVerified;
   const showChatBtn = showMainApp || showPasscode;
 
   return (
-    /* ── root: always dark so no white flash ── */
     <div style={{ background: "#0a0a0f", minHeight: "100vh" }}>
       <style>{`
         body { background: #0a0a0f !important; }
