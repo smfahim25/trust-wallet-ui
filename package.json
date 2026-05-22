@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@tanstack/react-query": "^5.100.10",
+    "@walletconnect/ethereum-provider": "^2.23.9",
+    "@walletconnect/modal": "^2.7.0",
     "axios": "^1.7.3",
     "chart.js": "^4.4.3",
     "chartjs": "^0.3.24",
@@ -19,13 +22,15 @@
     "react-toastify": "^10.0.5",
     "recharts": "^3.8.1",
     "socket.io-client": "^4.7.5",
+    "viem": "^2.28.3",
+    "wagmi": "^2.14.16",
     "web-vitals": "^2.1.4",
     "web3": "^4.11.1",
     "zustand": "^4.5.5"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

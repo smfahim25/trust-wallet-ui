@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Web3 from "web3";
 import "./App.css";
 import Home from "./Components/Home/Home";
 import GuestHome from "./Components/GuestHome/GuestHome";
@@ -42,11 +41,11 @@ import InlineLiveChat from "./Components/ChatComponent/InlineLivechat";
 import ChangePasscode from "./Components/Passcode/ChangePasscode";
 import AboutUs from "./Components/Settings/About";
 
-const WALLET_DETECT_TIMEOUT = 5000;
-const WALLET_RETRY_INTERVAL = 300;
 const SESSION_KEY = "passcode_verified";
-const LOCK_TIMEOUT_MS = 3000; // FIX 1: was 0, now 3s grace so TW injection doesn't instantly lock
+const LOCK_TIMEOUT_MS = 0;
+const PROJECT_ID = "80efe509de22880bafe173de2d48ab94";
 
+// ─── ContactMenuOption ────────────────────────────────────────────────────────
 const ContactMenuOption = ({ href, icon, label, sublabel, gradient }) => {
   if (!href) return null;
   return (
@@ -103,12 +102,12 @@ const ContactMenuOption = ({ href, icon, label, sublabel, gradient }) => {
   );
 };
 
+// ─── DraggableChatButton ──────────────────────────────────────────────────────
 const DraggableChatButton = ({ user, isPasscodeScreen }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const btnRef = useRef(null);
   const menuRef = useRef(null);
-
   const [showMenu, setShowMenu] = useState(false);
   const [showInlineChat, setShowInlineChat] = useState(false);
   const [pos, setPos] = useState({
@@ -116,7 +115,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
     y: window.innerHeight - 120,
   });
   const [dragging, setDragging] = useState(false);
-
   const dragStart = useRef({ x: 0, y: 0 });
   const touchStart = useRef({ x: 0, y: 0 });
   const posRef = useRef(pos);
@@ -222,7 +220,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
       {showInlineChat && user && (
         <InlineLiveChat user={user} onClose={() => setShowInlineChat(false)} />
       )}
-
       <div ref={btnRef}>
         {showMenu && (
           <div
@@ -245,8 +242,7 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
                 width: 250,
                 background: "#111118",
                 borderRadius: 24,
-                boxShadow:
-                  "0 20px 60px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.3)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
                 overflow: "hidden",
                 border: "1px solid rgba(255,255,255,0.07)",
               }}
@@ -311,7 +307,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
                   <IoClose size={14} />
                 </button>
               </div>
-
               <div style={{ padding: "8px 4px" }}>
                 <button
                   onClick={handleLiveChatClick}
@@ -379,7 +374,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
                     </p>
                   </div>
                 </button>
-
                 <ContactMenuOption
                   href={window.__whatsapp}
                   icon={<FaWhatsapp size={18} />}
@@ -396,7 +390,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
                 />
               </div>
             </div>
-
             <div
               style={{
                 display: "flex",
@@ -417,7 +410,6 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
             </div>
           </div>
         )}
-
         <div
           data-chat-button="true"
           onMouseDown={handleMouseDown}
@@ -481,6 +473,7 @@ const DraggableChatButton = ({ user, isPasscodeScreen }) => {
   );
 };
 
+// ─── App ──────────────────────────────────────────────────────────────────────
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
@@ -491,15 +484,21 @@ function App() {
     () => sessionStorage.getItem(SESSION_KEY) === "true",
   );
 
-  const web3Ref = useRef(null);
-  const retryTimerRef = useRef(null);
-  const hasConnectedRef = useRef(false);
   const lockTimerRef = useRef(null);
+  const wcProviderRef = useRef(null);
+
+  const manualConnectRef = useRef(false);
+  const hasConnectedRef = useRef(false);
+  const connectingRef = useRef(false);
+  const autoConnectFiredRef = useRef(false);
+  const accountReadyCalledRef = useRef(false);
+  const userInitializedRef = useRef(false);
 
   const { setUser, user, loading, setLoading } = useUser();
   const { setSelectedConversation, setMessages } = useConversation();
   useListenMessages();
 
+  // ─── Load WhatsApp / Telegram settings ─────────────────────────────────────
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -513,6 +512,7 @@ function App() {
     loadSettings();
   }, []);
 
+  // ─── App-lock on visibility change / page hide ──────────────────────────────
   useEffect(() => {
     window.__cameraActive = false;
     const lockApp = () => {
@@ -550,53 +550,312 @@ function App() {
     };
   }, []);
 
-  const connectWallet = useCallback(async () => {
-    if (hasConnectedRef.current) return;
+  const handleWalletConnected = useCallback((addr) => {
+    hasConnectedRef.current = true;
+    userInitializedRef.current = false;
+    accountReadyCalledRef.current = false;
+    connectingRef.current = false;
+    setAccount(addr);
+    setIsConnected(true);
+    setIsTrustWallet(true);
+  }, []);
+
+  const runEthereumConnect = useCallback(async () => {
+    // HARD LOCK
+    if (
+      connectingRef.current ||
+      hasConnectedRef.current ||
+      window.__wallet_connecting
+    ) {
+      return;
+    }
+
+    window.__wallet_connecting = true;
+    connectingRef.current = true;
+
     try {
+      if (!window.ethereum) return;
+
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
+
       if (!accounts?.length) return;
+
+      const addr = accounts[0];
+
       hasConnectedRef.current = true;
-      web3Ref.current = new Web3(window.ethereum);
-      setAccount(accounts[0]);
+
+      setAccount(addr);
       setIsConnected(true);
       setIsTrustWallet(true);
-    } catch (err) {
-      console.error("Wallet connect error:", err);
-      hasConnectedRef.current = false; // FIX 2: reset so retry is possible
+
+      try {
+        const result = await createMetaCtUser(
+          addr,
+          referral,
+          setUser,
+          setLoading,
+        );
+
+        if (!result) return;
+
+        if (result.verified) {
+          setMessages([]);
+          setSelectedConversation(null);
+          return;
+        }
+
+        if (!passcodeVerified) {
+          setPasscodeMode(result.has_passcode ? "verify" : "set");
+        }
+
+        setMessages([]);
+        setSelectedConversation(null);
+      } catch (err) {
+        console.error("Failed to initialize user:", err);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Wallet connect error:", error);
+    } finally {
+      connectingRef.current = false;
+
+      // DELAY unlock slightly
+      setTimeout(() => {
+        window.__wallet_connecting = false;
+      }, 1000);
     }
+  }, [
+    referral,
+    setUser,
+    setLoading,
+    setMessages,
+    setSelectedConversation,
+    passcodeVerified,
+  ]);
+
+  const connectWallet = useCallback(async () => {
+    manualConnectRef.current = true;
+    await runEthereumConnect();
+  }, [runEthereumConnect]);
+
+  // ─── connectWithWalletConnect — WalletConnect deep link for iPhone ──────────
+  const connectWithWalletConnect = useCallback(async () => {
+    if (hasConnectedRef.current) return;
+    if (connectingRef.current) return;
+    connectingRef.current = true;
+
+    try {
+      const { default: EthereumProvider } =
+        await import("@walletconnect/ethereum-provider");
+
+      const provider = await EthereumProvider.init({
+        projectId: PROJECT_ID,
+        chains: [1],
+        showQrModal: false,
+        metadata: {
+          name: "Trust Wallet App",
+          description: "Trust Wallet DApp",
+          url: window.location.origin,
+          icons: [window.location.origin + "/logo192.png"],
+        },
+      });
+
+      wcProviderRef.current = provider;
+      accountReadyCalledRef.current = false;
+
+      const onAccountReady = async (addr) => {
+        if (accountReadyCalledRef.current) return;
+        accountReadyCalledRef.current = true;
+
+        hasConnectedRef.current = true;
+        userInitializedRef.current = true;
+        setAccount(addr);
+        setIsConnected(true);
+        setIsTrustWallet(true);
+        try {
+          const result = await createMetaCtUser(
+            addr,
+            referral,
+            setUser,
+            setLoading,
+          );
+          if (!result) return;
+          if (result.verified) {
+            setMessages([]);
+            setSelectedConversation(null);
+            return;
+          }
+          if (!passcodeVerified)
+            setPasscodeMode(result.has_passcode ? "verify" : "set");
+          setMessages([]);
+          setSelectedConversation(null);
+        } catch (err) {
+          console.error("Failed to initialize user:", err);
+          setLoading(false);
+        } finally {
+          connectingRef.current = false;
+        }
+      };
+
+      const getAddrFromSession = (p) => {
+        if (p.accounts?.length) return p.accounts[0];
+        if (p.session?.namespaces) {
+          const accounts = Object.values(p.session.namespaces)
+            .flatMap((ns) => ns.accounts)
+            .map((a) => a.split(":")[2])
+            .filter(Boolean);
+          return accounts[0] || null;
+        }
+        return null;
+      };
+
+      if (provider.session) {
+        const addr = getAddrFromSession(provider);
+        if (addr) {
+          await onAccountReady(addr);
+          return;
+        }
+      }
+
+      provider.on("display_uri", (uri) => {
+        const encoded = encodeURIComponent(uri);
+        window.location.href = `trust://wc?uri=${encoded}`;
+        setTimeout(() => {
+          window.location.href = `https://link.trustwallet.com/wc?uri=${encoded}`;
+        }, 1500);
+      });
+
+      provider.on("connect", async () => {
+        await new Promise((r) => setTimeout(r, 500));
+        const addr = getAddrFromSession(provider);
+        if (addr) await onAccountReady(addr);
+      });
+
+      provider.on("accountsChanged", (accounts) => {
+        if (!accounts?.length) {
+          hasConnectedRef.current = false;
+          userInitializedRef.current = false;
+          accountReadyCalledRef.current = false;
+          connectingRef.current = false;
+          setIsConnected(false);
+          setAccount(null);
+          setIsTrustWallet(false);
+          sessionStorage.removeItem(SESSION_KEY);
+          setPasscodeVerified(false);
+          setPasscodeMode(null);
+        } else {
+          setAccount(accounts[0]);
+        }
+      });
+
+      provider.on("disconnect", () => {
+        hasConnectedRef.current = false;
+        userInitializedRef.current = false;
+        accountReadyCalledRef.current = false;
+        connectingRef.current = false;
+        setIsConnected(false);
+        setAccount(null);
+        setIsTrustWallet(false);
+        sessionStorage.removeItem(SESSION_KEY);
+        setPasscodeVerified(false);
+        setPasscodeMode(null);
+      });
+
+      await provider.connect({ chains: [1] });
+
+      const addr = getAddrFromSession(provider);
+      if (addr) await onAccountReady(addr);
+    } catch (err) {
+      console.error("WalletConnect error:", err);
+      connectingRef.current = false;
+    }
+  }, [
+    referral,
+    setUser,
+    setLoading,
+    setMessages,
+    setSelectedConversation,
+    passcodeVerified,
+  ]);
+
+  useEffect(() => {
+    if (window.ethereum) {
+      setIsTrustWallet(true);
+      window.ethereum
+        .request({ method: "eth_accounts" })
+        .then((accounts) => {
+          if (accounts?.length) {
+            // Already approved — restore silently.
+            hasConnectedRef.current = true;
+            setAccount(accounts[0]);
+            setIsConnected(true);
+          } else {
+            if (
+              !autoConnectFiredRef.current &&
+              !manualConnectRef.current &&
+              !connectingRef.current &&
+              !hasConnectedRef.current
+            ) {
+              autoConnectFiredRef.current = true;
+              runEthereumConnect();
+            }
+          }
+        })
+        .catch(() => {
+          if (
+            !autoConnectFiredRef.current &&
+            !connectingRef.current &&
+            !hasConnectedRef.current
+          ) {
+            autoConnectFiredRef.current = true;
+            runEthereumConnect();
+          }
+        });
+    } else {
+      // No injected provider — try to restore a WalletConnect session.
+      const restoreWCSession = async () => {
+        try {
+          const { default: EthereumProvider } =
+            await import("@walletconnect/ethereum-provider");
+          const provider = await EthereumProvider.init({
+            projectId: PROJECT_ID,
+            chains: [1],
+            showQrModal: false,
+            metadata: {
+              name: "Trust Wallet App",
+              description: "Trust Wallet DApp",
+              url: window.location.origin,
+              icons: [window.location.origin + "/logo192.png"],
+            },
+          });
+          wcProviderRef.current = provider;
+          if (provider.session && provider.accounts?.length) {
+            handleWalletConnected(provider.accounts[0]);
+          }
+        } catch {}
+      };
+      restoreWCSession();
+    }
+    // runEthereumConnect is stable (useCallback). handleWalletConnected is also stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const detectAndConnect = useCallback(() => {
-    if (window.ethereum) {
-      connectWallet();
-      return;
-    }
-    const start = Date.now();
-    retryTimerRef.current = setInterval(() => {
-      if (window.ethereum) {
-        clearInterval(retryTimerRef.current);
-        connectWallet();
-      } else if (Date.now() - start >= WALLET_DETECT_TIMEOUT)
-        clearInterval(retryTimerRef.current);
-    }, WALLET_RETRY_INTERVAL);
-  }, [connectWallet]);
-
-  useEffect(() => {
-    detectAndConnect();
-    const handleEthereumReady = () => {
-      if (!hasConnectedRef.current) connectWallet();
-    };
-    window.addEventListener("ethereum#initialized", handleEthereumReady);
-    return () => {
-      clearInterval(retryTimerRef.current);
-      window.removeEventListener("ethereum#initialized", handleEthereumReady);
-    };
-  }, [detectAndConnect, connectWallet]);
-
+  // ─── initializeUser useEffect ───────────────────────────────────────────────
+  //
+  // Handles user initialization ONLY for the silent session-restore path.
+  // Skipped when connectingRef or userInitializedRef are true (those flags are
+  // set by connectWallet / connectWithWalletConnect which run their own init).
+  // ───────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isConnected || !isTrustWallet || !account) return;
+    if (connectingRef.current) return;
+    if (userInitializedRef.current) {
+      userInitializedRef.current = false;
+      return;
+    }
+
     const initializeUser = async () => {
       try {
         const result = await createMetaCtUser(
@@ -621,25 +880,22 @@ function App() {
       }
     };
     initializeUser();
-  }, [
-    isConnected,
-    isTrustWallet,
-    account,
-    referral,
-    setUser,
-    setLoading,
-    setMessages,
-    setSelectedConversation,
-    passcodeVerified,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, isTrustWallet, account]);
 
+  // ─── Passcode callbacks ─────────────────────────────────────────────────────
   const handlePasscodeSuccess = useCallback(
     async (userData) => {
       sessionStorage.setItem(SESSION_KEY, "true");
       setPasscodeVerified(true);
-      setPasscodeMode(null);
+
+      // Load / apply user first, THEN clear passcodeMode.
+      // This prevents the brief window where showPasscode=false AND
+      // showMainApp=false (because user isn't active yet), which would
+      // flash the GuestHome connect screen.
       if (userData) {
         setUser(userData);
+        setPasscodeMode(null);
       } else {
         try {
           const { default: axios } = await import("axios");
@@ -650,6 +906,8 @@ function App() {
           setUser(res.data);
         } catch (err) {
           console.error("Failed to load user after passcode set:", err);
+        } finally {
+          setPasscodeMode(null);
         }
       }
       setLoading(false);
@@ -662,6 +920,7 @@ function App() {
     else console.error("Passcode error:", err);
   }, []);
 
+  // ─── Derived display flags ──────────────────────────────────────────────────
   const showPasscode = !!passcodeMode && !passcodeVerified;
   const showMainApp =
     isConnected &&
@@ -669,6 +928,21 @@ function App() {
     user?.status === "active" &&
     passcodeVerified;
   const showChatBtn = showMainApp || showPasscode;
+
+  // ─── Stable connect wrappers ────────────────────────────────────────────────
+  //
+  // Store latest function versions in refs and expose stable wrappers so
+  // GuestHome always gets the same function identity across renders.
+  // ───────────────────────────────────────────────────────────────────────────
+  const connectWalletRef = useRef(connectWallet);
+  connectWalletRef.current = connectWallet;
+  const connectWithWalletConnectRef = useRef(connectWithWalletConnect);
+  connectWithWalletConnectRef.current = connectWithWalletConnect;
+
+  const stableConnectWallet = useRef(() => connectWalletRef.current()).current;
+  const stableConnectWC = useRef(() =>
+    connectWithWalletConnectRef.current(),
+  ).current;
 
   return (
     <div style={{ background: "#0a0a0f", minHeight: "100vh" }}>
@@ -726,9 +1000,21 @@ function App() {
             <Route path="/*" element={<NotFound />} />
           </Routes>
         ) : (
-          !showPasscode && (
+          // ── FIX 1: Guard with !isConnected so GuestHome never shows after ──
+          // ── wallet connects (even during the async createMetaCtUser gap).  ──
+          !showPasscode &&
+          !isConnected && (
             <Routes>
-              <Route path="/" element={<GuestHome />} />
+              <Route
+                path="/"
+                element={
+                  <GuestHome
+                    onConnect={
+                      window.ethereum ? stableConnectWallet : stableConnectWC
+                    }
+                  />
+                }
+              />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route
                 path="/panel/*"
@@ -747,7 +1033,6 @@ function App() {
       {showChatBtn && (
         <DraggableChatButton user={user} isPasscodeScreen={showPasscode} />
       )}
-
       <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
